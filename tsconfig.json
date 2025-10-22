@@ -13,7 +13,14 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["bun-types"]
+    "types": ["bun-types", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@nodes/*": ["nodes/*"],
+      "@credentials/*": ["credentials/*"],
+      "@services/*": ["src/services/*"],
+      "@tests/*": ["tests/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]
