@@ -4,7 +4,7 @@
   "module": "index.ts",
   "private": true,
   "scripts": {
-    "build": "bun build ./index.ts --outdir dist",
+    "build": "bun x tsc",
     "lint": "eslint --ext .ts,.tsx --max-warnings 0 .",
     "test": "bun test",
     "typecheck": "bun x tsc --noEmit"

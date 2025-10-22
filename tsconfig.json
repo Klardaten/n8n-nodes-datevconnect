@@ -5,11 +5,9 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "lib": ["ESNext", "DOM"],
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,8 +18,14 @@
       "@credentials/*": ["credentials/*"],
       "@services/*": ["src/services/*"],
       "@tests/*": ["tests/*"]
-    }
+    },
+    "outDir": "./dist",
+    "rootDir": "."
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "credentials/**/*.ts",
+    "nodes/**/*.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "tests"]
 }
