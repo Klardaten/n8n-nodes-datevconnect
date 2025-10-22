@@ -1,0 +1,9 @@
+logLevel = "warn"
+
+[install]
+exact = true
+saveTextLockfile = true
+
+[test]
+root = "tests"
+coverageSkipTestFiles = true
