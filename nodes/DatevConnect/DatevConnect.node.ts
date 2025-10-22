@@ -1,11 +1,12 @@
-import type { IExecuteFunctions } from "n8n-core";
 import {
   NodeApiError,
   NodeOperationError,
   type IDataObject,
+  type IExecuteFunctions,
   type INodeExecutionData,
   type INodeType,
   type INodeTypeDescription,
+  type JsonObject,
 } from "n8n-workflow";
 
 import {
@@ -13,6 +14,32 @@ import {
   fetchClients,
   type JsonValue,
 } from "../../src/services/datevConnectClient";
+
+export const clientApi = {
+  authenticate,
+  fetchClients,
+};
+
+function toErrorObject(error: unknown): JsonObject {
+  if (error && typeof error === "object") {
+    return error as JsonObject;
+  }
+
+  const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
+  return { message } satisfies JsonObject;
+}
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (error === null || error === undefined) {
+    return "Unknown error";
+  }
+
+  return typeof error === "string" ? error : JSON.stringify(error);
+}
 
 function normaliseToObjects(data: JsonValue): IDataObject[] {
   if (Array.isArray(data)) {
@@ -145,7 +172,7 @@ export class DatevConnect implements INodeType {
     let token: string;
 
     try {
-      const authResponse = await authenticate({
+      const authResponse = await clientApi.authenticate({
         host,
         email,
         password,
@@ -153,7 +180,7 @@ export class DatevConnect implements INodeType {
       });
       token = authResponse.token;
     } catch (error) {
-      throw new NodeApiError(this.getNode(), error);
+      throw new NodeApiError(this.getNode(), toErrorObject(error));
     }
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
@@ -172,7 +199,7 @@ export class DatevConnect implements INodeType {
       const skip = this.getNodeParameter("skip", itemIndex, 0) as number;
 
       try {
-        const response = await fetchClients({
+        const response = await clientApi.fetchClients({
           host,
           token,
           clientInstanceId,
@@ -190,14 +217,14 @@ export class DatevConnect implements INodeType {
         if (this.continueOnFail()) {
           returnData.push({
             json: {
-              error: error instanceof Error ? error.message : error,
+              error: toErrorMessage(error),
             },
             pairedItem: { item: itemIndex },
           });
           continue;
         }
 
-        throw new NodeApiError(this.getNode(), error, { itemIndex });
+        throw new NodeApiError(this.getNode(), toErrorObject(error), { itemIndex });
       }
     }
 

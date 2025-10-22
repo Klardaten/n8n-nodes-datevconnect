@@ -7,3 +7,5 @@ saveTextLockfile = true
 [test]
 root = "tests"
 coverageSkipTestFiles = true
+preload = ["./tests/setup.ts"]
+tsconfig = "tsconfig.json"
