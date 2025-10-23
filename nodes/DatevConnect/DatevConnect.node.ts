@@ -176,7 +176,6 @@ export class DatevConnect implements INodeType {
         host,
         email,
         password,
-        clientInstanceId,
       });
       token = authResponse.access_token;
     } catch (error) {
