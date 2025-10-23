@@ -110,7 +110,7 @@ async function ensureSuccess(response: Response): Promise<JsonValue | undefined>
 }
 
 export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
-  const { host, email, password, clientInstanceId, fetchImpl = fetch } = options;
+  const { host, email, password, fetchImpl = fetch } = options;
   const baseUrl = normaliseBaseUrl(host);
   const url = new URL("api/auth/login", baseUrl);
 
