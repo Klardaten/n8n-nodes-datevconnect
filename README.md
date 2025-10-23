@@ -1,6 +1,6 @@
 # n8n DATEV Connect Master Data
 
-This repository provides custom n8n nodes for integrating with the DATEV Unternehmen Online (DUO) Master Data API. The nodes allow you to automate the retrieval and synchronization of master data between DATEV and other systems through n8n workflows.
+This repository provides custom n8n nodes for integrating with the DATEVconnect Master Data API. The nodes allow you to automate the retrieval and synchronization of master data between DATEV and other systems through n8n workflows.
 
 ## Project Overview
 
@@ -15,7 +15,7 @@ The project contains the following key components:
 
 | Node | Description |
 | ---- | ----------- |
-| `DATEVMasterData` | Fetches master data entities from DATEV DUO using the configured credentials. |
+| `DATEVMasterData` | Fetches master data entities from DATEV using the configured credentials. |
 
 Refer to the node descriptions inside the n8n editor for input parameters and output structure.
 
@@ -67,7 +67,7 @@ bun test
 3. Select the desired operation (e.g., list master data entries) and configure any filters.
 4. Execute the workflow or schedule it as part of a larger automation.
 
-The node will authenticate using the stored credentials and interact with the DATEV DUO API to retrieve the requested master data.
+The node will authenticate using the stored credentials and interact with the DATEVconnect API to retrieve the requested master data.
 
 ## Additional Notes
 
