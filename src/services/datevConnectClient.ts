@@ -133,7 +133,7 @@ export async function authenticate(options: AuthenticateOptions): Promise<Authen
 export async function fetchClients(options: FetchClientsOptions): Promise<JsonValue> {
   const { host, token, clientInstanceId, top, skip, fetchImpl = fetch } = options;
   const baseUrl = normaliseBaseUrl(host);
-  const url = new URL("api/clients", baseUrl);
+  const url = new URL("datevconnect/master-data/v1/clients", baseUrl);
 
   if (typeof top === "number") {
     url.searchParams.set("top", top.toString());
