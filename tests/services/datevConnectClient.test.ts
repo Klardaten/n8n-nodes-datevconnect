@@ -26,6 +26,10 @@ import {
   fetchClientGroupType,
   createClientGroupType,
   updateClientGroupType,
+  fetchClientCategoryTypes,
+  fetchClientCategoryType,
+  createClientCategoryType,
+  updateClientCategoryType,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -55,6 +59,10 @@ import {
   type FetchClientGroupTypeOptions,
   type CreateClientGroupTypeOptions,
   type UpdateClientGroupTypeOptions,
+  type FetchClientCategoryTypesOptions,
+  type FetchClientCategoryTypeOptions,
+  type CreateClientCategoryTypeOptions,
+  type UpdateClientCategoryTypeOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -1243,6 +1251,192 @@ describe("updateClientGroupType", () => {
       short_name: "TGT-UPD",
       name: "Updated Test Group Type",
       note: "Updated test group type for unit tests"
+    });
+  });
+});
+
+describe("fetchClientCategoryTypes", () => {
+  test("requests client category types with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+          short_name: "TCT",
+          note: "Test category type for unit tests"
+        },
+        {
+          id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
+          name: "Another Category Type",
+          short_name: "ACT"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchClientCategoryTypesOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name,short_name",
+      filter: "startswith(name, 'Test')",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchClientCategoryTypes(options);
+
+    expect(response).toEqual([
+      {
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Test Category Type",
+        short_name: "TCT",
+        note: "Test category type for unit tests"
+      },
+      {
+        id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
+        name: "Another Category Type",
+        short_name: "ACT"
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types");
+    expect(url.searchParams.get("select")).toBe("id,name,short_name");
+    expect(url.searchParams.get("filter")).toBe("startswith(name, 'Test')");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchClientCategoryType", () => {
+  test("requests specific client category type with select parameter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Test Category Type",
+        short_name: "TCT",
+        note: "Test category type for unit tests"
+      }, { status: 200 });
+    });
+
+    const options: FetchClientCategoryTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188",
+      select: "id,name,short_name",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchClientCategoryType(options);
+
+    expect(response).toEqual({
+      id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+      name: "Test Category Type",
+      short_name: "TCT",
+      note: "Test category type for unit tests"
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188");
+    expect(url.searchParams.get("select")).toBe("id,name,short_name");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("createClientCategoryType", () => {
+  test("creates client category type with data", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return new Response(null, { status: 204 });
+    });
+
+    const options: CreateClientCategoryTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientCategoryType: {
+        short_name: "TCT",
+        name: "Test Category Type",
+        note: "Test category type for unit tests"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await createClientCategoryType(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      short_name: "TCT",
+      name: "Test Category Type",
+      note: "Test category type for unit tests"
+    });
+  });
+});
+
+describe("updateClientCategoryType", () => {
+  test("updates client category type by id", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return new Response(null, { status: 204 });
+    });
+
+    const options: UpdateClientCategoryTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188",
+      clientCategoryType: {
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        short_name: "TCT-UPD",
+        name: "Updated Test Category Type",
+        note: "Updated test category type for unit tests"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await updateClientCategoryType(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188");
+    expect(init?.method).toBe("PUT");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+      short_name: "TCT-UPD",
+      name: "Updated Test Category Type",
+      note: "Updated test category type for unit tests"
     });
   });
 });

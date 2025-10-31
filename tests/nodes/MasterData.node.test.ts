@@ -8,6 +8,7 @@ import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/Rel
 import { EmployeeResourceHandler } from "../../nodes/MasterData/handlers/EmployeeResourceHandler";
 import { CountryCodeResourceHandler } from "../../nodes/MasterData/handlers/CountryCodeResourceHandler";
 import { ClientGroupTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientGroupTypeResourceHandler";
+import { ClientCategoryTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientCategoryTypeResourceHandler";
 
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
@@ -398,6 +399,32 @@ describe("MasterData node integration", () => {
 
       clientHandlerSpy.mockRestore();
       taxAuthorityHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for clientCategoryType resource", async () => {
+      const clientCategoryTypeHandlerSpy = spyOn(ClientCategoryTypeResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "clientCategoryType",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(clientCategoryTypeHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      clientCategoryTypeHandlerSpy.mockRestore();
     });
   });
 });

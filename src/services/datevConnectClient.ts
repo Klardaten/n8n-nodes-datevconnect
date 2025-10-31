@@ -168,6 +168,25 @@ export interface UpdateClientGroupTypeOptions extends BaseRequestOptions {
   clientGroupType: JsonValue;
 }
 
+export interface FetchClientCategoryTypesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchClientCategoryTypeOptions extends BaseRequestOptions {
+  clientCategoryTypeId: string;
+  select?: string;
+}
+
+export interface CreateClientCategoryTypeOptions extends BaseRequestOptions {
+  clientCategoryType: JsonValue;
+}
+
+export interface UpdateClientCategoryTypeOptions extends BaseRequestOptions {
+  clientCategoryTypeId: string;
+  clientCategoryType: JsonValue;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -283,6 +302,7 @@ const CORPORATE_STRUCTURES_PATH = `${MASTER_DATA_BASE_PATH}/corporate-structures
 const EMPLOYEES_PATH = `${MASTER_DATA_BASE_PATH}/employees`;
 const COUNTRY_CODES_PATH = `${MASTER_DATA_BASE_PATH}/country-codes`;
 const CLIENT_GROUP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-group-types`;
+const CLIENT_CATEGORY_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-category-types`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -834,6 +854,71 @@ export async function updateClientGroupType(options: UpdateClientGroupTypeOption
     path: `${CLIENT_GROUP_TYPES_PATH}/${clientGroupTypeId}`,
     method: "PUT",
     body: clientGroupType,
+  });
+
+  return body;
+}
+
+export async function fetchClientCategoryTypes(options: FetchClientCategoryTypesOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: CLIENT_CATEGORY_TYPES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client category types payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchClientCategoryType(options: FetchClientCategoryTypeOptions): Promise<JsonValue> {
+  const { clientCategoryTypeId, select } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CLIENT_CATEGORY_TYPES_PATH}/${clientCategoryTypeId}`,
+    method: "GET",
+    query: {
+      select,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client category type payload.`);
+  }
+
+  return body;
+}
+
+export async function createClientCategoryType(options: CreateClientCategoryTypeOptions): Promise<JsonValue | undefined> {
+  const { clientCategoryType } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: CLIENT_CATEGORY_TYPES_PATH,
+    method: "POST",
+    body: clientCategoryType,
+  });
+
+  return body;
+}
+
+export async function updateClientCategoryType(options: UpdateClientCategoryTypeOptions): Promise<JsonValue | undefined> {
+  const { clientCategoryTypeId, clientCategoryType } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CLIENT_CATEGORY_TYPES_PATH}/${clientCategoryTypeId}`,
+    method: "PUT",
+    body: clientCategoryType,
   });
 
   return body;

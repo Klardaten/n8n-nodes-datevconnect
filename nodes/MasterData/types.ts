@@ -144,9 +144,30 @@ export interface UpdateClientGroupTypeParams extends ClientGroupTypeOperationPar
 }
 
 /**
+ * Parameters for client category type-specific operations
+ */
+export interface ClientCategoryTypeOperationParams extends BaseOperationParams {
+  clientCategoryTypeId: string;
+}
+
+/**
+ * Parameters for client category type creation
+ */
+export interface CreateClientCategoryTypeParams {
+  clientCategoryTypeData: JsonValue;
+}
+
+/**
+ * Parameters for client category type updates
+ */
+export interface UpdateClientCategoryTypeParams extends ClientCategoryTypeOperationParams {
+  clientCategoryTypeData: JsonValue;
+}
+
+/**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType";
 
 /**
  * Supported client operations
@@ -201,9 +222,14 @@ export type CountryCodeOperation = "getAll";
 export type ClientGroupTypeOperation = "getAll" | "get" | "create" | "update";
 
 /**
+ * Supported client category type operations
+ */
+export type ClientCategoryTypeOperation = "getAll" | "get" | "create" | "update";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation;
 
 /**
  * Success response format
