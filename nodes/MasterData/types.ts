@@ -104,7 +104,7 @@ export interface EstablishmentOperationParams extends CorporateStructureOperatio
 /**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "relationshipType" | "legalForm" | "corporateStructure";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure";
 
 /**
  * Supported client operations
@@ -131,12 +131,7 @@ export type TaxAuthorityOperation = "getAll";
 /**
  * Supported relationship operations
  */
-export type RelationshipOperation = "getAll";
-
-/**
- * Supported relationship type operations
- */
-export type RelationshipTypeOperation = "getAll";
+export type RelationshipOperation = "getAll" | "getTypes";
 
 /**
  * Supported legal form operations
@@ -151,7 +146,7 @@ export type CorporateStructureOperation = "getAll" | "get" | "getEstablishment";
 /**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | RelationshipTypeOperation | LegalFormOperation | CorporateStructureOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation;
 
 /**
  * Success response format

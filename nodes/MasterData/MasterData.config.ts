@@ -40,10 +40,6 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           value: "relationship",
         },
         {
-          name: "Relationship Type",
-          value: "relationshipType",
-        },
-        {
           name: "Legal Form",
           value: "legalForm",
         },
@@ -174,28 +170,16 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           description: "Retrieve a list of relationships",
           action: "Get many relationships",
         },
-      ],
-      default: "getAll",
-    },
-    {
-      displayName: "Operation",
-      name: "operation",
-      type: "options",
-      displayOptions: {
-        show: {
-          resource: ["relationshipType"],
-        },
-      },
-      options: [
         {
-          name: "Get Many",
-          value: "getAll",
+          name: "Get Types",
+          value: "getTypes",
           description: "Retrieve a list of relationship types",
-          action: "Get many relationship types",
+          action: "Get relationship types",
         },
       ],
       default: "getAll",
     },
+
     {
       displayName: "Operation",
       name: "operation",
@@ -284,7 +268,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "relationshipType", "legalForm", "corporateStructure"],
+          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure"],
           operation: [
             "getAll",
             "get",
@@ -293,6 +277,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
             "getClientGroups",
             "getDeletionLog",
             "getEstablishment",
+            "getTypes",
           ],
         },
       },
@@ -305,8 +290,8 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "relationshipType", "corporateStructure"],
-          operation: ["getAll", "getDeletionLog"],
+          resource: ["client", "taxAuthority", "relationship", "corporateStructure"],
+          operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },
       default: "",

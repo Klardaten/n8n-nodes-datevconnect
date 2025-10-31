@@ -6,6 +6,7 @@ import * as datevConnectClientModule from "../../../../src/services/datevConnect
 
 // Test spies
 let fetchRelationshipsSpy: any;
+let fetchRelationshipTypesSpy: any;
 
 // Mock IExecuteFunctions
 const createMockContext = (overrides: any = {}) => ({
@@ -45,10 +46,12 @@ const mockAuthContext: AuthContext = {
 describe("RelationshipResourceHandler", () => {
   beforeEach(() => {
     fetchRelationshipsSpy = spyOn(datevConnectClientModule, "fetchRelationships").mockResolvedValue([]);
+    fetchRelationshipTypesSpy = spyOn(datevConnectClientModule, "fetchRelationshipTypes").mockResolvedValue([]);
   });
 
   afterEach(() => {
     fetchRelationshipsSpy?.mockRestore();
+    fetchRelationshipTypesSpy?.mockRestore();
   });
 
   describe("getAll operation", () => {
@@ -112,6 +115,70 @@ describe("RelationshipResourceHandler", () => {
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({ id: "1", type: "business" });
+    });
+  });
+
+  describe("getTypes operation", () => {
+    test("fetches relationship types with parameters", async () => {
+      const mockRelationshipTypes = [
+        { id: "1", name: "Business Partner", category: "business" },
+        { id: "2", name: "Employee", category: "employment" },
+      ];
+      fetchRelationshipTypesSpy.mockResolvedValueOnce(mockRelationshipTypes);
+
+      const context = createMockContext();
+      const handler = new RelationshipResourceHandler(context as any, 0);
+      const returnData: any[] = [];
+
+      await handler.execute("getTypes", mockAuthContext, returnData);
+
+      expect(fetchRelationshipTypesSpy).toHaveBeenCalledWith({
+        ...mockAuthContext,
+        select: "id,type,status",
+        filter: "status eq active",
+      });
+
+      expect(returnData).toHaveLength(2);
+      expect(returnData[0].json).toEqual({ id: "1", name: "Business Partner", category: "business" });
+      expect(returnData[1].json).toEqual({ id: "2", name: "Employee", category: "employment" });
+    });
+
+    test("handles empty results for getTypes", async () => {
+      fetchRelationshipTypesSpy.mockResolvedValueOnce([]);
+
+      const context = createMockContext();
+      const handler = new RelationshipResourceHandler(context as any, 0);
+      const returnData: any[] = [];
+
+      await handler.execute("getTypes", mockAuthContext, returnData);
+
+      expect(fetchRelationshipTypesSpy).toHaveBeenCalled();
+      expect(returnData).toHaveLength(0);
+    });
+
+    test("handles parameters with default values for getTypes", async () => {
+      const mockRelationshipTypes = [{ id: "1", name: "Manager" }];
+      fetchRelationshipTypesSpy.mockResolvedValueOnce(mockRelationshipTypes);
+
+      const context = createMockContext({
+        parameters: {
+          select: undefined,
+          filter: undefined,
+        },
+      });
+      const handler = new RelationshipResourceHandler(context as any, 0);
+      const returnData: any[] = [];
+
+      await handler.execute("getTypes", mockAuthContext, returnData);
+
+      expect(fetchRelationshipTypesSpy).toHaveBeenCalledWith({
+        ...mockAuthContext,
+        select: undefined,
+        filter: undefined,
+      });
+
+      expect(returnData).toHaveLength(1);
+      expect(returnData[0].json).toEqual({ id: "1", name: "Manager" });
     });
   });
 

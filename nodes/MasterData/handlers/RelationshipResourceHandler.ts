@@ -1,5 +1,5 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { type JsonValue, fetchRelationships } from "../../../src/services/datevConnectClient";
+import { type JsonValue, fetchRelationships, fetchRelationshipTypes } from "../../../src/services/datevConnectClient";
 import type { AuthContext, RelationshipOperation } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -21,6 +21,9 @@ export class RelationshipResourceHandler extends BaseResourceHandler {
         case "getAll":
           response = await this.handleGetAll(authContext);
           break;
+        case "getTypes":
+          response = await this.handleGetTypes(authContext);
+          break;
         default:
           throw new NodeOperationError(
             this.context.getNode(),
@@ -40,6 +43,17 @@ export class RelationshipResourceHandler extends BaseResourceHandler {
     const filter = this.getOptionalString("filter");
 
     return await fetchRelationships({
+      ...authContext,
+      select,
+      filter,
+    });
+  }
+
+  private async handleGetTypes(authContext: AuthContext): Promise<JsonValue> {
+    const select = this.getOptionalString("select");
+    const filter = this.getOptionalString("filter");
+
+    return await fetchRelationshipTypes({
       ...authContext,
       select,
       filter,

@@ -12,7 +12,6 @@ import { masterDataNodeDescription } from "./MasterData.config";
 import { ClientResourceHandler } from "./handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "./handlers/TaxAuthorityResourceHandler";
 import { RelationshipResourceHandler } from "./handlers/RelationshipResourceHandler";
-import { RelationshipTypeResourceHandler } from "./handlers/RelationshipTypeResourceHandler";
 import { LegalFormResourceHandler } from "./handlers/LegalFormResourceHandler";
 import { CorporateStructureResourceHandler } from "./handlers/CorporateStructureResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
@@ -76,9 +75,6 @@ export class MasterData implements INodeType {
           break;
         case "relationship":
           handler = new RelationshipResourceHandler(this, itemIndex);
-          break;
-        case "relationshipType":
-          handler = new RelationshipTypeResourceHandler(this, itemIndex);
           break;
         case "legalForm":
           handler = new LegalFormResourceHandler(this, itemIndex);
