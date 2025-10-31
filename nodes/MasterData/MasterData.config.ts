@@ -47,6 +47,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           name: "Corporate Structure",
           value: "corporateStructure",
         },
+        {
+          name: "Employee",
+          value: "employee",
+        },
       ],
       default: "client",
     },
@@ -231,6 +235,43 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "getAll",
     },
     {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["employee"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of employees",
+          action: "Get many employees",
+        },
+        {
+          name: "Get",
+          value: "get",
+          description: "Retrieve a specific employee",
+          action: "Get an employee",
+        },
+        {
+          name: "Create",
+          value: "create",
+          description: "Create a new employee",
+          action: "Create an employee",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Update a specific employee",
+          action: "Update an employee",
+        },
+      ],
+      default: "getAll",
+    },
+    {
       displayName: "Limit",
       name: "top",
       type: "number",
@@ -268,7 +309,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure"],
+          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee"],
           operation: [
             "getAll",
             "get",
@@ -290,7 +331,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "corporateStructure"],
+          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee"],
           operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },
@@ -469,6 +510,33 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       },
       default: "",
       description: "The GUID of the establishment",
+    },
+    {
+      displayName: "Employee ID",
+      name: "employeeId",
+      type: "string",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["employee"],
+          operation: ["get", "update"],
+        },
+      },
+      default: "",
+      description: "The GUID of the employee",
+    },
+    {
+      displayName: "Employee Data",
+      name: "employeeData",
+      type: "json",
+      displayOptions: {
+        show: {
+          resource: ["employee"],
+          operation: ["create", "update"],
+        },
+      },
+      default: "{}",
+      description: "Employee payload to send to the API",
     },
   ],
 };

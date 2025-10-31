@@ -102,9 +102,30 @@ export interface EstablishmentOperationParams extends CorporateStructureOperatio
 }
 
 /**
+ * Parameters for employee-specific operations
+ */
+export interface EmployeeOperationParams extends BaseOperationParams {
+  employeeId: string;
+}
+
+/**
+ * Parameters for employee creation
+ */
+export interface CreateEmployeeParams {
+  employeeData: JsonValue;
+}
+
+/**
+ * Parameters for employee updates
+ */
+export interface UpdateEmployeeParams extends EmployeeOperationParams {
+  employeeData: JsonValue;
+}
+
+/**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee";
 
 /**
  * Supported client operations
@@ -144,9 +165,14 @@ export type LegalFormOperation = "getAll";
 export type CorporateStructureOperation = "getAll" | "get" | "getEstablishment";
 
 /**
+ * Supported employee operations
+ */
+export type EmployeeOperation = "getAll" | "get" | "create" | "update";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation;
 
 /**
  * Success response format

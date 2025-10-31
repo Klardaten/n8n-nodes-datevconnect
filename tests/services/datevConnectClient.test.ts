@@ -17,6 +17,10 @@ import {
   fetchCorporateStructures,
   fetchCorporateStructure,
   fetchEstablishment,
+  fetchEmployees,
+  fetchEmployee,
+  createEmployee,
+  updateEmployee,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -37,6 +41,10 @@ import {
   type FetchCorporateStructuresOptions,
   type FetchCorporateStructureOptions,
   type FetchEstablishmentOptions,
+  type FetchEmployeesOptions,
+  type FetchEmployeeOptions,
+  type CreateEmployeeOptions,
+  type UpdateEmployeeOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -805,5 +813,191 @@ describe("fetchEstablishment", () => {
     expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180/establishments/h63f9c3g-380c-494e-97c8-d12fff738180");
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchEmployees", () => {
+  test("requests employees with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+          display_name: "Mustermeier, Sonja",
+          email: "sonja.mustermeier@musterkanzlei.de",
+          number: 10000,
+          status: "active"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchEmployeesOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,display_name,email",
+      filter: "status eq active",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchEmployees(options);
+
+    expect(response).toEqual([
+      {
+        id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+        display_name: "Mustermeier, Sonja",
+        email: "sonja.mustermeier@musterkanzlei.de",
+        number: 10000,
+        status: "active"
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees");
+    expect(url.searchParams.get("select")).toBe("id,display_name,email");
+    expect(url.searchParams.get("filter")).toBe("status eq active");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchEmployee", () => {
+  test("requests specific employee with select parameter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({
+        id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+        display_name: "Mustermeier, Sonja",
+        email: "sonja.mustermeier@musterkanzlei.de",
+        number: 10000,
+        status: "active"
+      }, { status: 200 });
+    });
+
+    const options: FetchEmployeeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      employeeId: "e23f9c3c-380c-494e-97c8-d12fff738189",
+      select: "id,display_name,email",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchEmployee(options);
+
+    expect(response).toEqual({
+      id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+      display_name: "Mustermeier, Sonja",
+      email: "sonja.mustermeier@musterkanzlei.de",
+      number: 10000,
+      status: "active"
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189");
+    expect(url.searchParams.get("select")).toBe("id,display_name,email");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("createEmployee", () => {
+  test("creates employee with employee data", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse(undefined, { 
+        status: 204,
+        headers: {
+          "Link": "</datevconnect/master-data/v1/employees/new-employee-id>; rel=self"
+        }
+      });
+    });
+
+    const options: CreateEmployeeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      employee: {
+        display_name: "New Employee",
+        email: "new.employee@example.com",
+        natural_person_id: "person-guid-123"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await createEmployee(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      display_name: "New Employee",
+      email: "new.employee@example.com",
+      natural_person_id: "person-guid-123"
+    });
+  });
+});
+
+describe("updateEmployee", () => {
+  test("updates employee by id", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse(undefined, { 
+        status: 204,
+        headers: {
+          "Link": "</datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189>; rel=self"
+        }
+      });
+    });
+
+    const options: UpdateEmployeeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      employeeId: "e23f9c3c-380c-494e-97c8-d12fff738189",
+      employee: {
+        display_name: "Updated Employee Name",
+        email: "updated.email@example.com"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await updateEmployee(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189");
+    expect(init?.method).toBe("PUT");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      display_name: "Updated Employee Name",
+      email: "updated.email@example.com"
+    });
   });
 });

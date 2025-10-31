@@ -14,6 +14,7 @@ import { TaxAuthorityResourceHandler } from "./handlers/TaxAuthorityResourceHand
 import { RelationshipResourceHandler } from "./handlers/RelationshipResourceHandler";
 import { LegalFormResourceHandler } from "./handlers/LegalFormResourceHandler";
 import { CorporateStructureResourceHandler } from "./handlers/CorporateStructureResourceHandler";
+import { EmployeeResourceHandler } from "./handlers/EmployeeResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
 import { toErrorObject } from "./utils";
 import type { Resource, MasterDataCredentials } from "./types";
@@ -81,6 +82,9 @@ export class MasterData implements INodeType {
           break;
         case "corporateStructure":
           handler = new CorporateStructureResourceHandler(this, itemIndex);
+          break;
+        case "employee":
+          handler = new EmployeeResourceHandler(this, itemIndex);
           break;
         default:
           throw new NodeOperationError(

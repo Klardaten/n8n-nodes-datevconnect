@@ -125,6 +125,25 @@ export interface FetchEstablishmentOptions extends BaseRequestOptions {
   select?: string;
 }
 
+export interface FetchEmployeesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchEmployeeOptions extends BaseRequestOptions {
+  employeeId: string;
+  select?: string;
+}
+
+export interface CreateEmployeeOptions extends BaseRequestOptions {
+  employee: JsonValue;
+}
+
+export interface UpdateEmployeeOptions extends BaseRequestOptions {
+  employeeId: string;
+  employee: JsonValue;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -237,6 +256,7 @@ const RELATIONSHIPS_PATH = `${MASTER_DATA_BASE_PATH}/relationships`;
 const RELATIONSHIP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/relationship-types`;
 const LEGAL_FORMS_PATH = `${MASTER_DATA_BASE_PATH}/legal-forms`;
 const CORPORATE_STRUCTURES_PATH = `${MASTER_DATA_BASE_PATH}/corporate-structures`;
+const EMPLOYEES_PATH = `${MASTER_DATA_BASE_PATH}/employees`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -645,4 +665,65 @@ export async function fetchEstablishment(
   }
 
   return body;
+}
+
+export async function fetchEmployees(options: FetchEmployeesOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: EMPLOYEES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected employees payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchEmployee(options: FetchEmployeeOptions): Promise<JsonValue> {
+  const { employeeId, select } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${EMPLOYEES_PATH}/${encodeURIComponent(employeeId)}`,
+    method: "GET",
+    query: {
+      select,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected employee payload.`);
+  }
+
+  return body;
+}
+
+export async function createEmployee(options: CreateEmployeeOptions): Promise<JsonValue | undefined> {
+  const { employee } = options;
+
+  return sendMasterDataRequest({
+    ...options,
+    path: EMPLOYEES_PATH,
+    method: "POST",
+    body: employee,
+  });
+}
+
+export async function updateEmployee(options: UpdateEmployeeOptions): Promise<JsonValue | undefined> {
+  const { employeeId, employee } = options;
+
+  return sendMasterDataRequest({
+    ...options,
+    path: `${EMPLOYEES_PATH}/${encodeURIComponent(employeeId)}`,
+    method: "PUT",
+    body: employee,
+  });
 }

@@ -5,6 +5,7 @@ import * as datevConnectClientModule from "../../src/services/datevConnectClient
 import { ClientResourceHandler } from "../../nodes/MasterData/handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "../../nodes/MasterData/handlers/TaxAuthorityResourceHandler";
 import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/RelationshipResourceHandler";
+import { EmployeeResourceHandler } from "../../nodes/MasterData/handlers/EmployeeResourceHandler";
 
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
@@ -246,6 +247,32 @@ describe("MasterData node integration", () => {
       );
 
       relationshipHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for employee resource", async () => {
+      const employeeHandlerSpy = spyOn(EmployeeResourceHandler.prototype, "execute").mockResolvedValue();
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "employee",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(employeeHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      employeeHandlerSpy.mockRestore();
     });
 
     test("throws error for unsupported resource", async () => {
