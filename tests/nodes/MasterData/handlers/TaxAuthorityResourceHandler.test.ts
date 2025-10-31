@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
-import { NodeOperationError } from "n8n-workflow";
 import { TaxAuthorityResourceHandler } from "../../../../nodes/MasterData/handlers/TaxAuthorityResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { describe, expect, test, mock } from "bun:test";
-import { NodeOperationError } from "n8n-workflow";
+import { NodeOperationError, type IExecuteFunctions, type INodeExecutionData } from "n8n-workflow";
 import { BaseResourceHandler } from "../../../../nodes/MasterData/handlers/BaseResourceHandler";
 import type { AuthContext, MasterDataCredentials } from "../../../../nodes/MasterData/types";
 
@@ -8,16 +9,20 @@ class TestResourceHandler extends BaseResourceHandler {
   async execute(
     operation: string,
     authContext: AuthContext,
-    returnData: any[],
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     // Test implementation
     const sendSuccess = this.createSendSuccess(returnData);
-    sendSuccess({ operation, authContext: authContext as any });
+    sendSuccess({ operation, host: authContext.host });
   }
 }
 
 // Mock IExecuteFunctions
-const createMockContext = (overrides: any = {}) => ({
+const createMockContext = (overrides: {
+  credentials?: Partial<MasterDataCredentials>;
+  parameters?: Record<string, unknown>;
+  context?: Partial<IExecuteFunctions>;
+} = {}) => ({
   getCredentials: mock(async () => ({
     host: "https://api.example.com",
     email: "user@example.com", 
@@ -36,14 +41,14 @@ const createMockContext = (overrides: any = {}) => ({
   }),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
+    returnJsonArray: mock((data: INodeExecutionData[]) => data.map(entry => ({ json: entry }))),
+    constructExecutionMetaData: mock((data: INodeExecutionData[], meta: { itemData: { item: number } }) => 
       data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
     ),
   },
   continueOnFail: mock(() => false),
   ...overrides.context,
-});
+} as unknown as IExecuteFunctions);
 
 describe("BaseResourceHandler", () => {
   describe("constructor", () => {
@@ -235,7 +240,7 @@ describe("BaseResourceHandler", () => {
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
         operation: "testOp",
-        authContext,
+        host: "https://api.example.com",
       });
     });
   });

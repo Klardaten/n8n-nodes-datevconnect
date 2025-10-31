@@ -12,7 +12,7 @@ import { masterDataNodeDescription } from "./MasterData.config";
 import { ClientResourceHandler } from "./handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "./handlers/TaxAuthorityResourceHandler";
 import { RelationshipResourceHandler } from "./handlers/RelationshipResourceHandler";
-import { BaseResourceHandler } from "./handlers/BaseResourceHandler";
+import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
 import { toErrorObject } from "./utils";
 import type { Resource, MasterDataCredentials } from "./types";
 

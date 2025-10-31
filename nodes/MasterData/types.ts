@@ -1,4 +1,4 @@
-import type { IDataObject, JsonObject } from "n8n-workflow";
+import type { IDataObject } from "n8n-workflow";
 import type { JsonValue } from "../../src/services/datevConnectClient";
 
 /**

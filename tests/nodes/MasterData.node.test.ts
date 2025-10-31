@@ -9,7 +9,7 @@ import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/Rel
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
 // Test spies
-let authenticateSpy: any;
+let authenticateSpy: ReturnType<typeof spyOn>;
 
 type InputItem = { json: Record<string, unknown> };
 

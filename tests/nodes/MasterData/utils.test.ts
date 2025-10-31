@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test, mock } from "bun:test";
-import { NodeOperationError } from "n8n-workflow";
+import { NodeOperationError, type IExecuteFunctions, type INode, type JsonObject } from "n8n-workflow";
 import {
   toErrorObject,
   toErrorMessage,
@@ -12,7 +13,7 @@ import {
 
 // Mock IExecuteFunctions for testing
 const mockContext = {
-  getNode: () => ({ name: "TestNode" }),
+  getNode: (): INode => ({ name: "TestNode" } as INode),
   getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
     const mockData: Record<string, unknown> = {
       "optional-empty": "",
@@ -26,14 +27,14 @@ const mockContext = {
     const key = `${name}-${itemIndex === 0 ? "value" : itemIndex === 1 ? "empty" : itemIndex === 2 ? "whitespace" : "default"}`;
     return mockData[key] !== undefined ? mockData[key] : defaultValue;
   }),
-};
+} as Pick<IExecuteFunctions, 'getNode' | 'getNodeParameter'>;
 
 describe("Utils", () => {
   describe("toErrorObject", () => {
     test("converts Error instance to JsonObject", () => {
       const error = new Error("Test error message");
       const result = toErrorObject(error);
-      expect(result).toEqual(error as any);
+      expect(result).toEqual(error as unknown as JsonObject);
     });
 
     test("converts object to JsonObject", () => {
@@ -126,82 +127,82 @@ describe("Utils", () => {
 
   describe("parseJsonParameter", () => {
     test("parses valid JSON string", () => {
-      const result = parseJsonParameter('{"key":"value"}', "Test Param", mockContext as any, 0);
+      const result = parseJsonParameter('{"key":"value"}', "Test Param", mockContext as IExecuteFunctions, 0);
       expect(result).toEqual({ key: "value" });
     });
 
     test("returns non-string values as-is", () => {
       const obj = { key: "value" };
-      const result = parseJsonParameter(obj, "Test Param", mockContext as any, 0);
+      const result = parseJsonParameter(obj, "Test Param", mockContext as IExecuteFunctions, 0);
       expect(result).toEqual(obj);
     });
 
     test("throws NodeOperationError for null/undefined", () => {
       expect(() => {
-        parseJsonParameter(null, "Test Param", mockContext as any, 0);
+        parseJsonParameter(null, "Test Param", mockContext as IExecuteFunctions, 0);
       }).toThrow(NodeOperationError);
 
       expect(() => {
-        parseJsonParameter(undefined, "Test Param", mockContext as any, 0);
+        parseJsonParameter(undefined, "Test Param", mockContext as IExecuteFunctions, 0);
       }).toThrow(NodeOperationError);
     });
 
     test("throws NodeOperationError for invalid JSON", () => {
       expect(() => {
-        parseJsonParameter('{"invalid": json}', "Test Param", mockContext as any, 0);
+        parseJsonParameter("invalid json", "Test Param", mockContext as IExecuteFunctions, 0);
       }).toThrow(NodeOperationError);
     });
   });
 
   describe("getOptionalString", () => {
     test("returns string value", () => {
-      const result = getOptionalString(mockContext as any, "optional", 0);
+      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 0);
       expect(result).toBe("test-value");
     });
 
     test("returns undefined for empty string", () => {
-      const result = getOptionalString(mockContext as any, "optional", 1);
+      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 1);
       expect(result).toBeUndefined();
     });
 
     test("returns undefined for whitespace-only string", () => {
-      const result = getOptionalString(mockContext as any, "optional", 2);
+      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 2);
       expect(result).toBeUndefined();
     });
 
     test("returns undefined for non-string value", () => {
-      const result = getOptionalString(mockContext as any, "number", 0);
+      const result = getOptionalString(mockContext as IExecuteFunctions, "number", 0);
       expect(result).toBeUndefined();
     });
   });
 
   describe("getRequiredString", () => {
     test("returns string value", () => {
-      const result = getRequiredString(mockContext as any, "required", 0);
+      const result = getRequiredString(mockContext as IExecuteFunctions, "required", 0);
       expect(result).toBe("required-test");
     });
 
     test("throws NodeOperationError for empty string", () => {
       expect(() => {
-        getRequiredString(mockContext as any, "required", 1);
+        getRequiredString(mockContext as IExecuteFunctions, "required", 1);
       }).toThrow(NodeOperationError);
     });
 
     test("throws NodeOperationError for non-string value", () => {
       expect(() => {
-        getRequiredString(mockContext as any, "number", 0);
+        getRequiredString(mockContext as IExecuteFunctions, "number", 0);
       }).toThrow(NodeOperationError);
     });
   });
 
   describe("getNumberParameter", () => {
     test("returns number value", () => {
-      const result = getNumberParameter(mockContext as any, "number", 0, 10);
+      const result = getNumberParameter(mockContext as IExecuteFunctions, "number", 0, 0);
       expect(result).toBe(42);
     });
 
     test("returns default value when parameter is undefined", () => {
-      const result = getNumberParameter(mockContext as any, "number", 3, 100);
+      const result = getNumberParameter(mockContext as IExecuteFunctions, "number", 3, 100);
       expect(result).toBe(100);
     });
   });
