@@ -149,6 +149,25 @@ export interface FetchCountryCodesOptions extends BaseRequestOptions {
   filter?: string;
 }
 
+export interface FetchClientGroupTypesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchClientGroupTypeOptions extends BaseRequestOptions {
+  clientGroupTypeId: string;
+  select?: string;
+}
+
+export interface CreateClientGroupTypeOptions extends BaseRequestOptions {
+  clientGroupType: JsonValue;
+}
+
+export interface UpdateClientGroupTypeOptions extends BaseRequestOptions {
+  clientGroupTypeId: string;
+  clientGroupType: JsonValue;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -263,6 +282,7 @@ const LEGAL_FORMS_PATH = `${MASTER_DATA_BASE_PATH}/legal-forms`;
 const CORPORATE_STRUCTURES_PATH = `${MASTER_DATA_BASE_PATH}/corporate-structures`;
 const EMPLOYEES_PATH = `${MASTER_DATA_BASE_PATH}/employees`;
 const COUNTRY_CODES_PATH = `${MASTER_DATA_BASE_PATH}/country-codes`;
+const CLIENT_GROUP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-group-types`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -750,6 +770,71 @@ export async function fetchCountryCodes(options: FetchCountryCodesOptions): Prom
   if (body === undefined) {
     throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected country codes payload.`);
   }
+
+  return body;
+}
+
+export async function fetchClientGroupTypes(options: FetchClientGroupTypesOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: CLIENT_GROUP_TYPES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client group types payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchClientGroupType(options: FetchClientGroupTypeOptions): Promise<JsonValue> {
+  const { clientGroupTypeId, select } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CLIENT_GROUP_TYPES_PATH}/${clientGroupTypeId}`,
+    method: "GET",
+    query: {
+      select,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client group type payload.`);
+  }
+
+  return body;
+}
+
+export async function createClientGroupType(options: CreateClientGroupTypeOptions): Promise<JsonValue | undefined> {
+  const { clientGroupType } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: CLIENT_GROUP_TYPES_PATH,
+    method: "POST",
+    body: clientGroupType,
+  });
+
+  return body;
+}
+
+export async function updateClientGroupType(options: UpdateClientGroupTypeOptions): Promise<JsonValue | undefined> {
+  const { clientGroupTypeId, clientGroupType } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CLIENT_GROUP_TYPES_PATH}/${clientGroupTypeId}`,
+    method: "PUT",
+    body: clientGroupType,
+  });
 
   return body;
 }

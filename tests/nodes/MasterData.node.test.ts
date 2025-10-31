@@ -7,6 +7,7 @@ import { TaxAuthorityResourceHandler } from "../../nodes/MasterData/handlers/Tax
 import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/RelationshipResourceHandler";
 import { EmployeeResourceHandler } from "../../nodes/MasterData/handlers/EmployeeResourceHandler";
 import { CountryCodeResourceHandler } from "../../nodes/MasterData/handlers/CountryCodeResourceHandler";
+import { ClientGroupTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientGroupTypeResourceHandler";
 
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
@@ -300,6 +301,32 @@ describe("MasterData node integration", () => {
       );
 
       countryCodeHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for clientGroupType resource", async () => {
+      const clientGroupTypeHandlerSpy = spyOn(ClientGroupTypeResourceHandler.prototype, "execute").mockResolvedValue();
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "clientGroupType",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(clientGroupTypeHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      clientGroupTypeHandlerSpy.mockRestore();
     });
 
     test("throws error for unsupported resource", async () => {

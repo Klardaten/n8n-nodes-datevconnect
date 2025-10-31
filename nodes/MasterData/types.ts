@@ -123,9 +123,30 @@ export interface UpdateEmployeeParams extends EmployeeOperationParams {
 }
 
 /**
+ * Parameters for client group type-specific operations
+ */
+export interface ClientGroupTypeOperationParams extends BaseOperationParams {
+  clientGroupTypeId: string;
+}
+
+/**
+ * Parameters for client group type creation
+ */
+export interface CreateClientGroupTypeParams {
+  clientGroupTypeData: JsonValue;
+}
+
+/**
+ * Parameters for client group type updates
+ */
+export interface UpdateClientGroupTypeParams extends ClientGroupTypeOperationParams {
+  clientGroupTypeData: JsonValue;
+}
+
+/**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType";
 
 /**
  * Supported client operations
@@ -175,9 +196,14 @@ export type EmployeeOperation = "getAll" | "get" | "create" | "update";
 export type CountryCodeOperation = "getAll";
 
 /**
+ * Supported client group type operations
+ */
+export type ClientGroupTypeOperation = "getAll" | "get" | "create" | "update";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation;
 
 /**
  * Success response format

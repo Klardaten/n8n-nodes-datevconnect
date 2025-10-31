@@ -16,6 +16,7 @@ import { LegalFormResourceHandler } from "./handlers/LegalFormResourceHandler";
 import { CorporateStructureResourceHandler } from "./handlers/CorporateStructureResourceHandler";
 import { EmployeeResourceHandler } from "./handlers/EmployeeResourceHandler";
 import { CountryCodeResourceHandler } from "./handlers/CountryCodeResourceHandler";
+import { ClientGroupTypeResourceHandler } from "./handlers/ClientGroupTypeResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
 import { toErrorObject } from "./utils";
 import type { Resource, MasterDataCredentials } from "./types";
@@ -89,6 +90,9 @@ export class MasterData implements INodeType {
           break;
         case "countryCode":
           handler = new CountryCodeResourceHandler(this, itemIndex);
+          break;
+        case "clientGroupType":
+          handler = new ClientGroupTypeResourceHandler(this, itemIndex);
           break;
         default:
           throw new NodeOperationError(

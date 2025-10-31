@@ -55,6 +55,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           name: "Country Code",
           value: "countryCode",
         },
+        {
+          name: "Client Group Type",
+          value: "clientGroupType",
+        },
       ],
       default: "client",
     },
@@ -295,6 +299,43 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "getAll",
     },
     {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["clientGroupType"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of client group types",
+          action: "Get many client group types",
+        },
+        {
+          name: "Get",
+          value: "get",
+          description: "Retrieve a specific client group type",
+          action: "Get a client group type",
+        },
+        {
+          name: "Create",
+          value: "create",
+          description: "Create a new client group type",
+          action: "Create a client group type",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Update a specific client group type",
+          action: "Update a client group type",
+        },
+      ],
+      default: "getAll",
+    },
+    {
       displayName: "Limit",
       name: "top",
       type: "number",
@@ -332,7 +373,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode"],
+          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType"],
           operation: [
             "getAll",
             "get",
@@ -354,7 +395,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode"],
+          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType"],
           operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },
@@ -560,6 +601,33 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       },
       default: "{}",
       description: "Employee payload to send to the API",
+    },
+    {
+      displayName: "Client Group Type ID",
+      name: "clientGroupTypeId",
+      type: "string",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["clientGroupType"],
+          operation: ["get", "update"],
+        },
+      },
+      default: "",
+      description: "The GUID of the client group type",
+    },
+    {
+      displayName: "Client Group Type Data",
+      name: "clientGroupTypeData",
+      type: "json",
+      displayOptions: {
+        show: {
+          resource: ["clientGroupType"],
+          operation: ["create", "update"],
+        },
+      },
+      default: "{}",
+      description: "Client group type payload to send to the API",
     },
   ],
 };

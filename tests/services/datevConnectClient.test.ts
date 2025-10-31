@@ -22,6 +22,10 @@ import {
   createEmployee,
   updateEmployee,
   fetchCountryCodes,
+  fetchClientGroupTypes,
+  fetchClientGroupType,
+  createClientGroupType,
+  updateClientGroupType,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -47,6 +51,10 @@ import {
   type CreateEmployeeOptions,
   type UpdateEmployeeOptions,
   type FetchCountryCodesOptions,
+  type FetchClientGroupTypesOptions,
+  type FetchClientGroupTypeOptions,
+  type CreateClientGroupTypeOptions,
+  type UpdateClientGroupTypeOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -1050,5 +1058,191 @@ describe("fetchCountryCodes", () => {
     expect(url.searchParams.get("select")).toBe("id,name");
     expect(url.searchParams.get("filter")).toBe("startswith(name, 'D')");
     expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchClientGroupTypes", () => {
+  test("requests client group types with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "k93f9chg-380c-494e-47c8-d12fff738192",
+          name: "Test Group Type",
+          short_name: "TGT",
+          note: "Test group type for unit tests"
+        },
+        {
+          id: "m85d7ahf-290b-384d-36b7-c01eee627081",
+          name: "Another Group Type",
+          short_name: "AGT"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchClientGroupTypesOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name,short_name",
+      filter: "startswith(name, 'Test')",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchClientGroupTypes(options);
+
+    expect(response).toEqual([
+      {
+        id: "k93f9chg-380c-494e-47c8-d12fff738192",
+        name: "Test Group Type",
+        short_name: "TGT",
+        note: "Test group type for unit tests"
+      },
+      {
+        id: "m85d7ahf-290b-384d-36b7-c01eee627081",
+        name: "Another Group Type",
+        short_name: "AGT"
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types");
+    expect(url.searchParams.get("select")).toBe("id,name,short_name");
+    expect(url.searchParams.get("filter")).toBe("startswith(name, 'Test')");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchClientGroupType", () => {
+  test("requests specific client group type with select parameter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({
+        id: "k93f9chg-380c-494e-47c8-d12fff738192",
+        name: "Test Group Type",
+        short_name: "TGT",
+        note: "Test group type for unit tests"
+      }, { status: 200 });
+    });
+
+    const options: FetchClientGroupTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientGroupTypeId: "k93f9chg-380c-494e-47c8-d12fff738192",
+      select: "id,name,short_name",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchClientGroupType(options);
+
+    expect(response).toEqual({
+      id: "k93f9chg-380c-494e-47c8-d12fff738192",
+      name: "Test Group Type",
+      short_name: "TGT",
+      note: "Test group type for unit tests"
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192");
+    expect(url.searchParams.get("select")).toBe("id,name,short_name");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("createClientGroupType", () => {
+  test("creates client group type with data", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return new Response(null, { status: 204 });
+    });
+
+    const options: CreateClientGroupTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientGroupType: {
+        short_name: "TGT",
+        name: "Test Group Type",
+        note: "Test group type for unit tests"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await createClientGroupType(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types");
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      short_name: "TGT",
+      name: "Test Group Type",
+      note: "Test group type for unit tests"
+    });
+  });
+});
+
+describe("updateClientGroupType", () => {
+  test("updates client group type by id", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return new Response(null, { status: 204 });
+    });
+
+    const options: UpdateClientGroupTypeOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      clientGroupTypeId: "k93f9chg-380c-494e-47c8-d12fff738192",
+      clientGroupType: {
+        id: "k93f9chg-380c-494e-47c8-d12fff738192",
+        short_name: "TGT-UPD",
+        name: "Updated Test Group Type",
+        note: "Updated test group type for unit tests"
+      },
+      fetchImpl: fetchMock,
+    };
+
+    const response = await updateClientGroupType(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192");
+    expect(init?.method).toBe("PUT");
+    expect(init?.headers).toMatchObject({
+      "content-type": "application/json",
+      "authorization": "Bearer token-123",
+      "x-client-instance-id": "instance-1",
+    });
+
+    const parsedBody = JSON.parse(String(init?.body));
+    expect(parsedBody).toEqual({
+      id: "k93f9chg-380c-494e-47c8-d12fff738192",
+      short_name: "TGT-UPD",
+      name: "Updated Test Group Type",
+      note: "Updated test group type for unit tests"
+    });
   });
 });

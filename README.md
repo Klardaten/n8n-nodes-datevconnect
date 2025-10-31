@@ -1,4 +1,4 @@
-# n8n DATEVConnect Master Data
+# n8n DATEVConnect
 
 This repository provides custom n8n nodes for integrating with the DATEVconnect APIs. It requires the [Klardaten DATEVconnect Gateway](https://klardaten.com/products/datevconnect-gateway) to be set up.
 
