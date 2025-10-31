@@ -19,6 +19,7 @@ import {
   fetchClientResponsibilities,
   fetchClients,
   fetchNextFreeClientNumber,
+  fetchTaxAuthorities,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -40,6 +41,7 @@ export const clientApi = {
   updateClientGroups,
   fetchClientDeletionLog,
   fetchNextFreeClientNumber,
+  fetchTaxAuthorities,
 };
 
 function toErrorObject(error: unknown): JsonObject {
@@ -115,6 +117,10 @@ export class MasterData implements INodeType {
           {
             name: "Client",
             value: "client",
+          },
+          {
+            name: "Tax Authority",
+            value: "taxAuthority",
           },
         ],
         default: "client",
@@ -205,6 +211,25 @@ export class MasterData implements INodeType {
         default: "getAll",
       },
       {
+        displayName: "Operation",
+        name: "operation",
+        type: "options",
+        displayOptions: {
+          show: {
+            resource: ["taxAuthority"],
+          },
+        },
+        options: [
+          {
+            name: "Get Many",
+            value: "getAll",
+            description: "Retrieve a list of tax authorities",
+            action: "Get many tax authorities",
+          },
+        ],
+        default: "getAll",
+      },
+      {
         displayName: "Limit",
         name: "top",
         type: "number",
@@ -242,7 +267,7 @@ export class MasterData implements INodeType {
         type: "string",
         displayOptions: {
           show: {
-            resource: ["client"],
+            resource: ["client", "taxAuthority"],
             operation: [
               "getAll",
               "get",
@@ -262,7 +287,7 @@ export class MasterData implements INodeType {
         type: "string",
         displayOptions: {
           show: {
-            resource: ["client"],
+            resource: ["client", "taxAuthority"],
             operation: ["getAll", "getDeletionLog"],
           },
         },
@@ -429,14 +454,6 @@ export class MasterData implements INodeType {
       const resource = this.getNodeParameter("resource", itemIndex) as string;
       const operation = this.getNodeParameter("operation", itemIndex) as string;
 
-      if (resource !== "client") {
-        throw new NodeOperationError(
-          this.getNode(),
-          `The resource "${resource}" is not supported.`,
-          { itemIndex },
-        );
-      }
-
       const getOptionalString = (name: string): string | undefined => {
         const value = this.getNodeParameter(name, itemIndex, "") as string;
         if (typeof value !== "string" || value.trim().length === 0) {
@@ -481,184 +498,222 @@ export class MasterData implements INodeType {
       try {
         let response: JsonValue | undefined;
 
-        switch (operation) {
-          case "getAll": {
-            const top = this.getNodeParameter("top", itemIndex, 100) as number;
-            const skip = this.getNodeParameter("skip", itemIndex, 0) as number;
+        switch (resource) {
+          case "client": {
+            switch (operation) {
+              case "getAll": {
+                const top = this.getNodeParameter("top", itemIndex, 100) as number;
+                const skip = this.getNodeParameter("skip", itemIndex, 0) as number;
+                const select = getOptionalString("select");
+                const filter = getOptionalString("filter");
+
+                response = await clientApi.fetchClients({
+                  host,
+                  token,
+                  clientInstanceId,
+                  top,
+                  skip,
+                  select,
+                  filter,
+                });
+                break;
+              }
+              case "get": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const select = getOptionalString("select");
+
+                response = await clientApi.fetchClient({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  select,
+                });
+                break;
+              }
+              case "create": {
+                const rawClient = this.getNodeParameter("clientData", itemIndex) as
+                  | JsonValue
+                  | string;
+                const clientPayload = parseJsonParameter(rawClient, "Client Data");
+                const maxNumber = this.getNodeParameter("maxNumber", itemIndex, 0) as number;
+
+                response = await clientApi.createClient({
+                  host,
+                  token,
+                  clientInstanceId,
+                  client: clientPayload,
+                  maxNumber: typeof maxNumber === "number" && maxNumber > 0 ? maxNumber : undefined,
+                });
+                break;
+              }
+              case "update": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const rawClient = this.getNodeParameter("clientData", itemIndex) as
+                  | JsonValue
+                  | string;
+                const clientPayload = parseJsonParameter(rawClient, "Client Data");
+
+                response = await clientApi.updateClient({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  client: clientPayload,
+                });
+                break;
+              }
+              case "getResponsibilities": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const select = getOptionalString("select");
+
+                response = await clientApi.fetchClientResponsibilities({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  select,
+                });
+                break;
+              }
+              case "updateResponsibilities": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const rawResponsibilities = this.getNodeParameter(
+                  "responsibilitiesData",
+                  itemIndex,
+                ) as JsonValue | string;
+                const responsibilitiesPayload = parseJsonParameter(
+                  rawResponsibilities,
+                  "Responsibilities",
+                );
+
+                response = await clientApi.updateClientResponsibilities({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  responsibilities: responsibilitiesPayload,
+                });
+                break;
+              }
+              case "getClientCategories": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const select = getOptionalString("select");
+
+                response = await clientApi.fetchClientCategories({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  select,
+                });
+                break;
+              }
+              case "updateClientCategories": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const rawCategories = this.getNodeParameter("categoriesData", itemIndex) as
+                  | JsonValue
+                  | string;
+                const categoriesPayload = parseJsonParameter(rawCategories, "Client Categories");
+
+                response = await clientApi.updateClientCategories({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  categories: categoriesPayload,
+                });
+                break;
+              }
+              case "getClientGroups": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const select = getOptionalString("select");
+
+                response = await clientApi.fetchClientGroups({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  select,
+                });
+                break;
+              }
+              case "updateClientGroups": {
+                const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+                const rawGroups = this.getNodeParameter("groupsData", itemIndex) as
+                  | JsonValue
+                  | string;
+                const groupsPayload = parseJsonParameter(rawGroups, "Client Groups");
+
+                response = await clientApi.updateClientGroups({
+                  host,
+                  token,
+                  clientInstanceId,
+                  clientId,
+                  groups: groupsPayload,
+                });
+                break;
+              }
+              case "getDeletionLog": {
+                const select = getOptionalString("select");
+                const filter = getOptionalString("filter");
+
+                response = await clientApi.fetchClientDeletionLog({
+                  host,
+                  token,
+                  clientInstanceId,
+                  select,
+                  filter,
+                });
+                break;
+              }
+              case "getNextFreeNumber": {
+                const start = this.getNodeParameter("start", itemIndex, 1) as number;
+                const range = this.getNodeParameter("range", itemIndex, 0) as number;
+
+                response = await clientApi.fetchNextFreeClientNumber({
+                  host,
+                  token,
+                  clientInstanceId,
+                  start,
+                  range: typeof range === "number" && range > 0 ? range : undefined,
+                });
+                break;
+              }
+              default:
+                throw new NodeOperationError(
+                  this.getNode(),
+                  `The operation "${operation}" is not supported for resource "${resource}".`,
+                  { itemIndex },
+                );
+            }
+            break;
+          }
+          case "taxAuthority": {
+            if (operation !== "getAll") {
+              throw new NodeOperationError(
+                this.getNode(),
+                `The operation "${operation}" is not supported for resource "${resource}".`,
+                { itemIndex },
+              );
+            }
+
             const select = getOptionalString("select");
             const filter = getOptionalString("filter");
 
-            response = await clientApi.fetchClients({
-              host,
-              token,
-              clientInstanceId,
-              top,
-              skip,
-              select,
-              filter,
-            });
-            break;
-          }
-          case "get": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const select = getOptionalString("select");
-
-            response = await clientApi.fetchClient({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              select,
-            });
-            break;
-          }
-          case "create": {
-            const rawClient = this.getNodeParameter("clientData", itemIndex) as JsonValue | string;
-            const clientPayload = parseJsonParameter(rawClient, "Client Data");
-            const maxNumber = this.getNodeParameter("maxNumber", itemIndex, 0) as number;
-
-            response = await clientApi.createClient({
-              host,
-              token,
-              clientInstanceId,
-              client: clientPayload,
-              maxNumber: typeof maxNumber === "number" && maxNumber > 0 ? maxNumber : undefined,
-            });
-            break;
-          }
-          case "update": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const rawClient = this.getNodeParameter("clientData", itemIndex) as JsonValue | string;
-            const clientPayload = parseJsonParameter(rawClient, "Client Data");
-
-            response = await clientApi.updateClient({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              client: clientPayload,
-            });
-            break;
-          }
-          case "getResponsibilities": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const select = getOptionalString("select");
-
-            response = await clientApi.fetchClientResponsibilities({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              select,
-            });
-            break;
-          }
-          case "updateResponsibilities": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const rawResponsibilities = this.getNodeParameter(
-              "responsibilitiesData",
-              itemIndex,
-            ) as JsonValue | string;
-            const responsibilitiesPayload = parseJsonParameter(
-              rawResponsibilities,
-              "Responsibilities",
-            );
-
-            response = await clientApi.updateClientResponsibilities({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              responsibilities: responsibilitiesPayload,
-            });
-            break;
-          }
-          case "getClientCategories": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const select = getOptionalString("select");
-
-            response = await clientApi.fetchClientCategories({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              select,
-            });
-            break;
-          }
-          case "updateClientCategories": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const rawCategories = this.getNodeParameter("categoriesData", itemIndex) as
-              | JsonValue
-              | string;
-            const categoriesPayload = parseJsonParameter(rawCategories, "Client Categories");
-
-            response = await clientApi.updateClientCategories({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              categories: categoriesPayload,
-            });
-            break;
-          }
-          case "getClientGroups": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const select = getOptionalString("select");
-
-            response = await clientApi.fetchClientGroups({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              select,
-            });
-            break;
-          }
-          case "updateClientGroups": {
-            const clientId = this.getNodeParameter("clientId", itemIndex) as string;
-            const rawGroups = this.getNodeParameter("groupsData", itemIndex) as JsonValue | string;
-            const groupsPayload = parseJsonParameter(rawGroups, "Client Groups");
-
-            response = await clientApi.updateClientGroups({
-              host,
-              token,
-              clientInstanceId,
-              clientId,
-              groups: groupsPayload,
-            });
-            break;
-          }
-          case "getDeletionLog": {
-            const select = getOptionalString("select");
-            const filter = getOptionalString("filter");
-
-            response = await clientApi.fetchClientDeletionLog({
+            response = await clientApi.fetchTaxAuthorities({
               host,
               token,
               clientInstanceId,
               select,
               filter,
-            });
-            break;
-          }
-          case "getNextFreeNumber": {
-            const start = this.getNodeParameter("start", itemIndex, 1) as number;
-            const range = this.getNodeParameter("range", itemIndex, 0) as number;
-
-            response = await clientApi.fetchNextFreeClientNumber({
-              host,
-              token,
-              clientInstanceId,
-              start,
-              range: typeof range === "number" && range > 0 ? range : undefined,
             });
             break;
           }
           default:
             throw new NodeOperationError(
               this.getNode(),
-              `The operation "${operation}" is not supported for resource "${resource}".`,
+              `The resource "${resource}" is not supported.`,
               { itemIndex },
             );
         }

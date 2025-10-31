@@ -17,14 +17,14 @@ export interface AuthenticateResponse extends Record<string, JsonValue> {
   access_token: string;
 }
 
-interface BaseClientRequestOptions {
+interface BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
   fetchImpl?: typeof fetch;
 }
 
-export interface FetchClientsOptions extends BaseClientRequestOptions {
+export interface FetchClientsOptions extends BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
@@ -34,59 +34,64 @@ export interface FetchClientsOptions extends BaseClientRequestOptions {
   filter?: string;
 }
 
-export interface FetchClientOptions extends BaseClientRequestOptions {
+export interface FetchClientOptions extends BaseRequestOptions {
   clientId: string;
   select?: string;
 }
 
-export interface CreateClientOptions extends BaseClientRequestOptions {
+export interface CreateClientOptions extends BaseRequestOptions {
   client: JsonValue;
   maxNumber?: number;
 }
 
-export interface UpdateClientOptions extends BaseClientRequestOptions {
+export interface UpdateClientOptions extends BaseRequestOptions {
   clientId: string;
   client: JsonValue;
 }
 
-export interface FetchClientResponsibilitiesOptions extends BaseClientRequestOptions {
+export interface FetchClientResponsibilitiesOptions extends BaseRequestOptions {
   clientId: string;
   select?: string;
 }
 
-export interface UpdateClientResponsibilitiesOptions extends BaseClientRequestOptions {
+export interface UpdateClientResponsibilitiesOptions extends BaseRequestOptions {
   clientId: string;
   responsibilities: JsonValue;
 }
 
-export interface FetchClientCategoriesOptions extends BaseClientRequestOptions {
+export interface FetchClientCategoriesOptions extends BaseRequestOptions {
   clientId: string;
   select?: string;
 }
 
-export interface UpdateClientCategoriesOptions extends BaseClientRequestOptions {
+export interface UpdateClientCategoriesOptions extends BaseRequestOptions {
   clientId: string;
   categories: JsonValue;
 }
 
-export interface FetchClientGroupsOptions extends BaseClientRequestOptions {
+export interface FetchClientGroupsOptions extends BaseRequestOptions {
   clientId: string;
   select?: string;
 }
 
-export interface UpdateClientGroupsOptions extends BaseClientRequestOptions {
+export interface UpdateClientGroupsOptions extends BaseRequestOptions {
   clientId: string;
   groups: JsonValue;
 }
 
-export interface FetchClientDeletionLogOptions extends BaseClientRequestOptions {
+export interface FetchClientDeletionLogOptions extends BaseRequestOptions {
   select?: string;
   filter?: string;
 }
 
-export interface FetchNextFreeClientNumberOptions extends BaseClientRequestOptions {
+export interface FetchNextFreeClientNumberOptions extends BaseRequestOptions {
   start: number;
   range?: number;
+}
+
+export interface FetchTaxAuthoritiesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
 }
 
 const JSON_CONTENT_TYPE = "application/json";
@@ -196,10 +201,11 @@ export async function authenticate(options: AuthenticateOptions): Promise<Authen
 
 const MASTER_DATA_BASE_PATH = "datevconnect/master-data/v1";
 const CLIENTS_PATH = `${MASTER_DATA_BASE_PATH}/clients`;
+const TAX_AUTHORITIES_PATH = `${MASTER_DATA_BASE_PATH}/tax-authorities`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
-interface ClientRequestOptions {
+interface MasterDataRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
@@ -216,7 +222,9 @@ function buildApiUrl(host: string, path: string): URL {
   return new URL(trimmedPath, baseUrl);
 }
 
-async function sendClientRequest(options: ClientRequestOptions): Promise<JsonValue | undefined> {
+async function sendMasterDataRequest(
+  options: MasterDataRequestOptions,
+): Promise<JsonValue | undefined> {
   const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
   const url = buildApiUrl(host, path);
 
@@ -246,7 +254,7 @@ async function sendClientRequest(options: ClientRequestOptions): Promise<JsonVal
 export async function fetchClients(options: FetchClientsOptions): Promise<JsonValue> {
   const { top, skip, select, filter } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: CLIENTS_PATH,
     method: "GET",
@@ -267,7 +275,7 @@ export async function fetchClients(options: FetchClientsOptions): Promise<JsonVa
 
 export async function fetchClient(options: FetchClientOptions): Promise<JsonValue> {
   const { clientId, select } = options;
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}`,
     method: "GET",
@@ -286,7 +294,7 @@ export async function fetchClient(options: FetchClientOptions): Promise<JsonValu
 export async function createClient(options: CreateClientOptions): Promise<JsonValue | undefined> {
   const { client, maxNumber } = options;
 
-  return sendClientRequest({
+  return sendMasterDataRequest({
     ...options,
     path: CLIENTS_PATH,
     method: "POST",
@@ -300,7 +308,7 @@ export async function createClient(options: CreateClientOptions): Promise<JsonVa
 export async function updateClient(options: UpdateClientOptions): Promise<JsonValue | undefined> {
   const { clientId, client } = options;
 
-  return sendClientRequest({
+  return sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}`,
     method: "PUT",
@@ -313,7 +321,7 @@ export async function fetchClientResponsibilities(
 ): Promise<JsonValue> {
   const { clientId, select } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/responsibilities`,
     method: "GET",
@@ -334,7 +342,7 @@ export async function updateClientResponsibilities(
 ): Promise<JsonValue | undefined> {
   const { clientId, responsibilities } = options;
 
-  return sendClientRequest({
+  return sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/responsibilities`,
     method: "PUT",
@@ -347,7 +355,7 @@ export async function fetchClientCategories(
 ): Promise<JsonValue> {
   const { clientId, select } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/client-categories`,
     method: "GET",
@@ -368,7 +376,7 @@ export async function updateClientCategories(
 ): Promise<JsonValue | undefined> {
   const { clientId, categories } = options;
 
-  return sendClientRequest({
+  return sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/client-categories`,
     method: "PUT",
@@ -379,7 +387,7 @@ export async function updateClientCategories(
 export async function fetchClientGroups(options: FetchClientGroupsOptions): Promise<JsonValue> {
   const { clientId, select } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/client-groups`,
     method: "GET",
@@ -400,7 +408,7 @@ export async function updateClientGroups(
 ): Promise<JsonValue | undefined> {
   const { clientId, groups } = options;
 
-  return sendClientRequest({
+  return sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/${encodeURIComponent(clientId)}/client-groups`,
     method: "PUT",
@@ -413,7 +421,7 @@ export async function fetchClientDeletionLog(
 ): Promise<JsonValue> {
   const { select, filter } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/deletion-log`,
     method: "GET",
@@ -435,7 +443,7 @@ export async function fetchNextFreeClientNumber(
 ): Promise<JsonValue> {
   const { start, range } = options;
 
-  const body = await sendClientRequest({
+  const body = await sendMasterDataRequest({
     ...options,
     path: `${CLIENTS_PATH}/next-free-number`,
     method: "GET",
@@ -447,6 +455,28 @@ export async function fetchNextFreeClientNumber(
 
   if (body === undefined) {
     throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected next free number payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchTaxAuthorities(
+  options: FetchTaxAuthoritiesOptions,
+): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: TAX_AUTHORITIES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected tax authorities payload.`);
   }
 
   return body;

@@ -10,6 +10,7 @@ import type {
   FetchClientResponsibilitiesOptions,
   FetchClientsOptions,
   FetchNextFreeClientNumberOptions,
+  FetchTaxAuthoritiesOptions,
   JsonValue,
   UpdateClientCategoriesOptions,
   UpdateClientGroupsOptions,
@@ -34,6 +35,7 @@ const realFetchClientGroups = clientApi.fetchClientGroups;
 const realUpdateClientGroups = clientApi.updateClientGroups;
 const realFetchClientDeletionLog = clientApi.fetchClientDeletionLog;
 const realFetchNextFreeClientNumber = clientApi.fetchNextFreeClientNumber;
+const realFetchTaxAuthorities = clientApi.fetchTaxAuthorities;
 
 const authenticateMock = mock(async () => ({ access_token: "token-123" }));
 const fetchClientsMock = mock(async () => [] as JsonValue);
@@ -48,6 +50,7 @@ const fetchClientGroupsMock = mock(async () => [] as JsonValue);
 const updateClientGroupsMock = mock(async () => undefined);
 const fetchClientDeletionLogMock = mock(async () => [] as JsonValue);
 const fetchNextFreeClientNumberMock = mock(async () => ({ next_free_number: 100 } as JsonValue));
+const fetchTaxAuthoritiesMock = mock(async () => [] as JsonValue);
 
 type InputItem = { json: Record<string, unknown> };
 
@@ -142,6 +145,8 @@ describe("MasterData node", () => {
     fetchClientDeletionLogMock.mockImplementation(async () => [] as JsonValue);
     fetchNextFreeClientNumberMock.mockClear();
     fetchNextFreeClientNumberMock.mockImplementation(async () => ({ next_free_number: 100 }));
+    fetchTaxAuthoritiesMock.mockClear();
+    fetchTaxAuthoritiesMock.mockImplementation(async () => [] as JsonValue);
     clientApi.authenticate = authenticateMock as typeof clientApi.authenticate;
     clientApi.fetchClients = fetchClientsMock as typeof clientApi.fetchClients;
     clientApi.fetchClient = fetchClientMock as typeof clientApi.fetchClient;
@@ -161,6 +166,8 @@ describe("MasterData node", () => {
       fetchClientDeletionLogMock as typeof clientApi.fetchClientDeletionLog;
     clientApi.fetchNextFreeClientNumber =
       fetchNextFreeClientNumberMock as typeof clientApi.fetchNextFreeClientNumber;
+    clientApi.fetchTaxAuthorities =
+      fetchTaxAuthoritiesMock as typeof clientApi.fetchTaxAuthorities;
   });
 
   afterEach(() => {
@@ -177,6 +184,7 @@ describe("MasterData node", () => {
     clientApi.updateClientGroups = realUpdateClientGroups;
     clientApi.fetchClientDeletionLog = realFetchClientDeletionLog;
     clientApi.fetchNextFreeClientNumber = realFetchNextFreeClientNumber;
+    clientApi.fetchTaxAuthorities = realFetchTaxAuthorities;
   });
 
   test("authenticates once and fetches clients for each input item", async () => {
@@ -242,6 +250,41 @@ describe("MasterData node", () => {
         { json: { id: 2, name: "Second" }, pairedItem: { item: 0 } },
         { json: { value: "fallback value" }, pairedItem: { item: 1 } },
       ],
+    ]);
+  });
+
+  test("fetches tax authorities with select and filter", async () => {
+    fetchTaxAuthoritiesMock.mockImplementationOnce(async () => [
+      { id: "9241", name: "Nürnberg-Zentral" },
+    ]);
+
+    const node = new MasterData();
+    const context = createExecuteContext({
+      parameters: {
+        resource: "taxAuthority",
+        operation: "getAll",
+        select: "id,name",
+        filter: "city eq 'Nuremberg'",
+      },
+    });
+
+    const result = await node.execute.call(context as unknown as IExecuteFunctions);
+
+    expect(fetchTaxAuthoritiesMock).toHaveBeenCalledTimes(1);
+    const call = fetchTaxAuthoritiesMock.mock.calls[0] as unknown as
+      | [FetchTaxAuthoritiesOptions]
+      | undefined;
+    expect(call).toBeDefined();
+    expect(call![0]).toMatchObject({
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name",
+      filter: "city eq 'Nuremberg'",
+    });
+
+    expect(result).toEqual([
+      [{ json: { id: "9241", name: "Nürnberg-Zentral" }, pairedItem: { item: 0 } }],
     ]);
   });
 

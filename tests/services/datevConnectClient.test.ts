@@ -10,6 +10,7 @@ import {
   fetchClientResponsibilities,
   fetchClients,
   fetchNextFreeClientNumber,
+  fetchTaxAuthorities,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -23,6 +24,7 @@ import {
   type FetchClientResponsibilitiesOptions,
   type FetchClientsOptions,
   type FetchNextFreeClientNumberOptions,
+  type FetchTaxAuthoritiesOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -497,5 +499,36 @@ describe("fetchNextFreeClientNumber", () => {
     expect(url.toString()).toBe(
       "https://api.example.com/datevconnect/master-data/v1/clients/next-free-number?start=10000&range=500",
     );
+  });
+});
+
+describe("fetchTaxAuthorities", () => {
+  test("requests tax authorities with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([{ id: "9241" }], { status: 200 });
+    });
+
+    const options: FetchTaxAuthoritiesOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name",
+      filter: "city eq 'Nuremberg'",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchTaxAuthorities(options);
+
+    expect(response).toEqual([{ id: "9241" }]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/tax-authorities");
+    expect(url.searchParams.get("select")).toBe("id,name");
+    expect(url.searchParams.get("filter")).toBe("city eq 'Nuremberg'");
+    expect(init?.method).toBe("GET");
   });
 });
