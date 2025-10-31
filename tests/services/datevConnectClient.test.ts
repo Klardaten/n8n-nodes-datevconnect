@@ -14,6 +14,9 @@ import {
   fetchRelationships,
   fetchRelationshipTypes,
   fetchLegalForms,
+  fetchCorporateStructures,
+  fetchCorporateStructure,
+  fetchEstablishment,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -31,6 +34,9 @@ import {
   type FetchRelationshipsOptions,
   type FetchRelationshipTypesOptions,
   type FetchLegalFormsOptions,
+  type FetchCorporateStructuresOptions,
+  type FetchCorporateStructureOptions,
+  type FetchEstablishmentOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -662,6 +668,142 @@ describe("fetchLegalForms", () => {
     expect(url.pathname).toBe("/datevconnect/master-data/v1/legal-forms");
     expect(url.searchParams.get("select")).toBe("id,display_name,nation");
     expect(url.searchParams.get("national-right")).toBe("german");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchCorporateStructures", () => {
+  test("requests corporate structures with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        { 
+          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei",
+          number: 1,
+          status: "active",
+          establishments: [],
+          functional_areas: []
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchCorporateStructuresOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name,number",
+      filter: "status eq active",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchCorporateStructures(options);
+
+    expect(response).toEqual([
+      { 
+        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+        name: "Musterkanzlei",
+        number: 1,
+        status: "active",
+        establishments: [],
+        functional_areas: []
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures");
+    expect(url.searchParams.get("select")).toBe("id,name,number");
+    expect(url.searchParams.get("filter")).toBe("status eq active");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchCorporateStructure", () => {
+  test("requests specific organization with select parameter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({ 
+        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+        name: "Musterkanzlei",
+        number: 1,
+        status: "active",
+        establishments: [],
+        functional_areas: []
+      }, { status: 200 });
+    });
+
+    const options: FetchCorporateStructureOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      organizationId: "f43f9c3g-380c-494e-97c8-d12fff738180",
+      select: "id,name,establishments",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchCorporateStructure(options);
+
+    expect(response).toEqual({ 
+      id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+      name: "Musterkanzlei",
+      number: 1,
+      status: "active",
+      establishments: [],
+      functional_areas: []
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180");
+    expect(url.searchParams.get("select")).toBe("id,name,establishments");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchEstablishment", () => {
+  test("requests specific establishment with organization and establishment IDs", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({ 
+        id: "h63f9c3g-380c-494e-97c8-d12fff738180",
+        name: "Musterkanzlei - Hauptsitz",
+        number: 1,
+        short_name: "Hauptsitz",
+        status: "active"
+      }, { status: 200 });
+    });
+
+    const options: FetchEstablishmentOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      organizationId: "f43f9c3g-380c-494e-97c8-d12fff738180",
+      establishmentId: "h63f9c3g-380c-494e-97c8-d12fff738180",
+      select: "id,name,short_name",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchEstablishment(options);
+
+    expect(response).toEqual({ 
+      id: "h63f9c3g-380c-494e-97c8-d12fff738180",
+      name: "Musterkanzlei - Hauptsitz",
+      number: 1,
+      short_name: "Hauptsitz",
+      status: "active"
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180/establishments/h63f9c3g-380c-494e-97c8-d12fff738180");
+    expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(init?.method).toBe("GET");
   });
 });

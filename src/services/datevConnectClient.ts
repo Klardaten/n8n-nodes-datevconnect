@@ -109,6 +109,22 @@ export interface FetchLegalFormsOptions extends BaseRequestOptions {
   nationalRight?: string;
 }
 
+export interface FetchCorporateStructuresOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchCorporateStructureOptions extends BaseRequestOptions {
+  organizationId: string;
+  select?: string;
+}
+
+export interface FetchEstablishmentOptions extends BaseRequestOptions {
+  organizationId: string;
+  establishmentId: string;
+  select?: string;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -220,6 +236,7 @@ const TAX_AUTHORITIES_PATH = `${MASTER_DATA_BASE_PATH}/tax-authorities`;
 const RELATIONSHIPS_PATH = `${MASTER_DATA_BASE_PATH}/relationships`;
 const RELATIONSHIP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/relationship-types`;
 const LEGAL_FORMS_PATH = `${MASTER_DATA_BASE_PATH}/legal-forms`;
+const CORPORATE_STRUCTURES_PATH = `${MASTER_DATA_BASE_PATH}/corporate-structures`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -561,6 +578,70 @@ export async function fetchLegalForms(
 
   if (body === undefined) {
     throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected legal forms payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchCorporateStructures(
+  options: FetchCorporateStructuresOptions,
+): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: CORPORATE_STRUCTURES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected corporate structures payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchCorporateStructure(
+  options: FetchCorporateStructureOptions,
+): Promise<JsonValue> {
+  const { organizationId, select } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CORPORATE_STRUCTURES_PATH}/${encodeURIComponent(organizationId)}`,
+    method: "GET",
+    query: {
+      select,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected corporate structure payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchEstablishment(
+  options: FetchEstablishmentOptions,
+): Promise<JsonValue> {
+  const { organizationId, establishmentId, select } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${CORPORATE_STRUCTURES_PATH}/${encodeURIComponent(organizationId)}/establishments/${encodeURIComponent(establishmentId)}`,
+    method: "GET",
+    query: {
+      select,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected establishment payload.`);
   }
 
   return body;

@@ -47,6 +47,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           name: "Legal Form",
           value: "legalForm",
         },
+        {
+          name: "Corporate Structure",
+          value: "corporateStructure",
+        },
       ],
       default: "client",
     },
@@ -212,6 +216,37 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "getAll",
     },
     {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["corporateStructure"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of corporate structures",
+          action: "Get many corporate structures",
+        },
+        {
+          name: "Get Organization",
+          value: "get",
+          description: "Retrieve a specific organization",
+          action: "Get an organization",
+        },
+        {
+          name: "Get Establishment",
+          value: "getEstablishment",
+          description: "Retrieve a specific establishment",
+          action: "Get an establishment",
+        },
+      ],
+      default: "getAll",
+    },
+    {
       displayName: "Limit",
       name: "top",
       type: "number",
@@ -249,7 +284,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "relationshipType", "legalForm"],
+          resource: ["client", "taxAuthority", "relationship", "relationshipType", "legalForm", "corporateStructure"],
           operation: [
             "getAll",
             "get",
@@ -257,6 +292,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
             "getClientCategories",
             "getClientGroups",
             "getDeletionLog",
+            "getEstablishment",
           ],
         },
       },
@@ -269,7 +305,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "relationshipType"],
+          resource: ["client", "taxAuthority", "relationship", "relationshipType", "corporateStructure"],
           operation: ["getAll", "getDeletionLog"],
         },
       },
@@ -420,6 +456,34 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       ],
       default: "",
       description: "Filter legal forms by national law (German or Austrian)",
+    },
+    {
+      displayName: "Organization ID",
+      name: "organizationId",
+      type: "string",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["corporateStructure"],
+          operation: ["get", "getEstablishment"],
+        },
+      },
+      default: "",
+      description: "The GUID of the organization",
+    },
+    {
+      displayName: "Establishment ID",
+      name: "establishmentId",
+      type: "string",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["corporateStructure"],
+          operation: ["getEstablishment"],
+        },
+      },
+      default: "",
+      description: "The GUID of the establishment",
     },
   ],
 };

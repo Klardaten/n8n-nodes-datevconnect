@@ -88,9 +88,23 @@ export interface NextFreeNumberParams {
 }
 
 /**
+ * Parameters for corporate structure operations
+ */
+export interface CorporateStructureOperationParams extends BaseOperationParams {
+  organizationId: string;
+}
+
+/**
+ * Parameters for establishment operations
+ */
+export interface EstablishmentOperationParams extends CorporateStructureOperationParams {
+  establishmentId: string;
+}
+
+/**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "relationshipType" | "legalForm";
+export type Resource = "client" | "taxAuthority" | "relationship" | "relationshipType" | "legalForm" | "corporateStructure";
 
 /**
  * Supported client operations
@@ -130,9 +144,14 @@ export type RelationshipTypeOperation = "getAll";
 export type LegalFormOperation = "getAll";
 
 /**
+ * Supported corporate structure operations
+ */
+export type CorporateStructureOperation = "getAll" | "get" | "getEstablishment";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | RelationshipTypeOperation | LegalFormOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | RelationshipTypeOperation | LegalFormOperation | CorporateStructureOperation;
 
 /**
  * Success response format
