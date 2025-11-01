@@ -18,6 +18,8 @@ import { EmployeeResourceHandler } from "./handlers/EmployeeResourceHandler";
 import { CountryCodeResourceHandler } from "./handlers/CountryCodeResourceHandler";
 import { ClientGroupTypeResourceHandler } from "./handlers/ClientGroupTypeResourceHandler";
 import { ClientCategoryTypeResourceHandler } from "./handlers/ClientCategoryTypeResourceHandler";
+import { BankResourceHandler } from "./handlers/BankResourceHandler";
+import { AreaOfResponsibilityResourceHandler } from "./handlers/AreaOfResponsibilityResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
 import { toErrorObject } from "./utils";
 import type { Resource, MasterDataCredentials } from "./types";
@@ -97,6 +99,12 @@ export class MasterData implements INodeType {
           break;
         case "clientCategoryType":
           handler = new ClientCategoryTypeResourceHandler(this, itemIndex);
+          break;
+        case "bank":
+          handler = new BankResourceHandler(this, itemIndex);
+          break;
+        case "areaOfResponsibility":
+          handler = new AreaOfResponsibilityResourceHandler(this, itemIndex);
           break;
         default:
           throw new NodeOperationError(

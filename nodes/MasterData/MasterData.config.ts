@@ -63,6 +63,14 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           name: "Client Category Type",
           value: "clientCategoryType",
         },
+        {
+          name: "Bank",
+          value: "bank",
+        },
+        {
+          name: "Area of Responsibility",
+          value: "areaOfResponsibility",
+        },
       ],
       default: "client",
     },
@@ -377,6 +385,44 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "getAll",
     },
     {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["bank"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of banks",
+          action: "Get many banks",
+        },
+      ],
+      default: "getAll",
+    },
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["areaOfResponsibility"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of areas of responsibility",
+          action: "Get many areas of responsibility",
+        },
+      ],
+      default: "getAll",
+    },
+    {
       displayName: "Limit",
       name: "top",
       type: "number",
@@ -414,7 +460,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType"],
+          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility"],
           operation: [
             "getAll",
             "get",
@@ -436,7 +482,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType"],
+          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility"],
           operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },

@@ -167,7 +167,7 @@ export interface UpdateClientCategoryTypeParams extends ClientCategoryTypeOperat
 /**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType" | "bank" | "areaOfResponsibility";
 
 /**
  * Supported client operations
@@ -227,9 +227,19 @@ export type ClientGroupTypeOperation = "getAll" | "get" | "create" | "update";
 export type ClientCategoryTypeOperation = "getAll" | "get" | "create" | "update";
 
 /**
+ * Supported bank operations
+ */
+export type BankOperation = "getAll";
+
+/**
+ * Supported area of responsibility operations
+ */
+export type AreaOfResponsibilityOperation = "getAll";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation | BankOperation | AreaOfResponsibilityOperation;
 
 /**
  * Success response format

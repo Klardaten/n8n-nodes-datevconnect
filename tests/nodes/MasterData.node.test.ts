@@ -9,6 +9,8 @@ import { EmployeeResourceHandler } from "../../nodes/MasterData/handlers/Employe
 import { CountryCodeResourceHandler } from "../../nodes/MasterData/handlers/CountryCodeResourceHandler";
 import { ClientGroupTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientGroupTypeResourceHandler";
 import { ClientCategoryTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientCategoryTypeResourceHandler";
+import { BankResourceHandler } from "../../nodes/MasterData/handlers/BankResourceHandler";
+import { AreaOfResponsibilityResourceHandler } from "../../nodes/MasterData/handlers/AreaOfResponsibilityResourceHandler";
 
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
@@ -425,6 +427,58 @@ describe("MasterData node integration", () => {
       );
 
       clientCategoryTypeHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for bank resource", async () => {
+      const bankHandlerSpy = spyOn(BankResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "bank",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(bankHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      bankHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for areaOfResponsibility resource", async () => {
+      const areaOfResponsibilityHandlerSpy = spyOn(AreaOfResponsibilityResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "areaOfResponsibility",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(areaOfResponsibilityHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      areaOfResponsibilityHandlerSpy.mockRestore();
     });
   });
 });

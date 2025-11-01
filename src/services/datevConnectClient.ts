@@ -187,6 +187,16 @@ export interface UpdateClientCategoryTypeOptions extends BaseRequestOptions {
   clientCategoryType: JsonValue;
 }
 
+export interface FetchBanksOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchAreaOfResponsibilitiesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -303,6 +313,8 @@ const EMPLOYEES_PATH = `${MASTER_DATA_BASE_PATH}/employees`;
 const COUNTRY_CODES_PATH = `${MASTER_DATA_BASE_PATH}/country-codes`;
 const CLIENT_GROUP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-group-types`;
 const CLIENT_CATEGORY_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-category-types`;
+const BANKS_PATH = `${MASTER_DATA_BASE_PATH}/banks`;
+const AREA_OF_RESPONSIBILITIES_PATH = `${MASTER_DATA_BASE_PATH}/area-of-responsibilities`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -920,6 +932,46 @@ export async function updateClientCategoryType(options: UpdateClientCategoryType
     method: "PUT",
     body: clientCategoryType,
   });
+
+  return body;
+}
+
+export async function fetchBanks(options: FetchBanksOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: BANKS_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected banks payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchAreaOfResponsibilities(options: FetchAreaOfResponsibilitiesOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: AREA_OF_RESPONSIBILITIES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected area of responsibilities payload.`);
+  }
 
   return body;
 }

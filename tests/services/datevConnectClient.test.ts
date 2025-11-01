@@ -30,6 +30,8 @@ import {
   fetchClientCategoryType,
   createClientCategoryType,
   updateClientCategoryType,
+  fetchBanks,
+  fetchAreaOfResponsibilities,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -63,6 +65,8 @@ import {
   type FetchClientCategoryTypeOptions,
   type CreateClientCategoryTypeOptions,
   type UpdateClientCategoryTypeOptions,
+  type FetchBanksOptions,
+  type FetchAreaOfResponsibilitiesOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -1438,5 +1442,147 @@ describe("updateClientCategoryType", () => {
       name: "Updated Test Category Type",
       note: "Updated test category type for unit tests"
     });
+  });
+});
+
+describe("fetchBanks", () => {
+  test("requests banks with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "007130",
+          bank_code: "76050101",
+          bic: "SSKNDE77XXX",
+          city: "Nürnberg",
+          country_code: "DE",
+          name: "Sparkasse Nürnberg",
+          standard: true,
+          timestamp: "2019-03-31T20:06:51.670"
+        },
+        {
+          id: "007129",
+          bank_code: "76050000",
+          bic: "BYLADEMMXXX",
+          city: "Nürnberg",
+          country_code: "DE",
+          name: "BayernLB Nürnberg",
+          standard: true,
+          timestamp: "2020-01-31T09:21:55.883"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchBanksOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name,city",
+      filter: "city eq Nürnberg",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchBanks(options);
+
+    expect(response).toEqual([
+      {
+        id: "007130",
+        bank_code: "76050101",
+        bic: "SSKNDE77XXX",
+        city: "Nürnberg",
+        country_code: "DE",
+        name: "Sparkasse Nürnberg",
+        standard: true,
+        timestamp: "2019-03-31T20:06:51.670"
+      },
+      {
+        id: "007129",
+        bank_code: "76050000",
+        bic: "BYLADEMMXXX",
+        city: "Nürnberg",
+        country_code: "DE",
+        name: "BayernLB Nürnberg",
+        standard: true,
+        timestamp: "2020-01-31T09:21:55.883"
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/banks");
+    expect(url.searchParams.get("select")).toBe("id,name,city");
+    expect(url.searchParams.get("filter")).toBe("city eq Nürnberg");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchAreaOfResponsibilities", () => {
+  test("requests area of responsibilities with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "AB",
+          name: "Anlagenbuchführung",
+          standard: true,
+          status: "active"
+        },
+        {
+          id: "BP",
+          name: "Bescheidprüfung",
+          standard: true,
+          status: "active"
+        },
+        {
+          id: "MV",
+          name: "Mandatsverantwortung",
+          standard: true,
+          status: "active"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchAreaOfResponsibilitiesOptions = {
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,name,status",
+      filter: "status eq active",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchAreaOfResponsibilities(options);
+
+    expect(response).toEqual([
+      {
+        id: "AB",
+        name: "Anlagenbuchführung",
+        standard: true,
+        status: "active"
+      },
+      {
+        id: "BP",
+        name: "Bescheidprüfung",
+        standard: true,
+        status: "active"
+      },
+      {
+        id: "MV",
+        name: "Mandatsverantwortung",
+        standard: true,
+        status: "active"
+      }
+    ]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/area-of-responsibilities");
+    expect(url.searchParams.get("select")).toBe("id,name,status");
+    expect(url.searchParams.get("filter")).toBe("status eq active");
+    expect(init?.method).toBe("GET");
   });
 });
