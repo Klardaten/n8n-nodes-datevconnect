@@ -197,6 +197,32 @@ export interface FetchAreaOfResponsibilitiesOptions extends BaseRequestOptions {
   filter?: string;
 }
 
+export interface FetchAddresseesOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
+export interface FetchAddresseeOptions extends BaseRequestOptions {
+  addresseeId: string;
+  select?: string;
+  expand?: string;
+}
+
+export interface CreateAddresseeOptions extends BaseRequestOptions {
+  addressee: JsonValue;
+  nationalRight?: string;
+}
+
+export interface UpdateAddresseeOptions extends BaseRequestOptions {
+  addresseeId: string;
+  addressee: JsonValue;
+}
+
+export interface FetchAddresseesDeletionLogOptions extends BaseRequestOptions {
+  select?: string;
+  filter?: string;
+}
+
 const JSON_CONTENT_TYPE = "application/json";
 
 const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
@@ -315,6 +341,8 @@ const CLIENT_GROUP_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-group-types`;
 const CLIENT_CATEGORY_TYPES_PATH = `${MASTER_DATA_BASE_PATH}/client-category-types`;
 const BANKS_PATH = `${MASTER_DATA_BASE_PATH}/banks`;
 const AREA_OF_RESPONSIBILITIES_PATH = `${MASTER_DATA_BASE_PATH}/area-of-responsibilities`;
+const ADDRESSEES_PATH = `${MASTER_DATA_BASE_PATH}/addressees`;
+const ADDRESSEES_DELETION_LOG_PATH = `${ADDRESSEES_PATH}/deletion-log`;
 
 type RequestMethod = "GET" | "POST" | "PUT";
 
@@ -971,6 +999,95 @@ export async function fetchAreaOfResponsibilities(options: FetchAreaOfResponsibi
 
   if (body === undefined) {
     throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected area of responsibilities payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchAddressees(options: FetchAddresseesOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: ADDRESSEES_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected addressees payload.`);
+  }
+
+  return body;
+}
+
+export async function fetchAddressee(options: FetchAddresseeOptions): Promise<JsonValue> {
+  const { addresseeId, select, expand } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${ADDRESSEES_PATH}/${addresseeId}`,
+    method: "GET",
+    query: {
+      select,
+      expand,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected addressee payload.`);
+  }
+
+  return body;
+}
+
+export async function createAddressee(options: CreateAddresseeOptions): Promise<JsonValue | undefined> {
+  const { addressee, nationalRight } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: ADDRESSEES_PATH,
+    method: "POST",
+    query: {
+      "national-right": nationalRight,
+    },
+    body: addressee,
+  });
+
+  return body;
+}
+
+export async function updateAddressee(options: UpdateAddresseeOptions): Promise<JsonValue | undefined> {
+  const { addresseeId, addressee } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: `${ADDRESSEES_PATH}/${addresseeId}`,
+    method: "PUT",
+    body: addressee,
+  });
+
+  return body;
+}
+
+export async function fetchAddresseesDeletionLog(options: FetchAddresseesDeletionLogOptions): Promise<JsonValue> {
+  const { select, filter } = options;
+
+  const body = await sendMasterDataRequest({
+    ...options,
+    path: ADDRESSEES_DELETION_LOG_PATH,
+    method: "GET",
+    query: {
+      select,
+      filter,
+    },
+  });
+
+  if (body === undefined) {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected addressees deletion log payload.`);
   }
 
   return body;

@@ -11,6 +11,7 @@ import { ClientGroupTypeResourceHandler } from "../../nodes/MasterData/handlers/
 import { ClientCategoryTypeResourceHandler } from "../../nodes/MasterData/handlers/ClientCategoryTypeResourceHandler";
 import { BankResourceHandler } from "../../nodes/MasterData/handlers/BankResourceHandler";
 import { AreaOfResponsibilityResourceHandler } from "../../nodes/MasterData/handlers/AreaOfResponsibilityResourceHandler";
+import { AddresseeResourceHandler } from "../../nodes/MasterData/handlers/AddresseeResourceHandler";
 
 const { MasterData } = await import("../../nodes/MasterData/MasterData.node");
 
@@ -479,6 +480,32 @@ describe("MasterData node integration", () => {
       );
 
       areaOfResponsibilityHandlerSpy.mockRestore();
+    });
+
+    test("creates correct handler for addressee resource", async () => {
+      const addresseeHandlerSpy = spyOn(AddresseeResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        parameters: {
+          resource: "addressee",
+          operation: "getAll",
+        },
+      });
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(addresseeHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: "test-token-123",
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array)
+      );
+
+      addresseeHandlerSpy.mockRestore();
     });
   });
 });

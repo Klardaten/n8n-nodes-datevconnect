@@ -71,6 +71,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           name: "Area of Responsibility",
           value: "areaOfResponsibility",
         },
+        {
+          name: "Addressee",
+          value: "addressee",
+        },
       ],
       default: "client",
     },
@@ -423,6 +427,49 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "getAll",
     },
     {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["addressee"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of addressees",
+          action: "Get many addressees",
+        },
+        {
+          name: "Get",
+          value: "get",
+          description: "Retrieve a specific addressee",
+          action: "Get an addressee",
+        },
+        {
+          name: "Create",
+          value: "create",
+          description: "Create a new addressee",
+          action: "Create an addressee",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Update a specific addressee",
+          action: "Update an addressee",
+        },
+        {
+          name: "Get Deletion Log",
+          value: "getDeletionLog",
+          description: "Retrieve a list of deleted addressees",
+          action: "Get addressee deletion log",
+        },
+      ],
+      default: "getAll",
+    },
+    {
       displayName: "Limit",
       name: "top",
       type: "number",
@@ -460,7 +507,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility"],
+          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
           operation: [
             "getAll",
             "get",
@@ -482,7 +529,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility"],
+          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
           operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },
@@ -688,6 +735,69 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       },
       default: "{}",
       description: "Employee payload to send to the API",
+    },
+    {
+      displayName: "Addressee ID",
+      name: "addresseeId",
+      type: "string",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["addressee"],
+          operation: ["get", "update"],
+        },
+      },
+      default: "",
+      description: "The GUID of the addressee",
+    },
+    {
+      displayName: "Addressee Data",
+      name: "addresseeData",
+      type: "json",
+      displayOptions: {
+        show: {
+          resource: ["addressee"],
+          operation: ["create", "update"],
+        },
+      },
+      default: "{}",
+      description: "Addressee payload to send to the API",
+    },
+    {
+      displayName: "National Right",
+      name: "nationalRight",
+      type: "options",
+      options: [
+        {
+          name: "German",
+          value: "german",
+        },
+        {
+          name: "Austrian",
+          value: "austrian",
+        },
+      ],
+      displayOptions: {
+        show: {
+          resource: ["addressee"],
+          operation: ["create"],
+        },
+      },
+      default: "",
+      description: "Parameter defines the national law that will be saved with the addressee",
+    },
+    {
+      displayName: "Expand",
+      name: "expand",
+      type: "string",
+      displayOptions: {
+        show: {
+          resource: ["addressee"],
+          operation: ["get"],
+        },
+      },
+      default: "",
+      description: "Parameter to include subordinate objects (e.g., 'detail,addresses' or '*' for all)",
     },
     {
       displayName: "Client Group Type ID",

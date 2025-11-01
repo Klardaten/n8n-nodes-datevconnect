@@ -32,6 +32,11 @@ import {
   updateClientCategoryType,
   fetchBanks,
   fetchAreaOfResponsibilities,
+  fetchAddressees,
+  fetchAddressee,
+  createAddressee,
+  updateAddressee,
+  fetchAddresseesDeletionLog,
   updateClient,
   updateClientCategories,
   updateClientGroups,
@@ -67,6 +72,11 @@ import {
   type UpdateClientCategoryTypeOptions,
   type FetchBanksOptions,
   type FetchAreaOfResponsibilitiesOptions,
+  type FetchAddresseesOptions,
+  type FetchAddresseeOptions,
+  type CreateAddresseeOptions,
+  type UpdateAddresseeOptions,
+  type FetchAddresseesDeletionLogOptions,
   type UpdateClientCategoriesOptions,
   type UpdateClientGroupsOptions,
   type UpdateClientOptions,
@@ -1583,6 +1593,222 @@ describe("fetchAreaOfResponsibilities", () => {
     expect(url.pathname).toBe("/datevconnect/master-data/v1/area-of-responsibilities");
     expect(url.searchParams.get("select")).toBe("id,name,status");
     expect(url.searchParams.get("filter")).toBe("status eq active");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchAddressees", () => {
+  test("requests addressees with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+          type: "natural_person",
+          status: "active",
+          current_short_name: "Mustermann",
+          current_surname: "Max Mustermann",
+          firstname: "Max",
+          timestamp: "2019-03-31T20:06:51.670"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchAddresseesOptions = {
+      host: "https://example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,type,status,current_short_name",
+      filter: "status eq active",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchAddressees(options);
+
+    expect(response).toEqual([{
+      id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+      type: "natural_person",
+      status: "active",
+      current_short_name: "Mustermann",
+      current_surname: "Max Mustermann",
+      firstname: "Max",
+      timestamp: "2019-03-31T20:06:51.670"
+    }]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees");
+    expect(url.searchParams.get("select")).toBe("id,type,status,current_short_name");
+    expect(url.searchParams.get("filter")).toBe("status eq active");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("fetchAddressee", () => {
+  test("requests a single addressee with optional select and expand", async () => {
+    const calls: FetchCall[] = [];
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse({
+        id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+        type: "natural_person",
+        status: "active",
+        current_short_name: "Mustermann",
+        detail: {
+          job_titles: [
+            {
+              value: "Software Engineer",
+              valid_from: "2020-01-01T00:00:00.000"
+            }
+          ]
+        }
+      }, { status: 200 });
+    });
+
+    const options: FetchAddresseeOptions = {
+      host: "https://example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      addresseeId: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+      select: "id,type,current_short_name",
+      expand: "detail",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchAddressee(options);
+
+    expect(response).toEqual({
+      id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+      type: "natural_person",
+      status: "active",
+      current_short_name: "Mustermann",
+      detail: {
+        job_titles: [
+          {
+            value: "Software Engineer",
+            valid_from: "2020-01-01T00:00:00.000"
+          }
+        ]
+      }
+    });
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7");
+    expect(url.searchParams.get("select")).toBe("id,type,current_short_name");
+    expect(url.searchParams.get("expand")).toBe("detail");
+    expect(init?.method).toBe("GET");
+  });
+});
+
+describe("createAddressee", () => {
+  test("creates addressee with data and optional nationalRight", async () => {
+    const calls: FetchCall[] = [];
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse(undefined, { status: 204 });
+    });
+
+    const addresseeData = {
+      type: "natural_person",
+      current_short_name: "Mustermann",
+      firstname: "Max",
+      status: "active"
+    };
+
+    const options: CreateAddresseeOptions = {
+      host: "https://example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      addressee: addresseeData,
+      nationalRight: "german",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await createAddressee(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees");
+    expect(url.searchParams.get("national-right")).toBe("german");
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(init?.body as string)).toEqual(addresseeData);
+  });
+});
+
+describe("updateAddressee", () => {
+  test("updates addressee by id", async () => {
+    const calls: FetchCall[] = [];
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse(undefined, { status: 204 });
+    });
+
+    const addresseeData = {
+      type: "natural_person",
+      current_short_name: "Mustermann Updated",
+      firstname: "Max",
+      status: "active"
+    };
+
+    const options: UpdateAddresseeOptions = {
+      host: "https://example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      addresseeId: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+      addressee: addresseeData,
+      fetchImpl: fetchMock,
+    };
+
+    const response = await updateAddressee(options);
+
+    expect(response).toBeUndefined();
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7");
+    expect(init?.method).toBe("PUT");
+    expect(JSON.parse(init?.body as string)).toEqual(addresseeData);
+  });
+});
+
+describe("fetchAddresseesDeletionLog", () => {
+  test("requests addressees deletion log with optional select and filter", async () => {
+    const calls: FetchCall[] = [];
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([
+        {
+          id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+          timestamp: "2019-03-31T20:06:51.670"
+        }
+      ], { status: 200 });
+    });
+
+    const options: FetchAddresseesDeletionLogOptions = {
+      host: "https://example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      select: "id,timestamp",
+      filter: "timestamp gt 2019-01-01T00:00:00.000",
+      fetchImpl: fetchMock,
+    };
+
+    const response = await fetchAddresseesDeletionLog(options);
+
+    expect(response).toEqual([{
+      id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+      timestamp: "2019-03-31T20:06:51.670"
+    }]);
+    expect(calls).toHaveLength(1);
+
+    const [{ url, init }] = calls;
+    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/deletion-log");
+    expect(url.searchParams.get("select")).toBe("id,timestamp");
+    expect(url.searchParams.get("filter")).toBe("timestamp gt 2019-01-01T00:00:00.000");
     expect(init?.method).toBe("GET");
   });
 });

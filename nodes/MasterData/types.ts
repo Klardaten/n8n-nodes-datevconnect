@@ -165,9 +165,32 @@ export interface UpdateClientCategoryTypeParams extends ClientCategoryTypeOperat
 }
 
 /**
+ * Parameters for addressee-specific operations
+ */
+export interface AddresseeOperationParams extends BaseOperationParams {
+  addresseeId: string;
+  expand?: string;
+}
+
+/**
+ * Parameters for addressee creation
+ */
+export interface CreateAddresseeParams {
+  addresseeData: JsonValue;
+  nationalRight?: string;
+}
+
+/**
+ * Parameters for addressee updates
+ */
+export interface UpdateAddresseeParams extends AddresseeOperationParams {
+  addresseeData: JsonValue;
+}
+
+/**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType" | "bank" | "areaOfResponsibility";
+export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType" | "bank" | "areaOfResponsibility" | "addressee";
 
 /**
  * Supported client operations
@@ -237,9 +260,14 @@ export type BankOperation = "getAll";
 export type AreaOfResponsibilityOperation = "getAll";
 
 /**
+ * Supported addressee operations
+ */
+export type AddresseeOperation = "getAll" | "get" | "create" | "update" | "getDeletionLog";
+
+/**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation | BankOperation | AreaOfResponsibilityOperation;
+export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation | BankOperation | AreaOfResponsibilityOperation | AddresseeOperation;
 
 /**
  * Success response format
