@@ -39,7 +39,7 @@ export class ClientResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAll(_requestContext: RequestContext): Promise<JsonValue> {
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
     const select = this.getOptionalString("select");
