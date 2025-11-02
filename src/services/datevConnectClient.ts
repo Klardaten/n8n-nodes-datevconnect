@@ -1288,18 +1288,24 @@ export interface FetchPostingProposalRulesIncomingOptions extends BaseRequestOpt
   clientId: string;
   fiscalYearId: string;
   select?: string;
+  top?: number;
+  skip?: number;
 }
 
 export interface FetchPostingProposalRulesOutgoingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
+  top?: number;
+  skip?: number;
 }
 
 export interface FetchPostingProposalRulesCashRegisterOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
+  top?: number;
+  skip?: number;
 }
 
 export interface FetchPostingProposalRuleIncomingOptions extends BaseRequestOptions {
@@ -1346,6 +1352,8 @@ export interface FetchAccountingSumsAndBalancesOptions extends BaseRequestOption
   fiscalYearId: string;
   select?: string;
   filter?: string;
+  top?: number;
+  skip?: number;
 }
 
 export interface FetchAccountingSumsAndBalanceOptions extends BaseRequestOptions {
@@ -1448,6 +1456,8 @@ export interface FetchUtilizedGeneralLedgerAccountsOptions extends BaseRequestOp
   clientId: string;
   fiscalYearId: string;
   select?: string;
+  top?: number;
+  skip?: number;
 }
 
 // Terms of Payment interfaces
@@ -1528,6 +1538,8 @@ export interface FetchCostCentersOptions extends BaseRequestOptions {
   fiscalYearId: string;
   costSystemId: string;
   select?: string;
+  top?: number;
+  skip?: number;
 }
 
 export interface FetchCostCenterOptions extends BaseRequestOptions {
@@ -1694,11 +1706,11 @@ export async function fetchAccountingClients(options: FetchAccountingClientsOpti
     path: `${ACCOUNTING_BASE_PATH}/clients`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
-      $expand: expand,
+      select,
+      filter,
+      top,
+      skip,
+      expand,
     },
   });
 
@@ -1717,8 +1729,8 @@ export async function fetchAccountingClient(options: FetchAccountingClientOption
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $expand: expand,
+      select: select,
+      expand: expand,
     },
   });
 
@@ -1737,10 +1749,10 @@ export async function fetchFiscalYears(options: FetchFiscalYearsOptions): Promis
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -1759,7 +1771,7 @@ export async function fetchFiscalYear(options: FetchFiscalYearOptions): Promise<
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -1778,11 +1790,11 @@ export async function fetchAccountsReceivable(options: FetchAccountsReceivableOp
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-receivable`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
-      $expand: expand,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
+      expand: expand,
     },
   });
 
@@ -1801,10 +1813,10 @@ export async function fetchAccountsReceivableCondensed(options: FetchAccountsRec
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-receivable/condensed`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -1823,8 +1835,8 @@ export async function fetchAccountReceivable(options: FetchAccountReceivableOpti
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-receivable/${encodeURIComponent(accountsReceivableId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $expand: expand,
+      select: select,
+      expand: expand,
     },
   });
 
@@ -1843,11 +1855,11 @@ export async function fetchAccountsPayable(options: FetchAccountsPayableOptions)
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-payable`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
-      $expand: expand,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
+      expand: expand,
     },
   });
 
@@ -1866,10 +1878,10 @@ export async function fetchAccountsPayableCondensed(options: FetchAccountsPayabl
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-payable/condense`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -1888,8 +1900,8 @@ export async function fetchAccountPayable(options: FetchAccountPayableOptions): 
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-payable/${encodeURIComponent(accountsPayableId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $expand: expand,
+      select: select,
+      expand: expand,
     },
   });
 
@@ -1908,10 +1920,10 @@ export async function fetchAccountPostings(options: FetchAccountPostingsOptions)
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/account-postings`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -1930,7 +1942,7 @@ export async function fetchAccountPosting(options: FetchAccountPostingOptions): 
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/account-postings/${encodeURIComponent(accountPostingId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -1949,10 +1961,10 @@ export async function fetchAccountingSequences(options: FetchAccountingSequences
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -1971,7 +1983,7 @@ export async function fetchAccountingSequence(options: FetchAccountingSequenceOp
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences/${encodeURIComponent(accountingSequenceId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2001,10 +2013,10 @@ export async function fetchAccountingRecords(options: FetchAccountingRecordsOpti
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences-processed/${encodeURIComponent(accountingSequenceId)}/accounting-records`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2023,7 +2035,7 @@ export async function fetchAccountingRecord(options: FetchAccountingRecordOption
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences-processed/${encodeURIComponent(accountingSequenceId)}/accounting-records/${encodeURIComponent(accountingRecordId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2035,14 +2047,16 @@ export async function fetchAccountingRecord(options: FetchAccountingRecordOption
 }
 
 export async function fetchPostingProposalRulesIncoming(options: FetchPostingProposalRulesIncomingOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select } = options;
+  const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-incoming-invoices`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2054,14 +2068,16 @@ export async function fetchPostingProposalRulesIncoming(options: FetchPostingPro
 }
 
 export async function fetchPostingProposalRulesOutgoing(options: FetchPostingProposalRulesOutgoingOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select } = options;
+  const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-outgoing-invoices`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2073,14 +2089,16 @@ export async function fetchPostingProposalRulesOutgoing(options: FetchPostingPro
 }
 
 export async function fetchPostingProposalRulesCashRegister(options: FetchPostingProposalRulesCashRegisterOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select } = options;
+  const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-cash-register`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2099,7 +2117,7 @@ export async function fetchPostingProposalRuleIncoming(options: FetchPostingProp
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-incoming-invoices/${encodeURIComponent(ruleId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2118,7 +2136,7 @@ export async function fetchPostingProposalRuleOutgoing(options: FetchPostingProp
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-outgoing-invoices/${encodeURIComponent(ruleId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2137,7 +2155,7 @@ export async function fetchPostingProposalRuleCashRegister(options: FetchPosting
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/posting-proposal-rules-cash-register/${encodeURIComponent(ruleId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2182,15 +2200,17 @@ export async function batchPostingProposalsCashRegister(options: BatchPostingPro
 }
 
 export async function fetchAccountingSumsAndBalances(options: FetchAccountingSumsAndBalancesOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select, filter } = options;
+  const { clientId, fiscalYearId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sums-and-balances`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2225,11 +2245,11 @@ export async function fetchDebitors(options: FetchDebitorsOptions): Promise<Json
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/debitors`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
-      $expand: expand,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
+      expand: expand,
     },
   });
 
@@ -2248,8 +2268,8 @@ export async function fetchDebitor(options: FetchDebitorOptions): Promise<JsonVa
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/debitors/${encodeURIComponent(debitorId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $expand: expand,
+      select: select,
+      expand: expand,
     },
   });
 
@@ -2309,11 +2329,11 @@ export async function fetchCreditors(options: FetchCreditorsOptions): Promise<Js
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/creditors`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
-      $expand: expand,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
+      expand: expand,
     },
   });
 
@@ -2332,8 +2352,8 @@ export async function fetchCreditor(options: FetchCreditorOptions): Promise<Json
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/creditors/${encodeURIComponent(creditorId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $expand: expand,
+      select: select,
+      expand: expand,
     },
   });
 
@@ -2393,10 +2413,10 @@ export async function fetchGeneralLedgerAccounts(options: FetchGeneralLedgerAcco
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/general-ledger-accounts`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $top: top,
-      $skip: skip,
+      select: select,
+      filter: filter,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2415,7 +2435,7 @@ export async function fetchGeneralLedgerAccount(options: FetchGeneralLedgerAccou
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/general-ledger-accounts/${encodeURIComponent(generalLedgerAccountId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2427,14 +2447,16 @@ export async function fetchGeneralLedgerAccount(options: FetchGeneralLedgerAccou
 }
 
 export async function fetchUtilizedGeneralLedgerAccounts(options: FetchUtilizedGeneralLedgerAccountsOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select } = options;
+  const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/general-ledger-accounts/utilized`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2454,10 +2476,10 @@ export async function fetchTermsOfPayment(options: FetchTermsOfPaymentOptions): 
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/terms-of-payment`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $skip: skip,
-      $top: top,
+      select: select,
+      filter: filter,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2476,7 +2498,7 @@ export async function fetchTermOfPayment(options: FetchTermOfPaymentOptions): Pr
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/terms-of-payment/${encodeURIComponent(termOfPaymentId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2518,10 +2540,10 @@ export async function fetchStocktakingData(options: FetchStocktakingDataOptions)
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/assets/stocktakings`,
     method: "GET",
     query: {
-      $filter: filter,
-      $select: select,
-      $skip: skip,
-      $top: top,
+      filter: filter,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2540,9 +2562,9 @@ export async function fetchStocktakingDataByAsset(options: FetchStocktakingDataB
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/assets/${encodeURIComponent(assetId)}/stocktaking/`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2573,9 +2595,9 @@ export async function fetchCostSystems(options: FetchCostSystemsOptions): Promis
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2594,7 +2616,7 @@ export async function fetchCostSystem(options: FetchCostSystemOptions): Promise<
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2607,14 +2629,16 @@ export async function fetchCostSystem(options: FetchCostSystemOptions): Promise<
 
 // Cost Centers functions
 export async function fetchCostCenters(options: FetchCostCentersOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, costSystemId, select } = options;
+  const { clientId, fiscalYearId, costSystemId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-centers`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
+      top: top,
+      skip: skip,
     },
   });
 
@@ -2633,7 +2657,7 @@ export async function fetchCostCenter(options: FetchCostCenterOptions): Promise<
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-centers/${encodeURIComponent(costCenterId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2653,9 +2677,9 @@ export async function fetchCostCenterProperties(options: FetchCostCenterProperti
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-center-properties`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2674,7 +2698,7 @@ export async function fetchCostCenterProperty(options: FetchCostCenterPropertyOp
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-center-properties/${encodeURIComponent(costCenterPropertyId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2706,9 +2730,9 @@ export async function fetchCostSequences(options: FetchCostSequencesOptions): Pr
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-sequences`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2727,7 +2751,7 @@ export async function fetchCostSequence(options: FetchCostSequenceOptions): Prom
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-sequences/${encodeURIComponent(costSequenceId)}`,
     method: "GET",
     query: {
-      $select: select,
+      select: select,
     },
   });
 
@@ -2757,9 +2781,9 @@ export async function fetchCostAccountingRecords(options: FetchCostAccountingRec
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-sequences/${encodeURIComponent(costSequenceId)}/cost-accounting-records`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2779,10 +2803,10 @@ export async function fetchAccountingStatistics(options: FetchAccountingStatisti
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-statistics`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $skip: skip,
-      $top: top,
+      select: select,
+      filter: filter,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2802,9 +2826,9 @@ export async function fetchAccountingTransactionKeys(options: FetchAccountingTra
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-transaction-keys`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
+      select: select,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2823,10 +2847,10 @@ export async function fetchAccountingTransactionKey(options: FetchAccountingTran
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-transaction-keys/${encodeURIComponent(accountingTransactionKeyId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $filter: filter,
-      $skip: skip,
-      $top: top,
+      select: select,
+      filter: filter,
+      skip: skip,
+      top: top,
     },
   });
 
@@ -2846,10 +2870,10 @@ export async function fetchVariousAddresses(options: FetchVariousAddressesOption
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/various-addresses`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
-      $expand: expand,
+      select: select,
+      skip: skip,
+      top: top,
+      expand: expand,
     },
   });
 
@@ -2868,10 +2892,10 @@ export async function fetchVariousAddress(options: FetchVariousAddressOptions): 
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/various-addresses/${encodeURIComponent(variousAddressId)}`,
     method: "GET",
     query: {
-      $select: select,
-      $skip: skip,
-      $top: top,
-      $expand: expand,
+      select: select,
+      skip: skip,
+      top: top,
+      expand: expand,
     },
   });
 

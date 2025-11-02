@@ -47,12 +47,11 @@ export class ClientResourceHandler extends BaseResourceHandler {
 
     return await datevConnectClient.accounting.getClients(
       this.context,
-      { 
-        ...requestContext,
-        $top: top,
-        $skip: skip,
-        $select: select,
-        $filter: filter,
+      {
+        top,
+        skip,
+        select,
+        filter,
       }
     );
   }
@@ -66,7 +65,7 @@ export class ClientResourceHandler extends BaseResourceHandler {
       clientId,
       {
         ...requestContext,
-        $select: select,
+        select: select,
       }
     );
   }

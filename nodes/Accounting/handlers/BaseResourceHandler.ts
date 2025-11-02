@@ -87,26 +87,26 @@ export abstract class BaseResourceHandler {
     const params: IDataObject = {};
 
     // Add OData parameters
-    const top = this.getNumberParameter("top", 0);
+    const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
     const select = this.getOptionalString("select");
     const filter = this.getOptionalString("filter");
     const expand = this.getOptionalString("expand");
 
     if (top > 0) {
-      params.$top = top;
+      params.top = top;
     }
     if (skip > 0) {
-      params.$skip = skip;
+      params.skip = skip;
     }
     if (select) {
-      params.$select = select;
+      params.select = select;
     }
     if (filter) {
-      params.$filter = filter;
+      params.filter = filter;
     }
     if (expand && expand !== "") {
-      params.$expand = expand === "all" ? "*" : expand;
+      params.expand = expand === "all" ? "*" : expand;
     }
 
     return { ...params, ...additionalParams };

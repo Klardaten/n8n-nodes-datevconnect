@@ -831,10 +831,6 @@ export const accountingNodeDescription: INodeTypeDescription = {
         show: {
           resource: ["fiscalYear", "accountsReceivable", "accountsPayable", "accountPosting", "accountingSequence", "postingProposals", "accountingSumsAndBalances", "businessPartners", "generalLedgerAccounts", "termsOfPayment", "stocktakingData", "costSystems", "costCentersUnits", "costCenterProperties", "internalCostServices", "costSequences", "accountingStatistics", "accountingTransactionKeys", "variousAddresses"],
         },
-        hide: {
-          operation: ["getAll"],
-          resource: ["client"],
-        },
       },
       default: "",
       placeholder: "9c18c30b-ac17-451f-81c7-1b9b26dd73fe",
@@ -863,10 +859,6 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           resource: ["accountsReceivable", "accountsPayable", "accountPosting", "accountingSequence", "postingProposals", "accountingSumsAndBalances", "businessPartners", "generalLedgerAccounts", "termsOfPayment", "stocktakingData", "costSystems", "costCentersUnits", "costCenterProperties", "internalCostServices", "costSequences", "accountingStatistics", "accountingTransactionKeys", "variousAddresses"],
-        },
-        hide: {
-          operation: ["getAll"],
-          resource: ["fiscalYear"],
         },
       },
       default: "",
@@ -1182,7 +1174,10 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "number",
       displayOptions: {
         show: {
-          operation: ["getAll", "getCondensed"],
+          operation: [
+            "getAll", "getCondensed", "getAccountingRecords", 
+            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister"
+          ],
         },
       },
       typeOptions: {
@@ -1197,7 +1192,10 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "number",
       displayOptions: {
         show: {
-          operation: ["getAll", "getCondensed"],
+          operation: [
+            "getAll", "getCondensed", "getAccountingRecords", 
+            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister"
+          ],
         },
       },
       typeOptions: {
@@ -1212,7 +1210,11 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          operation: ["getAll", "get", "getCondensed"],
+          operation: [
+            "getAll", "get", "getCondensed", "getAccountingRecords", "getAccountingRecord",
+            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
+            "getRuleIncoming", "getRuleOutgoing", "getRuleCashRegister"
+          ],
         },
       },
       default: "",
@@ -1224,7 +1226,10 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          operation: ["getAll", "getCondensed"],
+          operation: [
+            "getAll", "getCondensed", "getAccountingRecords", 
+            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister"
+          ],
         },
       },
       default: "",

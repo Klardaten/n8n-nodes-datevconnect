@@ -30,13 +30,10 @@ export const datevConnectClient = {
   accounting: {
     async getClients(executeFunctions: IExecuteFunctions, queryParams: IDataObject = {}) {
       const options = await getAuthenticatedOptions(executeFunctions);
+      
       return client.fetchAccountingClients({
         ...options,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
-        expand: queryParams.$expand as string,
+        ...queryParams,
       });
     },
 
@@ -45,8 +42,8 @@ export const datevConnectClient = {
       return client.fetchAccountingClient({
         ...options,
         clientId,
-        select: queryParams.$select as string,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -55,10 +52,10 @@ export const datevConnectClient = {
       return client.fetchFiscalYears({
         ...options,
         clientId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -68,7 +65,7 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -78,11 +75,11 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -92,10 +89,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -106,8 +103,8 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountsReceivableId,
-        select: queryParams.$select as string,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -117,11 +114,11 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -131,10 +128,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -145,8 +142,8 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountsPayableId,
-        select: queryParams.$select as string,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -156,10 +153,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -170,7 +167,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountPostingId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -180,10 +177,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -194,7 +191,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountingSequenceId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -215,10 +212,10 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountingSequenceId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -230,7 +227,7 @@ export const datevConnectClient = {
         fiscalYearId,
         accountingSequenceId,
         accountingRecordId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -240,7 +237,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -250,7 +249,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -260,7 +261,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -271,7 +274,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         ruleId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -282,7 +285,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         ruleId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -293,7 +296,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         ruleId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -333,8 +336,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -354,11 +359,11 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -369,8 +374,8 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         debitorId,
-        select: queryParams.$select as string,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -411,11 +416,11 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -426,8 +431,8 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         creditorId,
-        select: queryParams.$select as string,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -468,10 +473,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        top: queryParams.$top as number,
-        skip: queryParams.$skip as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -482,7 +487,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         generalLedgerAccountId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -492,7 +497,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -503,10 +510,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -517,7 +524,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         termOfPaymentId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -549,10 +556,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        filter: queryParams.$filter as string,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        filter: queryParams.filter as string,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -563,9 +570,9 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         assetId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -587,9 +594,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -600,7 +607,7 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         costSystemId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -612,7 +619,9 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         costSystemId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
+        top: queryParams.top as number,
+        skip: queryParams.skip as number,
       });
     },
 
@@ -624,7 +633,7 @@ export const datevConnectClient = {
         fiscalYearId,
         costSystemId,
         costCenterId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -636,9 +645,9 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         costSystemId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -650,7 +659,7 @@ export const datevConnectClient = {
         fiscalYearId,
         costSystemId,
         costCenterPropertyId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -674,9 +683,9 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         costSystemId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -688,7 +697,7 @@ export const datevConnectClient = {
         fiscalYearId,
         costSystemId,
         costSequenceId,
-        select: queryParams.$select as string,
+        select: queryParams.select as string,
       });
     },
 
@@ -712,9 +721,9 @@ export const datevConnectClient = {
         fiscalYearId,
         costSystemId,
         costSequenceId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -725,10 +734,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -739,9 +748,9 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -752,10 +761,10 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         accountingTransactionKeyId,
-        select: queryParams.$select as string,
-        filter: queryParams.$filter as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
+        select: queryParams.select as string,
+        filter: queryParams.filter as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
       });
     },
 
@@ -766,10 +775,10 @@ export const datevConnectClient = {
         ...options,
         clientId,
         fiscalYearId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
+        expand: queryParams.expand as string,
       });
     },
 
@@ -780,10 +789,10 @@ export const datevConnectClient = {
         clientId,
         fiscalYearId,
         variousAddressId,
-        select: queryParams.$select as string,
-        skip: queryParams.$skip as number,
-        top: queryParams.$top as number,
-        expand: queryParams.$expand as string,
+        select: queryParams.select as string,
+        skip: queryParams.skip as number,
+        top: queryParams.top as number,
+        expand: queryParams.expand as string,
       });
     },
 
