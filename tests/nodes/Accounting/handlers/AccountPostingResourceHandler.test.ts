@@ -4,10 +4,6 @@ import { AccountPostingResourceHandler } from "../../../../nodes/Accounting/hand
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
 
-// Test spies
-let getAccountPostingsSpy: any;
-let getAccountPostingSpy: any;
-
 const mockAccountPostingData = [
   {
     id: "5318111",
