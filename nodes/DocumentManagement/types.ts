@@ -172,9 +172,7 @@ export type IndividualPropertyOperation = "getAll";
  */
 export type IndividualReferenceOperation = 
   | "getAll"
-  | "create"
-  | "update"
-  | "delete";
+  | "create";
 
 /**
  * Supported info operations

@@ -14,6 +14,11 @@ import { DocumentFileResourceHandler } from "./handlers/DocumentFileResourceHand
 import { DomainResourceHandler } from "./handlers/DomainResourceHandler";
 import { DocumentStateResourceHandler } from "./handlers/DocumentStateResourceHandler";
 import { InfoResourceHandler } from "./handlers/InfoResourceHandler";
+import { SecureAreaResourceHandler } from "./handlers/SecureAreaResourceHandler";
+import { PropertyTemplateResourceHandler } from "./handlers/PropertyTemplateResourceHandler";
+import { IndividualPropertyResourceHandler } from "./handlers/IndividualPropertyResourceHandler";
+import { IndividualReference1ResourceHandler } from "./handlers/IndividualReference1ResourceHandler";
+import { IndividualReference2ResourceHandler } from "./handlers/IndividualReference2ResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
 import { toErrorObject } from "./utils";
 import type { Resource, DocumentManagementCredentials } from "./types";
@@ -81,6 +86,21 @@ export class DocumentManagement implements INodeType {
           break;
         case "info":
           handler = new InfoResourceHandler(this, itemIndex);
+          break;
+        case "secureArea":
+          handler = new SecureAreaResourceHandler(this, itemIndex);
+          break;
+        case "propertyTemplate":
+          handler = new PropertyTemplateResourceHandler(this, itemIndex);
+          break;
+        case "individualProperty":
+          handler = new IndividualPropertyResourceHandler(this, itemIndex);
+          break;
+        case "individualReference1":
+          handler = new IndividualReference1ResourceHandler(this, itemIndex);
+          break;
+        case "individualReference2":
+          handler = new IndividualReference2ResourceHandler(this, itemIndex);
           break;
         default:
           throw new NodeOperationError(

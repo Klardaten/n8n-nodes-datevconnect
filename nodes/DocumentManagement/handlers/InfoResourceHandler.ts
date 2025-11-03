@@ -1,5 +1,6 @@
 import { NodeOperationError } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
+import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -30,20 +31,12 @@ export class InfoResourceHandler extends BaseResourceHandler {
     authContext: AuthContext,
     sendSuccess: SendSuccessFunction,
   ): Promise<void> {
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.getInfo({
-    //   ...authContext,
-    // });
+    const response = await DocumentManagementClient.fetchInfo({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+    });
 
-    const mockResponse: JsonValue = {
-      environment: "Document Management API",
-      version: {
-        name: "2.3.1",
-        number: "2.3.1",
-      },
-      application: "DATEV Document Management",
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 }

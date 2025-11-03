@@ -44,6 +44,26 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           value: "documentState",
         },
         {
+          name: "Secure Area",
+          value: "secureArea",
+        },
+        {
+          name: "Property Template",
+          value: "propertyTemplate",
+        },
+        {
+          name: "Individual Property",
+          value: "individualProperty",
+        },
+        {
+          name: "Individual Reference 1",
+          value: "individualReference1",
+        },
+        {
+          name: "Individual Reference 2",
+          value: "individualReference2",
+        },
+        {
           name: "Info",
           value: "info",
         },
@@ -208,6 +228,123 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           value: "create",
           description: "Create a new document state",
           action: "Create a document state",
+        },
+      ],
+      default: "getAll",
+    },
+
+    // Secure Area Operations
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["secureArea"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve all secure areas",
+          action: "Get many secure areas",
+        },
+      ],
+      default: "getAll",
+    },
+
+    // Property Template Operations
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["propertyTemplate"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve all property templates",
+          action: "Get many property templates",
+        },
+      ],
+      default: "getAll",
+    },
+
+    // Individual Property Operations
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["individualProperty"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve all individual properties",
+          action: "Get many individual properties",
+        },
+      ],
+      default: "getAll",
+    },
+
+    // Individual Reference 1 Operations
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["individualReference1"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve all individual references 1",
+          action: "Get many individual references 1",
+        },
+        {
+          name: "Create",
+          value: "create",
+          description: "Create a new individual reference 1",
+          action: "Create individual reference 1",
+        },
+      ],
+      default: "getAll",
+    },
+
+    // Individual Reference 2 Operations
+    {
+      displayName: "Operation",
+      name: "operation",
+      type: "options",
+      displayOptions: {
+        show: {
+          resource: ["individualReference2"],
+        },
+      },
+      options: [
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve all individual references 2",
+          action: "Get many individual references 2",
+        },
+        {
+          name: "Create",
+          value: "create",
+          description: "Create a new individual reference 2",
+          action: "Create individual reference 2",
         },
       ],
       default: "getAll",
@@ -382,6 +519,21 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       description: "The dispatcher information data as JSON",
     },
 
+    {
+      displayName: "Individual Reference Data",
+      name: "individualReferenceData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          resource: ["individualReference1", "individualReference2"],
+          operation: ["create"],
+        },
+      },
+      default: "{}",
+      description: "The individual reference data as JSON",
+    },
+
     // Optional Parameters
     {
       displayName: "Filter",
@@ -389,7 +541,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["document", "domain", "documentState"],
+          resource: ["document", "domain", "documentState", "propertyTemplate"],
           operation: ["getAll"],
         },
       },
@@ -406,7 +558,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["document"],
+          resource: ["document", "individualReference1", "individualReference2"],
           operation: ["getAll", "getStructureItems"],
         },
       },
@@ -423,7 +575,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["document"],
+          resource: ["document", "individualReference1", "individualReference2"],
           operation: ["getAll", "getStructureItems"],
         },
       },

@@ -1,5 +1,6 @@
 import { NodeOperationError } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
+import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -42,23 +43,23 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const documentFileId = this.getRequiredString("documentFileId");
 
-    // TODO: Implement actual API call with application/octet-stream response
-    // const response = await documentManagementClient.getDocumentFile({
-    //   ...authContext,
-    //   documentFileId,
-    //   // Response will be application/octet-stream binary data
-    //   headers: { 'Accept': 'application/octet-stream' }
-    // });
+    const response = await DocumentManagementClient.fetchDocumentFile({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      fileId: documentFileId,
+    });
 
-    const mockResponse: JsonValue = {
+    // Handle binary response
+    const binaryData = await response.arrayBuffer();
+    const result: JsonValue = {
       id: documentFileId,
-      filename: "document.pdf",
-      contentType: "application/octet-stream", // File downloads use octet-stream
-      size: 1024,
-      binaryData: "<streaming content>", // Binary file data
+      contentType: response.headers.get('content-type') || 'application/octet-stream',
+      size: binaryData.byteLength,
+      binaryData: Buffer.from(binaryData).toString('base64'), // Convert to base64 for JSON transport
     };
 
-    sendSuccess(mockResponse);
+    sendSuccess(result);
   }
 
   private async uploadDocumentFile(
@@ -67,22 +68,18 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const binaryData = this.getRequiredString("binaryData");
 
-    // TODO: Implement actual API call with application/octet-stream request
-    // const response = await documentManagementClient.uploadDocumentFile({
-    //   ...authContext,
-    //   binaryData,
-    //   // Request body must be application/octet-stream binary data
-    //   headers: { 'Content-Type': 'application/octet-stream' },
-    //   body: binaryData // Raw binary data as string/buffer
-    // });
+    // Convert base64 string to binary data if needed
+    const bufferData = binaryData.startsWith('data:') 
+      ? Buffer.from(binaryData.split(',')[1], 'base64')
+      : Buffer.from(binaryData, 'base64');
 
-    const mockResponse: JsonValue = {
-      id: "uploaded-file-123",
-      success: true,
-      contentType: "application/octet-stream", // Uploads use octet-stream
-      size: binaryData.length,
-    };
+    const response = await DocumentManagementClient.uploadDocumentFile({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      binaryData: bufferData,
+    });
 
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 }

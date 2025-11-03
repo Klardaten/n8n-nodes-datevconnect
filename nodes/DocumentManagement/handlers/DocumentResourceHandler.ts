@@ -1,5 +1,6 @@
 import { NodeOperationError } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
+import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -64,31 +65,16 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const top = this.getNumberParameter("top", 0);
     const skip = this.getNumberParameter("skip", 0);
 
-    const query = this.buildQueryParams({
+    const response = await DocumentManagementClient.fetchDocuments({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
       filter,
       top: top || undefined,
       skip: skip || undefined,
     });
 
-    // TODO: Implement actual API call to Document Management
-    // const response = await documentManagementClient.getDocuments({
-    //   ...authContext,
-    //   ...query,
-    // });
-
-    // For now, return mock data
-    const mockResponse: JsonValue = {
-      documents: [
-        {
-          id: "doc-123",
-          description: "Sample document",
-          class: { id: 1, name: "Document" },
-          state: { id: "active", name: "Active" },
-        },
-      ],
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 
   private async getDocument(
@@ -120,20 +106,14 @@ export class DocumentResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const documentData = this.getRequiredJsonData("documentData");
 
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.createDocument({
-    //   ...authContext,
-    //   documentData,
-    // });
+    const response = await DocumentManagementClient.createDocument({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      document: documentData,
+    });
 
-    // For now, return mock data
-    const mockResponse: JsonValue = {
-      id: "new-doc-123",
-      description: "Created document",
-      success: true,
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 
   private async updateDocument(
@@ -159,11 +139,12 @@ export class DocumentResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const documentId = this.getRequiredString("documentId");
 
-    // TODO: Implement actual API call
-    // await documentManagementClient.deleteDocument({
-    //   ...authContext,
-    //   documentId,
-    // });
+    await DocumentManagementClient.deleteDocument({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      documentId,
+    });
 
     sendSuccess({ success: true, documentId, deleted: true });
   }
@@ -174,11 +155,12 @@ export class DocumentResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const documentId = this.getRequiredString("documentId");
 
-    // TODO: Implement actual API call
-    // await documentManagementClient.deleteDocumentPermanently({
-    //   ...authContext,
-    //   documentId,
-    // });
+    await DocumentManagementClient.deleteDocumentPermanently({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      documentId,
+    });
 
     sendSuccess({ success: true, documentId, permanentlyDeleted: true });
   }

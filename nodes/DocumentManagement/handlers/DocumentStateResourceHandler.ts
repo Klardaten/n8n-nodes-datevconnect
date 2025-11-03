@@ -1,5 +1,6 @@
 import { NodeOperationError } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
+import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -38,32 +39,14 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const filter = this.getOptionalString("filter");
 
-    const query = this.buildQueryParams({
+    const response = await DocumentManagementClient.fetchDocumentStates({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
       filter,
     });
 
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.getDocumentStates({
-    //   ...authContext,
-    //   ...query,
-    // });
-
-    const mockResponse: JsonValue = {
-      states: [
-        {
-          id: "active",
-          name: "Active",
-          valid_document_classes: [1, 3],
-        },
-        {
-          id: "archived",
-          name: "Archived",
-          valid_document_classes: [1, 3],
-        },
-      ],
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 
   private async getDocumentState(
@@ -72,19 +55,14 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const stateId = this.getRequiredString("stateId");
 
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.getDocumentState({
-    //   ...authContext,
-    //   stateId,
-    // });
+    const response = await DocumentManagementClient.fetchDocumentState({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      stateId,
+    });
 
-    const mockResponse: JsonValue = {
-      id: stateId,
-      name: "Active",
-      valid_document_classes: [1, 3],
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 
   private async createDocumentState(
@@ -93,17 +71,13 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const stateData = this.getRequiredJsonData("stateData");
 
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.createDocumentState({
-    //   ...authContext,
-    //   stateData,
-    // });
+    const response = await DocumentManagementClient.createDocumentState({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
+      state: stateData,
+    });
 
-    const mockResponse: JsonValue = {
-      id: "new-state-123",
-      success: true,
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 }

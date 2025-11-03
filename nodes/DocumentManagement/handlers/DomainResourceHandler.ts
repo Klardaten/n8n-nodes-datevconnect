@@ -1,5 +1,6 @@
 import { NodeOperationError } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
+import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
@@ -32,33 +33,13 @@ export class DomainResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const filter = this.getOptionalString("filter");
 
-    const query = this.buildQueryParams({
+    const response = await DocumentManagementClient.fetchDomains({
+      host: authContext.host,
+      token: authContext.token,
+      clientInstanceId: authContext.clientInstanceId,
       filter,
     });
 
-    // TODO: Implement actual API call
-    // const response = await documentManagementClient.getDomains({
-    //   ...authContext,
-    //   ...query,
-    // });
-
-    const mockResponse: JsonValue = {
-      domains: [
-        {
-          id: 1,
-          name: "Client Documents",
-          is_selected: true,
-          folders: [
-            {
-              id: 1,
-              name: "Incoming",
-              registers: [],
-            },
-          ],
-        },
-      ],
-    };
-
-    sendSuccess(mockResponse);
+    sendSuccess(response);
   }
 }
