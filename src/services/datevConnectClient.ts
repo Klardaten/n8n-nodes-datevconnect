@@ -1248,7 +1248,6 @@ export interface FetchAccountingSequencesOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
-  filter?: string;
   top?: number;
   skip?: number;
 }
@@ -1954,15 +1953,14 @@ export async function fetchAccountPosting(options: FetchAccountPostingOptions): 
 }
 
 export async function fetchAccountingSequences(options: FetchAccountingSequencesOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select, filter, top, skip } = options;
+  const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
     ...options,
-    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences`,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences-processed`,
     method: "GET",
     query: {
       select: select,
-      filter: filter,
       top: top,
       skip: skip,
     },
@@ -1980,7 +1978,7 @@ export async function fetchAccountingSequence(options: FetchAccountingSequenceOp
 
   const body = await sendAccountingRequest({
     ...options,
-    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences/${encodeURIComponent(accountingSequenceId)}`,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounting-sequences-processed/${encodeURIComponent(accountingSequenceId)}`,
     method: "GET",
     query: {
       select: select,
