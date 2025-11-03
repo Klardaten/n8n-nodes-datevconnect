@@ -1,4 +1,5 @@
 import type { JsonValue } from './datevConnectClient';
+import { authenticate } from './datevConnectClient';
 
 export interface DocumentManagementAuthenticateOptions {
   host: string;
@@ -133,41 +134,17 @@ export interface CreateDispatcherInformationOptions extends BaseDocumentManageme
   dispatcherInformation: JsonValue;
 }
 
-const DOCUMENT_MANAGEMENT_BASE_PATH = '/datev/api/dms/v2';
+const DOCUMENT_MANAGEMENT_BASE_PATH = '/datevconnect/dms/v2';
 
 /**
  * Document Management API Client for DATEV DMS
  */
 export class DocumentManagementClient {
   /**
-   * Authenticate with the Document Management API
+   * Authenticate with the Document Management API using the shared authenticate function
    */
   static async authenticate(options: DocumentManagementAuthenticateOptions): Promise<DocumentManagementAuthenticateResponse> {
-    const fetchImpl = options.fetchImpl || fetch;
-    
-    const response = await fetchImpl(`${options.host}/datev/oauth2/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        username: options.email,
-        password: options.password,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Authentication failed: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json() as DocumentManagementAuthenticateResponse;
-    
-    if (!data.access_token) {
-      throw new Error('Authentication response does not include an access token');
-    }
-
-    return data;
+    return authenticate(options) as Promise<DocumentManagementAuthenticateResponse>;
   }
 
   /**

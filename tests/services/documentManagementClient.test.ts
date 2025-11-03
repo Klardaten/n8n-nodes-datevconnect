@@ -25,7 +25,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents?filter=number+eq+12345&top=10",
+      "https://localhost:58452/datevconnect/dms/v2/documents?filter=number+eq+12345&top=10",
       {
         method: "GET",
         headers: {
@@ -63,7 +63,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents",
+      "https://localhost:58452/datevconnect/dms/v2/documents",
       {
         method: "POST",
         headers: {
@@ -98,7 +98,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/document-files/file-123",
+      "https://localhost:58452/datevconnect/dms/v2/document-files/file-123",
       {
         method: "GET",
         headers: {
@@ -128,7 +128,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/document-files",
+      "https://localhost:58452/datevconnect/dms/v2/document-files",
       {
         method: "POST",
         headers: {
@@ -158,7 +158,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123",
       {
         method: "GET",
         headers: {
@@ -192,7 +192,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123",
       {
         method: "PUT",
         headers: {
@@ -227,7 +227,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/structure-items?top=10",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/structure-items?top=10",
       {
         method: "GET",
         headers: {
@@ -259,7 +259,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/structure-items/item-123",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/structure-items/item-123",
       {
         method: "GET",
         headers: {
@@ -297,7 +297,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/structure-items?insertPosition=last",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/structure-items?insertPosition=last",
       {
         method: "POST",
         headers: {
@@ -334,7 +334,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/structure-items/item-123",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/structure-items/item-123",
       {
         method: "PUT",
         headers: {
@@ -374,7 +374,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/dispatcher-information",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/dispatcher-information",
       {
         method: "POST",
         headers: {
@@ -407,7 +407,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/domains?filter=id+eq+1",
+      "https://localhost:58452/datevconnect/dms/v2/domains?filter=id+eq+1",
       {
         method: "GET",
         headers: {
@@ -440,7 +440,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documentstates",
+      "https://localhost:58452/datevconnect/dms/v2/documentstates",
       {
         method: "GET",
         headers: {
@@ -474,7 +474,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/info",
+      "https://localhost:58452/datevconnect/dms/v2/info",
       {
         method: "GET",
         headers: {
@@ -505,7 +505,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123",
       {
         method: "DELETE",
         headers: {
@@ -529,7 +529,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/documents/doc-123/delete-permanently",
+      "https://localhost:58452/datevconnect/dms/v2/documents/doc-123/delete-permanently",
       {
         method: "DELETE",
         headers: {
@@ -556,7 +556,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/secure-areas",
+      "https://localhost:58452/datevconnect/dms/v2/secure-areas",
       {
         method: "GET",
         headers: {
@@ -590,7 +590,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/property-templates?filter=document_class+eq+1",
+      "https://localhost:58452/datevconnect/dms/v2/property-templates?filter=document_class+eq+1",
       {
         method: "GET",
         headers: {
@@ -623,7 +623,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/individual-properties",
+      "https://localhost:58452/datevconnect/dms/v2/individual-properties",
       {
         method: "GET",
         headers: {
@@ -658,7 +658,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/individual-references1?top=10",
+      "https://localhost:58452/datevconnect/dms/v2/individual-references1?top=10",
       {
         method: "GET",
         headers: {
@@ -696,7 +696,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/individual-references1",
+      "https://localhost:58452/datevconnect/dms/v2/individual-references1",
       {
         method: "POST",
         headers: {
@@ -732,7 +732,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/individual-references2?top=5&skip=2",
+      "https://localhost:58452/datevconnect/dms/v2/individual-references2?top=5&skip=2",
       {
         method: "GET",
         headers: {
@@ -776,7 +776,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://localhost:58452/datev/api/dms/v2/individual-references2",
+      "https://localhost:58452/datevconnect/dms/v2/individual-references2",
       {
         method: "POST",
         headers: {
