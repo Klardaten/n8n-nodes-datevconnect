@@ -16,7 +16,7 @@ import { normaliseToObjects, toErrorMessage } from "../utils";
  * as specified in the document management-2.3.1.yaml specification.
  */
 export class DocumentFileResourceHandler extends BaseResourceHandler {
-  protected executeOperation(operation: string, authContext: AuthContext, sendSuccess: SendSuccessFunction): Promise<void> {
+  protected executeOperation(_operation: string, _authContext: AuthContext, _sendSuccess: SendSuccessFunction): Promise<void> {
     throw new Error("Method not implemented.");
   }
   /**
@@ -35,20 +35,22 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
           await this.getDocumentFileBinary(authContext, returnData);
           break;
         case "upload":
-          // Use the standard base handler for upload operations
-          const sendSuccess: SendSuccessFunction = (payload?: JsonValue) => {
-            const data = payload ? normaliseToObjects(payload) : [{}];
-            data.forEach((item: IDataObject) => {
-              returnData.push({
-                json: {
-                  success: true,
-                  ...item,
-                },
+          {
+            // Use the standard base handler for upload operations
+            const sendSuccess: SendSuccessFunction = (payload?: JsonValue) => {
+              const data = payload ? normaliseToObjects(payload) : [{}];
+              data.forEach((item: IDataObject) => {
+                returnData.push({
+                  json: {
+                    success: true,
+                    ...item,
+                  },
+                });
               });
-            });
-          };
-          await this.uploadDocumentFile(authContext, sendSuccess);
-          break;
+            };
+            await this.uploadDocumentFile(authContext, sendSuccess);
+            break;
+          }
         default:
           throw new NodeOperationError(
             this.context.getNode(),
@@ -93,7 +95,7 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
     // Handle binary response - return as actual binary data
     const binaryData = await response.arrayBuffer();
     const contentType = response.headers.get('content-type') || 'application/octet-stream';
-    
+
     // Create binary data object for n8n
     const binaryDataObject: IBinaryData = {
       data: Buffer.from(binaryData).toString('base64'),
@@ -123,7 +125,7 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
     // Get binary data from the input data
     const inputData = this.context.getInputData();
     const currentItem = inputData[this.itemIndex];
-    
+
     if (!currentItem?.binary?.data) {
       throw new NodeOperationError(
         this.context.getNode(),
