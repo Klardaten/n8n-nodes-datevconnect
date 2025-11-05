@@ -1,8 +1,9 @@
-import { NodeOperationError } from "n8n-workflow";
+import { NodeOperationError, type IBinaryData, type INodeExecutionData, type IDataObject } from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
 import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
+import { normaliseToObjects, toErrorMessage } from "../utils";
 
 /**
  * Handler for document file operations
@@ -15,31 +16,67 @@ import { BaseResourceHandler } from "./BaseResourceHandler";
  * as specified in the document management-2.3.1.yaml specification.
  */
 export class DocumentFileResourceHandler extends BaseResourceHandler {
-  protected async executeOperation(
+  /**
+   * Override execute method to handle binary data for document file operations
+   */
+  async execute(
     operation: string,
     authContext: AuthContext,
-    sendSuccess: SendSuccessFunction,
+    returnData: INodeExecutionData[],
   ): Promise<void> {
-    this.validateRequestContext(authContext);
+    try {
+      this.validateRequestContext(authContext);
 
-    switch (operation) {
-      case "get":
-        await this.getDocumentFile(authContext, sendSuccess);
-        break;
-      case "upload":
-        await this.uploadDocumentFile(authContext, sendSuccess);
-        break;
-      default:
-        throw new NodeOperationError(
-          this.context.getNode(),
-          `The operation "${operation}" is not supported for document files`
-        );
+      switch (operation) {
+        case "get":
+          await this.getDocumentFileBinary(authContext, returnData);
+          break;
+        case "upload":
+          // Use the standard base handler for upload operations
+          const sendSuccess: SendSuccessFunction = (payload?: JsonValue) => {
+            const data = payload ? normaliseToObjects(payload) : [{}];
+            data.forEach((item: IDataObject) => {
+              returnData.push({
+                json: {
+                  success: true,
+                  ...item,
+                },
+              });
+            });
+          };
+          await this.uploadDocumentFile(authContext, sendSuccess);
+          break;
+        default:
+          throw new NodeOperationError(
+            this.context.getNode(),
+            `The operation "${operation}" is not supported for document files`
+          );
+      }
+    } catch (error) {
+      const continueOnFail = this.context.continueOnFail();
+      if (continueOnFail) {
+        returnData.push({
+          json: {
+            error: toErrorMessage(error),
+          },
+        });
+      } else {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new NodeOperationError(this.context.getNode(), String(error), {
+          itemIndex: this.itemIndex,
+        });
+      }
     }
   }
 
-  private async getDocumentFile(
+  /**
+   * Get document file and return it as binary data
+   */
+  private async getDocumentFileBinary(
     authContext: AuthContext,
-    sendSuccess: SendSuccessFunction,
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     const documentFileId = this.getRequiredString("documentFileId");
 
@@ -50,16 +87,30 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
       fileId: documentFileId,
     });
 
-    // Handle binary response
+    // Handle binary response - return as actual binary data
     const binaryData = await response.arrayBuffer();
-    const result: JsonValue = {
-      id: documentFileId,
-      contentType: response.headers.get('content-type') || 'application/octet-stream',
-      size: binaryData.byteLength,
-      binaryData: Buffer.from(binaryData).toString('base64'), // Convert to base64 for JSON transport
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    
+    // Create binary data object for n8n
+    const binaryDataObject: IBinaryData = {
+      data: Buffer.from(binaryData).toString('base64'),
+      mimeType: contentType,
+      fileName: documentFileId, // Use the file ID as filename
+      fileSize: binaryData.byteLength.toString(),
     };
 
-    sendSuccess(result);
+    // Add execution data with binary content
+    returnData.push({
+      json: {
+        success: true,
+        id: documentFileId,
+        contentType,
+        size: binaryData.byteLength,
+      },
+      binary: {
+        data: binaryDataObject,
+      },
+    });
   }
 
   private async uploadDocumentFile(
