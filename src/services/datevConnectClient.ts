@@ -101,7 +101,7 @@ export interface FetchTaxAuthoritiesOptions extends BaseRequestOptions {
 export interface FetchRelationshipsOptions extends BaseRequestOptions {
   top?: number;
   skip?: number;
-  select?: string;  
+  select?: string;
   filter?: string;
 }
 
@@ -304,7 +304,7 @@ function extractErrorMessage(
     const errorDescription = "error_description" in body && typeof body.error_description === "string"
       ? body.error_description
       : undefined;
-    
+
     const message =
       ("message" in body && typeof body.message === "string"
         ? body.message
