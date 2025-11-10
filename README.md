@@ -30,19 +30,16 @@ npm install @klardaten/n8n-nodes-datevconnect
 
 Copy or symlink the contents of the installed `node_modules/@klardaten/n8n-nodes-datevconnect/dist/{nodes,credentials}` directories into your `~/.n8n/custom/` folder if you prefer the legacy custom-nodes workflow, then restart n8n.
 
-## Configuration
+## Development
 
 1. **Install dependencies**
    ```bash
-   bun install
+   npm install
    ```
-2. **Build TypeScript** (optional during development; n8n compiles on the fly)
+2. **Build** (optional during development; n8n compiles on the fly)
    ```bash
-   bun run build
+   n8n-node dev
    ```
-3. **Link the nodes into n8n**
-   - Copy or symlink the contents of the `nodes/` and `credentials/` directories into your n8n custom directory (e.g., `~/.n8n/custom/`).
-   - Restart the n8n instance so it detects the new nodes.
 
 ## Required Credentials
 
@@ -54,16 +51,16 @@ You need a Klardaten account and an instance id (of the DATEV instance you want 
 
 ## Running Tests
 
-Use the Bun test runner to execute the automated tests:
+Use the npm test runner to execute the automated tests:
 
 ```bash
-bun test
+npm test
 ```
 
 ## Usage in n8n
 
 1. Create a new workflow in n8n.
-2. Add the **Klardaten DATEVconnect: Master Data** or **Accounting** node and choose the credential you configured.
+2. Add the **Klardaten DATEVconnect: Master Data** or **Accounting** etc. node and choose the credential you configured.
 3. Select the desired operation (e.g., list client entries) and configure any filters.
 4. Execute the workflow or schedule it as part of a larger automation.
 
