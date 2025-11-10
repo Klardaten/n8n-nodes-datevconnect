@@ -1,3 +1,4 @@
+/* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import type { INodeTypeDescription } from "n8n-workflow";
 
 /**
@@ -26,6 +27,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Resource",
       name: "resource",
       type: "options",
+      noDataExpression: true,
       options: [
         {
           name: "Document",
@@ -36,20 +38,12 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           value: "documentFile",
         },
         {
-          name: "Domain",
-          value: "domain",
-        },
-        {
           name: "Document State",
           value: "documentState",
         },
         {
-          name: "Secure Area",
-          value: "secureArea",
-        },
-        {
-          name: "Property Template",
-          value: "propertyTemplate",
+          name: "Domain",
+          value: "domain",
         },
         {
           name: "Individual Property",
@@ -67,15 +61,24 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           name: "Info",
           value: "info",
         },
+        {
+          name: "Property Template",
+          value: "propertyTemplate",
+        },
+        {
+          name: "Secure Area",
+          value: "secureArea",
+        },
       ],
       default: "document",
     },
-    
+
     // Document Operations
     {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["document"],
@@ -83,16 +86,10 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          description: "Retrieve a list of documents",
-          action: "Get many documents",
-        },
-        {
-          name: "Get",
-          value: "get",
-          description: "Retrieve a specific document",
-          action: "Get a document",
+          name: "Add Structure Item",
+          value: "addStructureItem",
+          description: "Add a structure item to a document",
+          action: "Add structure item",
         },
         {
           name: "Create",
@@ -101,10 +98,10 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           action: "Create a document",
         },
         {
-          name: "Update",
-          value: "update",
-          description: "Update a document",
-          action: "Update a document",
+          name: "Create Dispatcher Information",
+          value: "createDispatcherInformation",
+          description: "Create dispatcher information for a document",
+          action: "Create dispatcher information",
         },
         {
           name: "Delete",
@@ -119,16 +116,16 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           action: "Delete a document permanently",
         },
         {
-          name: "Get Structure Items",
-          value: "getStructureItems",
-          description: "Get structure items of a document",
-          action: "Get structure items",
+          name: "Get",
+          value: "get",
+          description: "Retrieve a specific document",
+          action: "Get a document",
         },
         {
-          name: "Add Structure Item",
-          value: "addStructureItem",
-          description: "Add a structure item to a document",
-          action: "Add structure item",
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of documents",
+          action: "Get many documents",
         },
         {
           name: "Get Structure Item",
@@ -137,16 +134,22 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
           action: "Get structure item",
         },
         {
+          name: "Get Structure Items",
+          value: "getStructureItems",
+          description: "Get structure items of a document",
+          action: "Get structure items",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Update a document",
+          action: "Update a document",
+        },
+        {
           name: "Update Structure Item",
           value: "updateStructureItem",
           description: "Update a structure item",
           action: "Update structure item",
-        },
-        {
-          name: "Create Dispatcher Information",
-          value: "createDispatcherInformation",
-          description: "Create dispatcher information for a document",
-          action: "Create dispatcher information",
         },
       ],
       default: "getAll",
@@ -157,6 +160,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["documentFile"],
@@ -184,6 +188,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["domain"],
@@ -193,7 +198,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Get all domains",
+          description: 'Get many domains',
           action: "Get many domains",
         },
       ],
@@ -205,6 +210,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["documentState"],
@@ -214,7 +220,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Get all document states",
+          description: 'Get many document states',
           action: "Get many document states",
         },
         {
@@ -238,6 +244,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["secureArea"],
@@ -247,7 +254,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Retrieve all secure areas",
+          description: 'Retrieve many secure areas',
           action: "Get many secure areas",
         },
       ],
@@ -259,6 +266,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["propertyTemplate"],
@@ -268,7 +276,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Retrieve all property templates",
+          description: 'Retrieve many property templates',
           action: "Get many property templates",
         },
       ],
@@ -280,6 +288,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["individualProperty"],
@@ -289,7 +298,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Retrieve all individual properties",
+          description: 'Retrieve many individual properties',
           action: "Get many individual properties",
         },
       ],
@@ -301,6 +310,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["individualReference1"],
@@ -310,7 +320,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Retrieve all individual references 1",
+          description: 'Retrieve many individual references 1',
           action: "Get many individual references 1",
         },
         {
@@ -328,6 +338,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["individualReference2"],
@@ -337,7 +348,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: "Retrieve all individual references 2",
+          description: 'Retrieve many individual references 2',
           action: "Get many individual references 2",
         },
         {
@@ -355,6 +366,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["info"],

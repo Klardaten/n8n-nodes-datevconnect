@@ -11,7 +11,7 @@ interface CredentialsData {
 
 async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
   const credentials = await executeFunctions.getCredentials("datevConnectApi") as CredentialsData;
-  
+
   // Check if we have a cached token or need to authenticate
   const authResponse = await client.authenticate({
     host: credentials.host,
@@ -30,7 +30,7 @@ export const datevConnectClient = {
   accounting: {
     async getClients(executeFunctions: IExecuteFunctions, queryParams: IDataObject = {}) {
       const options = await getAuthenticatedOptions(executeFunctions);
-      
+
       return client.fetchAccountingClients({
         ...options,
         ...queryParams,
@@ -342,7 +342,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingSumsAndBalance(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingSumsAndBalancesId: string, _queryParams: IDataObject = {}) {
+    async getAccountingSumsAndBalance(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingSumsAndBalancesId: string,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingSumsAndBalance({
         ...options,

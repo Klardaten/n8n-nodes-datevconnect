@@ -24,7 +24,11 @@ import { toErrorObject } from "./utils";
 import type { Resource, DocumentManagementCredentials } from "./types";
 
 export class DocumentManagement implements INodeType {
-  description: INodeTypeDescription = documentManagementNodeDescription;
+  description: INodeTypeDescription = {
+    ...documentManagementNodeDescription,
+    icon: documentManagementNodeDescription.icon ?? "file:../klardaten.svg",
+    usableAsTool: true,
+  };
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();

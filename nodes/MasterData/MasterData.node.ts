@@ -26,7 +26,11 @@ import { toErrorObject } from "./utils";
 import type { Resource, MasterDataCredentials } from "./types";
 
 export class MasterData implements INodeType {
-  description: INodeTypeDescription = masterDataNodeDescription;
+  description: INodeTypeDescription = {
+    ...masterDataNodeDescription,
+    icon: masterDataNodeDescription.icon ?? "file:../klardaten.svg",
+    usableAsTool: true,
+  };
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();

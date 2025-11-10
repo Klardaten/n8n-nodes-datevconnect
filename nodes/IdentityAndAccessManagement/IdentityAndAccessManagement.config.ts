@@ -1,3 +1,4 @@
+/* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import type { INodeTypeDescription } from "n8n-workflow";
 
 export const identityAndAccessManagementNodeDescription: INodeTypeDescription = {
@@ -23,10 +24,15 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Resource",
       name: "resource",
       type: "options",
+      noDataExpression: true,
       options: [
         {
-          name: "Service Provider Config",
-          value: "serviceProviderConfig",
+          name: "Current User",
+          value: "currentUser",
+        },
+        {
+          name: "Group",
+          value: "group",
         },
         {
           name: "Resource Type",
@@ -37,20 +43,15 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
           value: "schema",
         },
         {
+          name: "Service Provider Config",
+          value: "serviceProviderConfig",
+        },
+        {
           name: "User",
           value: "user",
         },
-        {
-          name: "Current User",
-          value: "currentUser",
-        },
-        {
-          name: "Group",
-          value: "group",
-        },
       ],
       default: "user",
-      description: "Which IAM resource to operate on",
     },
 
     // Service Provider Config operations
@@ -58,6 +59,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["serviceProviderConfig"],
@@ -79,6 +81,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["resourceType"],
@@ -100,6 +103,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["schema"],
@@ -127,6 +131,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["user"],
@@ -134,10 +139,16 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          action: "Get many users",
-          description: "List DATEV IAM users",
+          name: "Create",
+          value: "create",
+          action: "Create a user",
+          description: "Create a new DATEV IAM user",
+        },
+        {
+          name: "Delete",
+          value: "delete",
+          action: "Delete a user",
+          description: "Delete a DATEV IAM user",
         },
         {
           name: "Get",
@@ -146,22 +157,16 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
           description: "Retrieve a single DATEV IAM user",
         },
         {
-          name: "Create",
-          value: "create",
-          action: "Create a user",
-          description: "Create a new DATEV IAM user",
+          name: "Get Many",
+          value: "getAll",
+          action: "Get many users",
+          description: "List DATEV IAM users",
         },
         {
           name: "Update",
           value: "update",
           action: "Update a user",
           description: "Update an existing DATEV IAM user",
-        },
-        {
-          name: "Delete",
-          value: "delete",
-          action: "Delete a user",
-          description: "Delete a DATEV IAM user",
         },
       ],
       default: "getAll",
@@ -172,6 +177,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["currentUser"],
@@ -193,6 +199,7 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       displayName: "Operation",
       name: "operation",
       type: "options",
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["group"],
@@ -200,10 +207,16 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          action: "Get many groups",
-          description: "List DATEV IAM groups",
+          name: "Create",
+          value: "create",
+          action: "Create a group",
+          description: "Create a new DATEV IAM group",
+        },
+        {
+          name: "Delete",
+          value: "delete",
+          action: "Delete a group",
+          description: "Delete a DATEV IAM group",
         },
         {
           name: "Get",
@@ -212,22 +225,16 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription = 
           description: "Retrieve a single DATEV IAM group",
         },
         {
-          name: "Create",
-          value: "create",
-          action: "Create a group",
-          description: "Create a new DATEV IAM group",
+          name: "Get Many",
+          value: "getAll",
+          action: "Get many groups",
+          description: "List DATEV IAM groups",
         },
         {
           name: "Update",
           value: "update",
           action: "Update a group",
           description: "Update an existing DATEV IAM group",
-        },
-        {
-          name: "Delete",
-          value: "delete",
-          action: "Delete a group",
-          description: "Delete a DATEV IAM group",
         },
       ],
       default: "getAll",
