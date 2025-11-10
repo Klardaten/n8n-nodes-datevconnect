@@ -13,6 +13,23 @@ This repository provides custom n8n nodes for integrating with the DATEVconnect 
 
 Refer to the node descriptions inside the n8n editor for input parameters and output structure.
 
+## Installation
+
+### Through the n8n UI
+
+1. Navigate to **Settings → Community Nodes → Install** inside your n8n instance.
+2. Enter `@klardaten/n8n-nodes-datevconnect` as the package name.
+3. Confirm the warning prompt and restart n8n so the nodes are registered.
+
+### Manual (filesystem) installation
+
+```bash
+cd ~/.n8n
+npm install @klardaten/n8n-nodes-datevconnect
+```
+
+Copy or symlink the contents of the installed `node_modules/@klardaten/n8n-nodes-datevconnect/dist/{nodes,credentials}` directories into your `~/.n8n/custom/` folder if you prefer the legacy custom-nodes workflow, then restart n8n.
+
 ## Configuration
 
 1. **Install dependencies**

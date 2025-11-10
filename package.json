@@ -1,14 +1,26 @@
 {
-  "name": "n8n-datevconnect",
+  "name": "@klardaten/n8n-nodes-datevconnect",
   "version": "1.0.0",
   "description": "n8n community node for DATEVconnect API via Klardaten Gateway",
+  "author": "Klardaten",
+  "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
+  },
+  "license": "MIT",
   "keywords": [
     "n8n",
     "n8n-community-node-package",
     "klardaten",
     "datev",
     "datevconnect",
-    "master-data"
+    "master-data",
+    "document-management",
+    "iam"
   ],
   "n8n": {
     "nodes": [
@@ -21,20 +33,26 @@
       "dist/credentials/DatevConnectApi.credentials.js"
     ]
   },
-  "type": "module",
-  "module": "index.ts",
-  "private": true,
+  "type": "commonjs",
   "scripts": {
+    "dev": "bun watch",
     "clean": "rm -rf dist && mkdir -p dist/nodes dist/credentials",
-    "build": "bun run clean && sh -c 'NODES=$(find nodes -name \"*.node.ts\" -print) && [ -z \"$NODES\" ] || bun build $NODES --outdir dist/nodes --format cjs --target=node --external n8n-workflow --external n8n-core' && sh -c 'CREDS=$(find credentials -name \"*.credentials.ts\" -print) && [ -z \"$CREDS\" ] || bun build $CREDS --outdir dist/credentials --format cjs --target=node --external n8n-workflow --external n8n-core' && sh -c 'SERVICES=$(find src/services -name \"*.ts\" -print) && [ -z \"$SERVICES\" ] || bun build $SERVICES --outdir dist/src/services --format cjs --target=node' && cp nodes/klardaten.svg dist/nodes/ && bun run build:types",
+    "build": "bun run clean && sh -c 'NODES=$(find nodes -name \"*.node.ts\" -print) && [ -z \"$NODES\" ] || bun build $NODES --outdir dist/nodes --format cjs --target=node --external n8n-workflow --external n8n-core' && sh -c 'CREDS=$(find credentials -name \"*.credentials.ts\" -print) && [ -z \"$CREDS\" ] || bun build $CREDS --outdir dist/credentials --format cjs --target=node --external n8n-workflow --external n8n-core' && cp nodes/klardaten.svg dist/nodes/",
     "build:types": "tsc -p tsconfig.declarations.json",
     "watch": "bun run clean && sh -c 'NODES=$(find nodes -name \"*.node.ts\" -print) && [ -z \"$NODES\" ] || bun build $NODES --outdir dist/nodes --format cjs --target=node --external n8n-workflow --external n8n-core --watch' & sh -c 'CREDS=$(find credentials -name \"*.credentials.ts\" -print) && [ -z \"$CREDS\" ] || bun build $CREDS --outdir dist/credentials --format cjs --target=node --external n8n-workflow --external n8n-core --watch'",
     "lint": "eslint --ext .ts,.tsx --max-warnings 0 .",
     "test": "bun test",
-    "typecheck": "bun x tsc --noEmit"
+    "typecheck": "bun x tsc --noEmit",
+    "copy:codex": "node scripts/copy-codex.js",
+    "prepublishOnly": "bun run lint && bun run typecheck && bun test && bun run build"
+  },
+  "engines": {
+    "node": ">=18.18",
+    "npm": ">=9.0.0"
   },
   "types": "./dist/index.d.ts",
   "files": [
+    "README.md",
     "dist/**/*.js",
     "dist/**/*.d.ts",
     "dist/**/*.d.ts.map",
@@ -52,5 +70,8 @@
   "dependencies": {
     "n8n-core": "1.114.1",
     "n8n-workflow": "1.114.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
