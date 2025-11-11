@@ -38,7 +38,7 @@ Copy or symlink the contents of the installed `node_modules/@klardaten/n8n-nodes
    ```
 2. **Build** (optional during development; n8n compiles on the fly)
    ```bash
-   n8n-node dev
+   npm run dev
    ```
 
 ## Required Credentials
