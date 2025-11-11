@@ -25,15 +25,15 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "n8n-node build",
+    "build": "npx n8n-node build",
     "build:watch": "tsc --watch",
     "build:types": "tsc -p tsconfig.declarations.json",
-    "dev": "n8n-node dev",
-    "lint": "n8n-node lint",
+    "dev": "npx n8n-node dev",
+    "lint": "npx n8n-node lint",
     "typecheck": "tsc --noEmit",
-    "lint:fix": "n8n-node lint --fix",
-    "release": "n8n-node release",
-    "prepublishOnly": "n8n-node prerelease"
+    "lint:fix": "npx n8n-node lint --fix",
+    "release": "npx n8n-node release",
+    "prepublishOnly": "npx n8n-node prerelease"
   },
   "files": [
     "README.md",
