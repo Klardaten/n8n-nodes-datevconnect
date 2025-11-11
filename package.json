@@ -25,7 +25,7 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "npx n8n-node build",
+    "build": "npx n8n-node build && npm run build:types",
     "build:watch": "tsc --watch",
     "build:types": "tsc -p tsconfig.declarations.json",
     "dev": "npx n8n-node dev",
