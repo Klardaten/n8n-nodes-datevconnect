@@ -6,12 +6,12 @@
   "resources": {
     "credentialDocumentation": [
       {
-        "url": "https://github.com/Klardaten/n8n-datevconnect#required-credentials"
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#required-credentials"
       }
     ],
     "primaryDocumentation": [
       {
-        "url": "https://github.com/Klardaten/n8n-datevconnect#available-nodes"
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#available-nodes"
       }
     ],
     "generic": [
