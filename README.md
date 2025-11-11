@@ -4,12 +4,12 @@ This repository provides custom n8n nodes for integrating with the DATEVconnect 
 
 ## Available Nodes
 
-| Node | Description |
-| ---- | ----------- |
-| `Accounting` | Access DATEV Accounting API for clients, fiscal years, accounts receivable, account postings, and accounting sequences. |
-| `MasterData` | Fetches master data entities from DATEV using the configured credentials. |
-| `Document Management` | Access DATEV Document Management or DMS for documents, structure items, property templates. |
-| `Identity & Access Management` | Manage SCIM-based DATEV IAM resources such as service configuration, schemas, users, and groups. |
+| Node                           | Description                                                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `Accounting`                   | Access DATEV Accounting API for clients, fiscal years, accounts receivable, account postings, and accounting sequences. |
+| `MasterData`                   | Fetches master data entities from DATEV using the configured credentials.                                               |
+| `Document Management`          | Access DATEV Document Management or DMS for documents, structure items, property templates.                             |
+| `Identity & Access Management` | Manage SCIM-based DATEV IAM resources such as service configuration, schemas, users, and groups.                        |
 
 Refer to the node descriptions inside the n8n editor for input parameters and output structure.
 
@@ -54,7 +54,8 @@ All nodes authenticate using the stored credentials and interact with their resp
 
 ## Additional Notes
 
-DATEV provides endpoint reference details under 
+DATEV provides endpoint reference details under
+
 - [Accounting](https://developer.datev.de/en/product-detail/accounting/1.7.4/reference)
 - [Client Master Data](https://developer.datev.de/en/product-detail/client-master-data/1.7.0/reference).
 - [Document Management](https://developer.datev.de/en/product-detail/document-management/2.3.0/reference)

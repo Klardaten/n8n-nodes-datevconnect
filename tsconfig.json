@@ -20,7 +20,10 @@
       "@tests/*": ["tests/*"]
     },
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false
   },
   "include": [
     "credentials/**/*.ts",

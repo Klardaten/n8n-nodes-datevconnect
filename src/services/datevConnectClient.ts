@@ -17,7 +17,7 @@ export interface AuthenticateResponse extends Record<string, JsonValue> {
   access_token: string;
 }
 
-interface BaseRequestOptions {
+export interface BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
