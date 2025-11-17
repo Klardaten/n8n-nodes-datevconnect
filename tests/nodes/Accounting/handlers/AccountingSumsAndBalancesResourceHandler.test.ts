@@ -189,13 +189,7 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountingSumsAndBalanceSpy).toHaveBeenCalledWith(context, "client-123", "2023", "BALANCE001", {
-        top: 50,
-        skip: 10,
-        select: "account_number,account_name,closing_balance",
-        filter: "balance_type eq 'debit'",
-        expand: "details"
-      });
+      expect(getAccountingSumsAndBalanceSpy).toHaveBeenCalledWith(context, "client-123", "2023", "BALANCE001");
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -238,26 +232,6 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
       expect(returnData[0].json).toEqual({ success: true });
     });
 
-    test("handles parameters with default values for get", async () => {
-      const context = createMockContext({
-        parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-          "accountingSumsAndBalancesId": "test-id"
-        }
-      });
-      const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
-      const returnData: any[] = [];
-
-      await handler.execute("get", mockAuthContext, returnData);
-
-      expect(getAccountingSumsAndBalanceSpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-id", {
-        top: 100
-      });
-    });
   });
 
   describe("error handling", () => {

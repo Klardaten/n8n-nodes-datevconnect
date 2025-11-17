@@ -16,7 +16,7 @@ import { normaliseToObjects, toErrorMessage } from "../utils";
  * as specified in the document management-2.3.1.yaml specification.
  */
 export class DocumentFileResourceHandler extends BaseResourceHandler {
-  protected executeOperation(_operation: string, _authContext: AuthContext, _sendSuccess: SendSuccessFunction): Promise<void> {
+  protected executeOperation(): Promise<void> {
     throw new Error("Method not implemented.");
   }
   /**

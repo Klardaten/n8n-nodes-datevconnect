@@ -20,7 +20,7 @@ export class ClientResourceHandler extends BaseResourceHandler {
 
       switch (operation as ClientOperation) {
         case "getAll":
-          response = await this.handleGetAll(requestContext);
+          response = await this.handleGetAll();
           break;
         case "get":
           response = await this.handleGet(requestContext);
@@ -39,7 +39,7 @@ export class ClientResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetAll(_requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAll(): Promise<JsonValue> {
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
     const select = this.getOptionalString("select");

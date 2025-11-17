@@ -1,4 +1,9 @@
-import type { IDataObject, IExecuteFunctions, ILoadOptionsFunctions } from "n8n-workflow";
+import {
+  NodeOperationError,
+  type IDataObject,
+  type IExecuteFunctions,
+  type ILoadOptionsFunctions,
+} from "n8n-workflow";
 import type { JsonValue } from "../../src/services/datevConnectClient";
 
 /**
@@ -57,15 +62,17 @@ export function normaliseToObjects(data: JsonValue): IDataObject[] {
 export function parseJsonParameter(
   value: JsonValue,
   parameterName: string,
-  _context: IExecuteFunctions | ILoadOptionsFunctions,
-  _itemIndex: number,
+  context: IExecuteFunctions | ILoadOptionsFunctions,
+  itemIndex: number,
 ): JsonValue {
   if (typeof value === "string") {
     try {
       return JSON.parse(value);
     } catch (error) {
-      throw new Error(
-        `Invalid JSON in parameter '${parameterName}': ${toErrorMessage(error)}`
+      throw new NodeOperationError(
+        context.getNode(),
+        `Invalid JSON in parameter '${parameterName}': ${toErrorMessage(error)}`,
+        { itemIndex },
       );
     }
   }
@@ -117,13 +124,13 @@ export function getNumberParameter(
  */
 export function buildQueryParams(params: Record<string, unknown>): Record<string, string> {
   const query: Record<string, string> = {};
-  
+
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== "") {
       query[key] = String(value);
     }
   }
-  
+
   return query;
 }
 
@@ -137,7 +144,11 @@ export function getRequiredJsonData(
 ): JsonValue {
   const rawValue = context.getNodeParameter(parameterName, itemIndex) as JsonValue;
   if (!rawValue) {
-    throw new Error(`Parameter '${parameterName}' is required`);
+    throw new NodeOperationError(
+      context.getNode(),
+      `Parameter '${parameterName}' is required`,
+      { itemIndex },
+    );
   }
   return parseJsonParameter(rawValue, parameterName, context, itemIndex);
 }

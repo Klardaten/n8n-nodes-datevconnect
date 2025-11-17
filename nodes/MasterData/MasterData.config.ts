@@ -1,3 +1,4 @@
+/* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import type { INodeTypeDescription } from "n8n-workflow";
 
 /**
@@ -26,54 +27,55 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Resource",
       name: "resource",
       type: "options",
+						noDataExpression: true,
       options: [
         {
-          name: "Client",
-          value: "client",
-        },
-        {
-          name: "Tax Authority",
-          value: "taxAuthority",
-        },
-        {
-          name: "Relationship",
-          value: "relationship",
-        },
-        {
-          name: "Legal Form",
-          value: "legalForm",
-        },
-        {
-          name: "Corporate Structure",
-          value: "corporateStructure",
-        },
-        {
-          name: "Employee",
-          value: "employee",
-        },
-        {
-          name: "Country Code",
-          value: "countryCode",
-        },
-        {
-          name: "Client Group Type",
-          value: "clientGroupType",
-        },
-        {
-          name: "Client Category Type",
-          value: "clientCategoryType",
-        },
-        {
-          name: "Bank",
-          value: "bank",
+          name: "Addressee",
+          value: "addressee",
         },
         {
           name: "Area of Responsibility",
           value: "areaOfResponsibility",
         },
         {
-          name: "Addressee",
-          value: "addressee",
+          name: "Bank",
+          value: "bank",
+        },
+        {
+          name: "Client",
+          value: "client",
+        },
+        {
+          name: "Client Category Type",
+          value: "clientCategoryType",
+        },
+        {
+          name: "Client Group Type",
+          value: "clientGroupType",
+        },
+        {
+          name: "Corporate Structure",
+          value: "corporateStructure",
+        },
+        {
+          name: "Country Code",
+          value: "countryCode",
+        },
+        {
+          name: "Employee",
+          value: "employee",
+        },
+        {
+          name: "Legal Form",
+          value: "legalForm",
+        },
+        {
+          name: "Relationship",
+          value: "relationship",
+        },
+        {
+          name: "Tax Authority",
+          value: "taxAuthority",
         },
       ],
       default: "client",
@@ -82,6 +84,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["client"],
@@ -89,10 +92,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          description: "Retrieve a list of clients",
-          action: "Get many clients",
+          name: "Create",
+          value: "create",
+          description: "Create a new client",
+          action: "Create a client",
         },
         {
           name: "Get",
@@ -101,52 +104,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           action: "Get a client",
         },
         {
-          name: "Create",
-          value: "create",
-          description: "Create a new client",
-          action: "Create a client",
-        },
-        {
-          name: "Update",
-          value: "update",
-          description: "Update a specific client",
-          action: "Update a client",
-        },
-        {
-          name: "Get Responsibilities",
-          value: "getResponsibilities",
-          description: "Retrieve responsibilities for a client",
-          action: "Get client responsibilities",
-        },
-        {
-          name: "Update Responsibilities",
-          value: "updateResponsibilities",
-          description: "Replace a client's responsibilities",
-          action: "Update client responsibilities",
-        },
-        {
           name: "Get Categories",
           value: "getClientCategories",
           description: "Retrieve client categories",
           action: "Get client categories",
-        },
-        {
-          name: "Update Categories",
-          value: "updateClientCategories",
-          description: "Replace a client's category assignments",
-          action: "Update client categories",
-        },
-        {
-          name: "Get Groups",
-          value: "getClientGroups",
-          description: "Retrieve client groups",
-          action: "Get client groups",
-        },
-        {
-          name: "Update Groups",
-          value: "updateClientGroups",
-          description: "Replace a client's group assignments",
-          action: "Update client groups",
         },
         {
           name: "Get Deletion Log",
@@ -155,10 +116,52 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           action: "Get client deletion log",
         },
         {
+          name: "Get Groups",
+          value: "getClientGroups",
+          description: "Retrieve client groups",
+          action: "Get client groups",
+        },
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of clients",
+          action: "Get many clients",
+        },
+        {
           name: "Get Next Free Number",
           value: "getNextFreeNumber",
           description: "Retrieve the next available client number",
           action: "Get next free client number",
+        },
+        {
+          name: "Get Responsibilities",
+          value: "getResponsibilities",
+          description: "Retrieve responsibilities for a client",
+          action: "Get client responsibilities",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Update a specific client",
+          action: "Update a client",
+        },
+        {
+          name: "Update Categories",
+          value: "updateClientCategories",
+          description: "Replace a client's category assignments",
+          action: "Update client categories",
+        },
+        {
+          name: "Update Groups",
+          value: "updateClientGroups",
+          description: "Replace a client's group assignments",
+          action: "Update client groups",
+        },
+        {
+          name: "Update Responsibilities",
+          value: "updateResponsibilities",
+          description: "Replace a client's responsibilities",
+          action: "Update client responsibilities",
         },
       ],
       default: "getAll",
@@ -167,6 +170,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["taxAuthority"],
@@ -186,6 +190,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["relationship"],
@@ -212,6 +217,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["legalForm"],
@@ -231,6 +237,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["corporateStructure"],
@@ -262,6 +269,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["employee"],
@@ -299,6 +307,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["countryCode"],
@@ -318,6 +327,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["clientGroupType"],
@@ -355,6 +365,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["clientCategoryType"],
@@ -392,6 +403,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["bank"],
@@ -411,6 +423,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["areaOfResponsibility"],
@@ -430,6 +443,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
+						noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["addressee"],
@@ -437,10 +451,10 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          description: "Retrieve a list of addressees",
-          action: "Get many addressees",
+          name: "Create",
+          value: "create",
+          description: "Create a new addressee",
+          action: "Create an addressee",
         },
         {
           name: "Get",
@@ -449,22 +463,22 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           action: "Get an addressee",
         },
         {
-          name: "Create",
-          value: "create",
-          description: "Create a new addressee",
-          action: "Create an addressee",
+          name: "Get Deletion Log",
+          value: "getDeletionLog",
+          description: "Retrieve a list of deleted addressees",
+          action: "Get addressee deletion log",
+        },
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of addressees",
+          action: "Get many addressees",
         },
         {
           name: "Update",
           value: "update",
           description: "Update a specific addressee",
           action: "Update an addressee",
-        },
-        {
-          name: "Get Deletion Log",
-          value: "getDeletionLog",
-          description: "Retrieve a list of deleted addressees",
-          action: "Get addressee deletion log",
         },
       ],
       default: "getAll",
@@ -710,7 +724,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           value: "austrian",
         },
       ],
-      default: "",
+      default: 'german',
       description: "Filter legal forms by national law (German or Austrian)",
     },
     {
@@ -815,7 +829,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           operation: ["create"],
         },
       },
-      default: "",
+      default: 'german',
       description: "Parameter defines the national law that will be saved with the addressee",
     },
     {

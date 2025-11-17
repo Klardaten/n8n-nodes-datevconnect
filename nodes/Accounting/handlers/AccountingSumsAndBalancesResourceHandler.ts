@@ -55,13 +55,11 @@ export class AccountingSumsAndBalancesResourceHandler extends BaseResourceHandle
   private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
     try {
       const accountingSumsAndBalancesId = this.getRequiredString("accountingSumsAndBalancesId");
-      const queryParams = this.buildQueryParams();
       const sumsAndBalances = await datevConnectClient.accounting.getAccountingSumsAndBalance(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         accountingSumsAndBalancesId,
-        queryParams
       );
       
       const sendSuccess = this.createSendSuccess(returnData);

@@ -1,0 +1,25 @@
+{
+  "node": "@klardaten/n8n-nodes-datevconnect.identityAndAccessManagement",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Finance & Accounting", "Data & Storage"],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#required-credentials"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#available-nodes"
+      }
+    ],
+    "generic": [
+      {
+        "label": "DATEV Identity & Access Management reference",
+        "url": "https://developer.datev.de/en/product-detail/identity-and-access-management-user-administration/1.1.2/reference",
+        "icon": "📘"
+      }
+    ]
+  }
+}

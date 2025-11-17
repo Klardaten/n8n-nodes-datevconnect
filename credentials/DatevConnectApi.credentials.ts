@@ -1,4 +1,5 @@
 import type {
+	Icon,
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
@@ -8,6 +9,8 @@ export class DatevConnectApi implements ICredentialType {
 	name = 'datevConnectApi';
 
 	displayName = 'DATEVconnect API';
+	icon = 'file:../nodes/klardaten.svg' as Icon;
+	documentationUrl = 'https://api.klardaten.com/docs/gateway';
 
 	properties: INodeProperties[] = [
 		{

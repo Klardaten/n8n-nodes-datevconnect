@@ -8,8 +8,7 @@ import { NodeOperationError, NodeApiError } from "n8n-workflow";
 import { authenticate } from "../../src/services/datevConnectClient";
 
 import { accountingNodeDescription } from "./Accounting.config";
-import type { 
-  BaseResourceHandler} from "./handlers";
+import type { BaseResourceHandler } from "./handlers";
 import type { RequestContext } from "./types";
 import {
   ClientResourceHandler,
@@ -60,7 +59,11 @@ import {
  * - Various addresses
  */
 export class Accounting implements INodeType {
-  description: INodeTypeDescription = accountingNodeDescription;
+  description: INodeTypeDescription = {
+    ...accountingNodeDescription,
+    icon: accountingNodeDescription.icon ?? "file:../klardaten.svg",
+    usableAsTool: true,
+  };
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();
@@ -69,11 +72,11 @@ export class Accounting implements INodeType {
     // Get and validate credentials
     const credentials = (await this.getCredentials("datevConnectApi")) as
       | {
-          host: string;
-          email: string;
-          password: string;
-          clientInstanceId: string;
-        }
+        host: string;
+        email: string;
+        password: string;
+        clientInstanceId: string;
+      }
       | null;
 
     if (!credentials) {
@@ -99,7 +102,7 @@ export class Accounting implements INodeType {
       });
       token = authResponse.access_token;
     } catch (error) {
-      throw new NodeApiError(this.getNode(), { 
+      throw new NodeApiError(this.getNode(), {
         message: error instanceof Error ? error.message : String(error)
       });
     }
@@ -109,10 +112,10 @@ export class Accounting implements INodeType {
         // Get resource and operation from node parameters
         const resource = this.getNodeParameter("resource", itemIndex) as string;
         const operation = this.getNodeParameter("operation", itemIndex) as string;
-        
+
         // Create request context with auth data and operation parameters
         const requestContext: RequestContext = { host, token, clientInstanceId };
-        
+
         // Add clientId if needed (all operations except /clients getAll)
         if (!(resource === "client" && operation === "getAll")) {
           const clientId = this.getNodeParameter("clientId", itemIndex) as string;
@@ -125,7 +128,7 @@ export class Accounting implements INodeType {
           }
           requestContext.clientId = clientId;
         }
-        
+
         // Add fiscalYearId if needed (only for operations that require both client and fiscal year)
         // Note: fiscalYear resource needs clientId but not fiscalYearId for getAll operation
         if (resource !== "client" && !(resource === "fiscalYear" && operation === "getAll")) {
@@ -139,7 +142,7 @@ export class Accounting implements INodeType {
           }
           requestContext.fiscalYearId = fiscalYearId;
         }
-        
+
         // Get the appropriate handler for this resource
         let handler: BaseResourceHandler;
         switch (resource) {
@@ -204,12 +207,14 @@ export class Accounting implements INodeType {
             handler = new VariousAddressesResourceHandler(this, itemIndex);
             break;
           default:
-            throw new Error(`Unknown resource: ${resource}`);
+            throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`, {
+              itemIndex,
+            });
         }
-        
+
         // Execute the handler and get results
         await handler.execute(operation, requestContext, returnData);
-        
+
       } catch (error) {
         if (this.continueOnFail()) {
           returnData.push({

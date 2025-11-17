@@ -1,0 +1,25 @@
+{
+  "node": "@klardaten/n8n-nodes-datevconnect.masterData",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Finance & Accounting", "Data & Storage"],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#required-credentials"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/Klardaten/n8n-nodes-datevconnect#available-nodes"
+      }
+    ],
+    "generic": [
+      {
+        "label": "DATEV Client Master Data API reference",
+        "url": "https://developer.datev.de/en/product-detail/client-master-data/1.7.0/reference",
+        "icon": "📘"
+      }
+    ]
+  }
+}

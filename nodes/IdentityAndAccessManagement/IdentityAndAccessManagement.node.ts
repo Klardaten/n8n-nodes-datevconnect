@@ -20,7 +20,11 @@ import type { IdentityAndAccessManagementCredentials, Resource } from "./types";
 import { toErrorObject } from "./utils";
 
 export class IdentityAndAccessManagement implements INodeType {
-  description: INodeTypeDescription = identityAndAccessManagementNodeDescription;
+  description: INodeTypeDescription = {
+    ...identityAndAccessManagementNodeDescription,
+    icon: identityAndAccessManagementNodeDescription.icon ?? "file:../klardaten.svg",
+    usableAsTool: true,
+  };
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();
