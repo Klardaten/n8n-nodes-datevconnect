@@ -1,6 +1,6 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "n8n community node for DATEVconnect API via Klardaten Gateway",
   "license": "MIT",
   "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
