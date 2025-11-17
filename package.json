@@ -54,6 +54,7 @@
   "bugs": {
     "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
   },
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "devDependencies": {
     "@n8n/node-cli": "*",
