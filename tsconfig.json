@@ -26,6 +26,7 @@
     "emitDeclarationOnly": false
   },
   "include": [
+    "index.ts",
     "credentials/**/*.ts",
     "nodes/**/*.ts",
     "src/**/*.ts"
