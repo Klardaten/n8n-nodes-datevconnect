@@ -9,6 +9,7 @@ This repository provides custom n8n nodes for integrating with the DATEVconnect 
 | `Accounting`                   | Access DATEV Accounting API for clients, fiscal years, accounts receivable, account postings, and accounting sequences. |
 | `MasterData`                   | Fetches master data entities from DATEV using the configured credentials.                                               |
 | `Document Management`          | Access DATEV Document Management or DMS for documents, structure items, property templates.                             |
+| `Order Management`             | Read and manage orders, suborders, invoices, fees, and related employee data.                                           |
 | `Identity & Access Management` | Manage SCIM-based DATEV IAM resources such as service configuration, schemas, users, and groups.                        |
 
 Refer to the node descriptions inside the n8n editor for input parameters and output structure.
@@ -73,4 +74,5 @@ DATEV provides endpoint reference details under
 - [Accounting](https://developer.datev.de/en/product-detail/accounting/1.7.4/reference)
 - [Client Master Data](https://developer.datev.de/en/product-detail/client-master-data/1.7.0/reference).
 - [Document Management](https://developer.datev.de/en/product-detail/document-management/2.3.0/reference)
+- [Order Management](https://developer.datev.de/en/product-detail/order-management/1.4.7/reference)
 - [Identity & Access Management – User Administration](https://developer.datev.de/en/product-detail/identity-and-access-management-user-administration/1.1.2/reference)
