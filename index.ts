@@ -4,6 +4,7 @@ export { accountingNodeDescription } from "./nodes/Accounting/Accounting.config"
 export { masterDataNodeDescription } from "./nodes/MasterData/MasterData.config";
 export { documentManagementNodeDescription } from "./nodes/DocumentManagement/DocumentManagement.config";
 export { identityAndAccessManagementNodeDescription } from "./nodes/IdentityAndAccessManagement/IdentityAndAccessManagement.config";
+export { orderManagementNodeDescription } from "./nodes/OrderManagement/OrderManagement.config";
 
 export type {
   JsonValue,
@@ -274,5 +275,67 @@ export type {
 } from "./src/services/identityAndAccessManagementClient";
 
 export { IdentityAndAccessManagementClient } from "./src/services/identityAndAccessManagementClient";
+
+export type {
+  FetchOrderTypesOptions,
+  FetchClientGroupOptions,
+  FetchOrdersOptions,
+  FetchOrderOptions,
+  UpdateOrderOptions,
+  FetchOrderMonthlyValuesOptions,
+  FetchOrdersMonthlyValuesOptions,
+  FetchOrderCostItemsOptions,
+  FetchOrdersCostItemsOptions,
+  FetchOrderStateWorkOptions,
+  FetchOrdersStateWorkOptions,
+  FetchSubordersStateBillingOptions,
+  FetchSubordersStateBillingAllOptions,
+  UpdateSuborderOptions,
+  FetchOrderExpensePostingsOptions,
+  FetchExpensePostingsOptions,
+  CreateExpensePostingOptions,
+  FetchInvoiceOptions,
+  FetchInvoicesOptions,
+  FetchEmployeeCapacitiesOptions,
+  FetchEmployeesWithGroupOptions,
+  FetchEmployeeQualificationsOptions,
+  FetchEmployeeCostRatesOptions,
+  FetchChargeRatesOptions,
+  FetchOrderManagementCostCentersOptions,
+  FetchFeesOptions,
+  FetchFeePlansOptions,
+  FetchSelfClientsOptions,
+} from "./src/services/orderManagementClient";
+
+export {
+  fetchOrderTypes,
+  fetchClientGroup,
+  fetchOrders,
+  fetchOrder,
+  updateOrder,
+  fetchOrderMonthlyValues,
+  fetchOrdersMonthlyValues,
+  fetchOrderCostItems,
+  fetchOrdersCostItems,
+  fetchOrderStateWork,
+  fetchOrdersStateWork,
+  fetchSubordersStateBilling,
+  fetchSubordersStateBillingAll,
+  updateSuborder,
+  fetchOrderExpensePostings,
+  fetchExpensePostings,
+  createExpensePosting,
+  fetchInvoice,
+  fetchInvoices,
+  fetchEmployeeCapacities,
+  fetchEmployeesWithGroup,
+  fetchEmployeeQualifications,
+  fetchEmployeeCostRates,
+  fetchChargeRates,
+  fetchOrderManagementCostCenters,
+  fetchFees,
+  fetchFeePlans,
+  fetchSelfClients,
+} from "./src/services/orderManagementClient";
 
 export { datevConnectClient } from "./src/services/accountingClient";
