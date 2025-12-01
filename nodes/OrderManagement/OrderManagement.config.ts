@@ -27,20 +27,12 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       noDataExpression: true,
       options: [
         {
-          name: "Order",
-          value: "order",
-        },
-        {
-          name: "Order Type",
-          value: "orderType",
-        },
-        {
           name: "Client Group",
           value: "clientGroup",
         },
         {
-          name: "Invoice",
-          value: "invoice",
+          name: "Cost Center",
+          value: "costCenter",
         },
         {
           name: "Employee",
@@ -51,8 +43,16 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           value: "fee",
         },
         {
-          name: "Cost Center",
-          value: "costCenter",
+          name: "Invoice",
+          value: "invoice",
+        },
+        {
+          name: "Order",
+          value: "order",
+        },
+        {
+          name: "Order Type",
+          value: "orderType",
         },
         {
           name: "Self Client",
@@ -75,10 +75,10 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          description: "Retrieve orders",
-          action: "Get many orders",
+          name: "Create Expense Posting",
+          value: "createExpensePosting",
+          description: "Create expense postings for a suborder",
+          action: "Create expense postings",
         },
         {
           name: "Get",
@@ -87,46 +87,10 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           action: "Get an order",
         },
         {
-          name: "Update",
-          value: "update",
-          description: "Completely overwrite an order",
-          action: "Update an order",
-        },
-        {
-          name: "Get Monthly Values (Order)",
-          value: "getMonthlyValuesForOrder",
-          description: "Retrieve monthly values for a specific order",
-          action: "Get order monthly values",
-        },
-        {
-          name: "Get Monthly Values (All)",
-          value: "getMonthlyValuesAll",
-          description: "Retrieve monthly values across orders",
-          action: "Get monthly values",
-        },
-        {
-          name: "Get Cost Items (Order)",
-          value: "getCostItemsForOrder",
-          description: "Retrieve planned cost items for an order",
-          action: "Get order cost items",
-        },
-        {
-          name: "Get Cost Items (All)",
-          value: "getCostItemsAll",
-          description: "Retrieve cost items across orders",
-          action: "Get cost items",
-        },
-        {
-          name: "Get State Dates (Order)",
-          value: "getStateWork",
-          description: "Retrieve state dates for an order",
-          action: "Get order state dates",
-        },
-        {
-          name: "Get State Dates (All)",
-          value: "getStateWorkAll",
-          description: "Retrieve state dates across orders",
-          action: "Get order state dates",
+          name: "Get Billing States (All)",
+          value: "getSubordersStateBillingAll",
+          description: "Retrieve billing state dates across suborders",
+          action: "Get billing states",
         },
         {
           name: "Get Billing States (Order)",
@@ -135,16 +99,16 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           action: "Get billing states",
         },
         {
-          name: "Get Billing States (All)",
-          value: "getSubordersStateBillingAll",
-          description: "Retrieve billing state dates across suborders",
-          action: "Get billing states",
+          name: "Get Cost Items (All)",
+          value: "getCostItemsAll",
+          description: "Retrieve cost items across orders",
+          action: "Get cost items",
         },
         {
-          name: "Get Expense Postings (Order)",
-          value: "getExpensePostingsForOrder",
-          description: "Retrieve expense postings for an order",
-          action: "Get order expense postings",
+          name: "Get Cost Items (Order)",
+          value: "getCostItemsForOrder",
+          description: "Retrieve planned cost items for an order",
+          action: "Get order cost items",
         },
         {
           name: "Get Expense Postings (All)",
@@ -153,16 +117,52 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           action: "Get expense postings",
         },
         {
+          name: "Get Expense Postings (Order)",
+          value: "getExpensePostingsForOrder",
+          description: "Retrieve expense postings for an order",
+          action: "Get order expense postings",
+        },
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve orders",
+          action: "Get many orders",
+        },
+        {
+          name: "Get Monthly Values (All)",
+          value: "getMonthlyValuesAll",
+          description: "Retrieve monthly values across orders",
+          action: "Get monthly values",
+        },
+        {
+          name: "Get Monthly Values (Order)",
+          value: "getMonthlyValuesForOrder",
+          description: "Retrieve monthly values for a specific order",
+          action: "Get order monthly values",
+        },
+        {
+          name: "Get State Dates (All)",
+          value: "getStateWorkAll",
+          description: "Retrieve state dates across orders",
+          action: "Get order state dates",
+        },
+        {
+          name: "Get State Dates (Order)",
+          value: "getStateWork",
+          description: "Retrieve state dates for an order",
+          action: "Get order state dates",
+        },
+        {
+          name: "Update",
+          value: "update",
+          description: "Completely overwrite an order",
+          action: "Update an order",
+        },
+        {
           name: "Update Suborder",
           value: "updateSuborder",
           description: "Completely overwrite a suborder",
           action: "Update a suborder",
-        },
-        {
-          name: "Create Expense Posting",
-          value: "createExpensePosting",
-          description: "Create expense postings for a suborder",
-          action: "Create expense postings",
         },
       ],
       default: "getAll",
@@ -259,6 +259,18 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           action: "Get employee capacities",
         },
         {
+          name: "Get Charge Rates",
+          value: "getChargeRates",
+          description: "Retrieve charge rates",
+          action: "Get charge rates",
+        },
+        {
+          name: "Get Cost Rates",
+          value: "getCostRates",
+          description: "Retrieve employees with cost rates",
+          action: "Get employee cost rates",
+        },
+        {
           name: "Get Employees With Group",
           value: "getWithGroup",
           description: "Retrieve employees including their group",
@@ -269,18 +281,6 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           value: "getQualifications",
           description: "Retrieve employees with qualifications",
           action: "Get employee qualifications",
-        },
-        {
-          name: "Get Cost Rates",
-          value: "getCostRates",
-          description: "Retrieve employees with cost rates",
-          action: "Get employee cost rates",
-        },
-        {
-          name: "Get Charge Rates",
-          value: "getChargeRates",
-          description: "Retrieve charge rates",
-          action: "Get charge rates",
         },
       ],
       default: "getCapacities",
@@ -636,7 +636,7 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: false,
-      description: "Integrate the expense postings directly instead of staging",
+      description: "Whether to integrate the expense postings directly instead of staging",
     },
     {
       displayName: "Delete Massdata on Failure",
