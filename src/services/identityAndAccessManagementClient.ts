@@ -149,11 +149,12 @@ class HttpResponse {
   }
 
   clone(): Response {
-    const headersObj: Record<string, string> = {}; this.headers.forEach((value, key) => { headersObj[key] = value; }); return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
+    const headersObj: Record<string, string> = {};
+    this.headers.forEach((value, key) => {
+      headersObj[key] = value;
+    });
+    return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
   }
-  };
-  
-  return fetchFunction as typeof fetch;
 }
 
 /**
@@ -238,8 +239,6 @@ function buildUrl(
   return url;
   };
   
-  return fetchFunction as typeof fetch;
-}
 
 async function readResponseBody(response: Response): Promise<JsonValue | undefined> {
   if (response.status === 204 || response.status === 205) {
@@ -261,9 +260,6 @@ async function readResponseBody(response: Response): Promise<JsonValue | undefin
   } catch {
     return undefined;
   }
-  };
-  
-  return fetchFunction as typeof fetch;
 }
 
 function buildErrorMessage(response: Response, body: JsonValue | undefined): string {
@@ -288,9 +284,6 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
   }
 
   return prefix;
-  };
-  
-  return fetchFunction as typeof fetch;
 }
 
 async function sendRequest(options: SendRequestOptions): Promise<RequestResult> {
@@ -565,7 +558,4 @@ export class IdentityAndAccessManagementClient {
       location: extractLocationHeader(result.response) ?? undefined,
     };
   }
-  };
-  
-  return fetchFunction as typeof fetch;
 }

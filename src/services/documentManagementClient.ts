@@ -200,11 +200,12 @@ class HttpResponse {
   }
 
   clone(): Response {
-    const headersObj: Record<string, string> = {}; this.headers.forEach((value, key) => { headersObj[key] = value; }); return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
+    const headersObj: Record<string, string> = {};
+    this.headers.forEach((value, key) => {
+      headersObj[key] = value;
+    });
+    return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
   }
-  };
-  
-  return fetchFunction as typeof fetch;
 }
 
 /**
@@ -905,7 +906,4 @@ export class DocumentManagementClient {
 
     return await response.json() as JsonValue;
   }
-  };
-  
-  return fetchFunction as typeof fetch;
 }
