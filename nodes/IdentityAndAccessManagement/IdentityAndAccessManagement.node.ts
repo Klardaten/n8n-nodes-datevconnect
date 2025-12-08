@@ -53,13 +53,19 @@ export class IdentityAndAccessManagement implements INodeType {
         host,
         email,
         password,
+        httpHelper: this.helpers.httpRequest,
       });
       token = authResponse.access_token;
     } catch (error) {
       throw new NodeApiError(this.getNode(), toErrorObject(error));
     }
 
-    const authContext = { host, token, clientInstanceId };
+    const authContext = { 
+      host, 
+      token, 
+      clientInstanceId,
+      httpHelper: this.helpers.httpRequest,
+    };
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       const resource = this.getNodeParameter("resource", itemIndex) as Resource;

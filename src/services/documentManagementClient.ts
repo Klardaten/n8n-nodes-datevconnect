@@ -1,11 +1,11 @@
-import type { JsonValue } from './datevConnectClient';
+import type { JsonValue, HttpRequestHelper } from './datevConnectClient';
 import { authenticate } from './datevConnectClient';
 
 export interface DocumentManagementAuthenticateOptions {
   host: string;
   email: string;
   password: string;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
 }
 
 export interface DocumentManagementAuthenticateResponse extends Record<string, JsonValue> {
@@ -16,7 +16,7 @@ interface BaseDocumentManagementRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
 }
 
 // Documents endpoint interfaces
@@ -137,6 +137,130 @@ export interface CreateDispatcherInformationOptions extends BaseDocumentManageme
 const DOCUMENT_MANAGEMENT_BASE_PATH = '/datevconnect/dms/v2';
 
 /**
+ * Response-like wrapper for n8n httpRequest responses
+ */
+class HttpResponse {
+  readonly body: ReadableStream<Uint8Array> | null = null;
+  readonly bodyUsed: boolean = false;
+  readonly headers: Headers;
+  readonly ok: boolean;
+  readonly redirected: boolean = false;
+  readonly status: number;
+  readonly statusText: string;
+  readonly type: ResponseType = 'basic';
+  readonly url: string = '';
+
+  private _body: any;
+  private _bodyParsed: boolean = false;
+
+  constructor(body: any, status: number, statusText: string, headers: Record<string, string> = {}) {
+    this._body = body;
+    this.status = status;
+    this.statusText = statusText;
+    this.ok = status >= 200 && status < 300;
+    this.headers = new Headers(headers);
+  }
+
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    throw new Error('arrayBuffer() not implemented');
+  }
+
+  async blob(): Promise<Blob> {
+    throw new Error('blob() not implemented');
+  }
+
+  async bytes(): Promise<Uint8Array> {
+    throw new Error('bytes() not implemented');
+  }
+
+  async formData(): Promise<FormData> {
+    throw new Error('formData() not implemented');
+  }
+
+  async json(): Promise<any> {
+    if (this._bodyParsed) return this._body;
+    this._bodyParsed = true;
+    
+    if (typeof this._body === 'string') {
+      return JSON.parse(this._body);
+    }
+    return this._body;
+  }
+
+  async text(): Promise<string> {
+    if (this._bodyParsed) {
+      return typeof this._body === 'string' ? this._body : JSON.stringify(this._body);
+    }
+    this._bodyParsed = true;
+    
+    if (typeof this._body === 'string') {
+      return this._body;
+    }
+    return JSON.stringify(this._body);
+  }
+
+  clone(): Response {
+    const headersObj: Record<string, string> = {}; this.headers.forEach((value, key) => { headersObj[key] = value; }); return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
+  }
+  };
+  
+  return fetchFunction as typeof fetch;
+}
+
+/**
+ * Creates a fetch-like function using n8n's httpRequest helper
+ */
+function createFetchFromHttpHelper(httpHelper: HttpRequestHelper): typeof fetch {
+  const fetchFunction = async (input: URL | RequestInfo | string, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    const method = (init?.method || 'GET') as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+    const headers: Record<string, string> = {};
+
+    // Extract headers from init
+    if (init?.headers) {
+      if (init.headers instanceof Headers) {
+        init.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(init.headers)) {
+        init.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        Object.assign(headers, init.headers);
+      }
+    }
+
+    try {
+      const response = await httpHelper({
+        url,
+        method,
+        headers,
+        body: init?.body,
+        returnFullResponse: true,
+      });
+
+      // n8n's httpRequest returns { body, headers, statusCode, statusMessage }
+      const status = response.statusCode || 200;
+      const statusText = response.statusMessage || '';
+      const responseHeaders = response.headers || {};
+
+      return new HttpResponse(response.body, status, statusText, responseHeaders) as Response;
+    } catch (error: any) {
+      // Handle errors from n8n httpRequest
+      const status = error.statusCode || error.response?.statusCode || 500;
+      const statusText = error.statusMessage || error.message || 'Internal Server Error';
+      const body = error.response?.body || error.body || error.message;
+      const headers = error.response?.headers || error.headers || {};
+
+      return new HttpResponse(body, status, statusText, headers) as Response;
+    }
+  };
+  
+  return fetchFunction as typeof fetch;
+}
+
+/**
  * Document Management API Client for DATEV DMS
  */
 export class DocumentManagementClient {
@@ -151,7 +275,7 @@ export class DocumentManagementClient {
    * 1. GET /documents - Get a list of documents
    */
   static async fetchDocuments(options: FetchDocumentsOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.filter) queryParams.append('filter', options.filter);
@@ -180,7 +304,7 @@ export class DocumentManagementClient {
    * GET /documents/{id} - Get a single document by ID
    */
   static async fetchDocument(options: FetchDocumentOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`, {
       method: 'GET',
@@ -202,7 +326,7 @@ export class DocumentManagementClient {
    * POST /documents - Create a new document
    */
   static async createDocument(options: CreateDocumentOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents`, {
       method: 'POST',
@@ -232,7 +356,7 @@ export class DocumentManagementClient {
    * PUT /documents/{id} - Update a document
    */
   static async updateDocument(options: UpdateDocumentOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`, {
       method: 'PUT',
@@ -261,7 +385,7 @@ export class DocumentManagementClient {
    * 2. GET /document-files/{file-id} - Get a document file (binary)
    */
   static async fetchDocumentFile(options: FetchDocumentFileOptions): Promise<Response> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files/${encodeURIComponent(options.fileId)}`, {
       method: 'GET',
@@ -283,7 +407,7 @@ export class DocumentManagementClient {
    * POST /document-files - Upload a single file
    */
   static async uploadDocumentFile(options: UploadDocumentFileOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files`, {
       method: 'POST',
@@ -307,7 +431,7 @@ export class DocumentManagementClient {
    * 3. GET /domains - Get list of domains
    */
   static async fetchDomains(options: FetchDomainsOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.filter) queryParams.append('filter', options.filter);
@@ -334,7 +458,7 @@ export class DocumentManagementClient {
    * 4. GET /documentstates - Get all document states
    */
   static async fetchDocumentStates(options: FetchDocumentStatesOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.filter) queryParams.append('filter', options.filter);
@@ -361,7 +485,7 @@ export class DocumentManagementClient {
    * GET /documentstates/{state-id} - Get a specific document state
    */
   static async fetchDocumentState(options: FetchDocumentStateOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates/${encodeURIComponent(options.stateId)}`, {
       method: 'GET',
@@ -383,7 +507,7 @@ export class DocumentManagementClient {
    * POST /documentstates - Create a new document state
    */
   static async createDocumentState(options: CreateDocumentStateOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates`, {
       method: 'POST',
@@ -407,7 +531,7 @@ export class DocumentManagementClient {
    * 5. GET /info - Get system information
    */
   static async fetchInfo(options: FetchInfoOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/info`, {
       method: 'GET',
@@ -429,7 +553,7 @@ export class DocumentManagementClient {
    * DELETE /documents/{id} - Delete a document (soft delete)
    */
   static async deleteDocument(options: DeleteDocumentOptions): Promise<void> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}`, {
       method: 'DELETE',
@@ -448,7 +572,7 @@ export class DocumentManagementClient {
    * DELETE /documents/{id}/delete-permanently - Delete a document permanently (hard delete)
    */
   static async deleteDocumentPermanently(options: DeleteDocumentOptions): Promise<void> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}/delete-permanently`, {
       method: 'DELETE',
@@ -467,7 +591,7 @@ export class DocumentManagementClient {
    * GET /secure-areas - Get secure areas (only DATEV DMS)
    */
   static async fetchSecureAreas(options: FetchSecureAreasOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/secure-areas`, {
       method: 'GET',
@@ -489,7 +613,7 @@ export class DocumentManagementClient {
    * GET /property-templates - Get property templates (only DATEV DMS)
    */
   static async fetchPropertyTemplates(options: FetchPropertyTemplatesOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const queryParams = new URLSearchParams();
     if (options.filter) queryParams.append('filter', options.filter);
@@ -516,7 +640,7 @@ export class DocumentManagementClient {
    * GET /individual-properties - Get individual properties (only DATEV DMS)
    */
   static async fetchIndividualProperties(options: FetchIndividualPropertiesOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-properties`, {
       method: 'GET',
@@ -538,7 +662,7 @@ export class DocumentManagementClient {
    * 13. GET /individual-references1 - Get individual references set 1
    */
   static async fetchIndividualReferences1(options: FetchIndividualReferences1Options): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.top) queryParams.append('top', options.top.toString());
@@ -566,7 +690,7 @@ export class DocumentManagementClient {
    * 14. POST /individual-references1 - Create individual reference in set 1
    */
   static async createIndividualReference1(options: CreateIndividualReference1Options): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references1`, {
       method: 'POST',
@@ -590,7 +714,7 @@ export class DocumentManagementClient {
    * 15. GET /individual-references2 - Get individual references set 2
    */
   static async fetchIndividualReferences2(options: FetchIndividualReferences2Options): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.top) queryParams.append('top', options.top.toString());
@@ -618,7 +742,7 @@ export class DocumentManagementClient {
    * 16. POST /individual-references2 - Create individual reference in set 2
    */
   static async createIndividualReference2(options: CreateIndividualReference2Options): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references2`, {
       method: 'POST',
@@ -642,7 +766,7 @@ export class DocumentManagementClient {
    * GET /documents/{id}/structure-items - Get structure items for a document
    */
   static async fetchStructureItems(options: FetchStructureItemsOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.top) queryParams.append('top', options.top.toString());
@@ -670,7 +794,7 @@ export class DocumentManagementClient {
    * GET /documents/{id}/structure-items/{itemId} - Get a single structure item
    */
   static async fetchStructureItem(options: FetchStructureItemOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`, {
       method: 'GET',
@@ -692,7 +816,7 @@ export class DocumentManagementClient {
    * POST /documents/{id}/structure-items - Add a structure item to a document
    */
   static async addStructureItem(options: AddStructureItemOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     const queryParams = new URLSearchParams();
     
     if (options.insertPosition) queryParams.append('insertPosition', options.insertPosition);
@@ -727,7 +851,7 @@ export class DocumentManagementClient {
    * PUT /documents/{id}/structure-items/{itemId} - Update a structure item
    */
   static async updateStructureItem(options: UpdateStructureItemOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`, {
       method: 'PUT',
@@ -756,7 +880,7 @@ export class DocumentManagementClient {
    * POST /documents/{id}/dispatcher-information - Create dispatcher information for a document
    */
   static async createDispatcherInformation(options: CreateDispatcherInformationOptions): Promise<JsonValue> {
-    const fetchImpl = options.fetchImpl || fetch;
+    const fetchImpl = options.httpHelper ? createFetchFromHttpHelper(options.httpHelper) : fetch;
     
     const response = await fetchImpl(`${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/dispatcher-information`, {
       method: 'POST',
@@ -781,4 +905,7 @@ export class DocumentManagementClient {
 
     return await response.json() as JsonValue;
   }
+  };
+  
+  return fetchFunction as typeof fetch;
 }

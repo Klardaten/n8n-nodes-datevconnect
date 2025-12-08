@@ -2,12 +2,15 @@
  * Type definitions for DATEV Accounting API
  */
 
+import type { HttpRequestHelper } from "../../src/services/datevConnectClient";
+
 // Request context for API calls
 export interface RequestContext {
   // Authentication data
   host: string;
   token: string;
   clientInstanceId: string;
+  httpHelper?: HttpRequestHelper;
   // Operation parameters (conditionally required based on endpoint)
   clientId?: string;        // Optional - not needed for /clients getAll endpoint
   fiscalYearId?: string;    // Optional - not needed for client/fiscal-year endpoints

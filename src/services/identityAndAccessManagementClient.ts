@@ -1,4 +1,4 @@
-import type { JsonValue } from "./datevConnectClient";
+import type { JsonValue, HttpRequestHelper } from "./datevConnectClient";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV IAM request failed";
@@ -17,7 +17,7 @@ interface BaseIamRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
 }
 
 interface SendRequestOptions extends BaseIamRequestOptions {
@@ -85,6 +85,130 @@ export interface DeleteGroupOptions extends BaseIamRequestOptions {
 
 export type FetchCurrentUserOptions = BaseIamRequestOptions;
 
+/**
+ * Response-like wrapper for n8n httpRequest responses
+ */
+class HttpResponse {
+  readonly body: ReadableStream<Uint8Array> | null = null;
+  readonly bodyUsed: boolean = false;
+  readonly headers: Headers;
+  readonly ok: boolean;
+  readonly redirected: boolean = false;
+  readonly status: number;
+  readonly statusText: string;
+  readonly type: ResponseType = 'basic';
+  readonly url: string = '';
+
+  private _body: any;
+  private _bodyParsed: boolean = false;
+
+  constructor(body: any, status: number, statusText: string, headers: Record<string, string> = {}) {
+    this._body = body;
+    this.status = status;
+    this.statusText = statusText;
+    this.ok = status >= 200 && status < 300;
+    this.headers = new Headers(headers);
+  }
+
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    throw new Error('arrayBuffer() not implemented');
+  }
+
+  async blob(): Promise<Blob> {
+    throw new Error('blob() not implemented');
+  }
+
+  async bytes(): Promise<Uint8Array> {
+    throw new Error('bytes() not implemented');
+  }
+
+  async formData(): Promise<FormData> {
+    throw new Error('formData() not implemented');
+  }
+
+  async json(): Promise<any> {
+    if (this._bodyParsed) return this._body;
+    this._bodyParsed = true;
+    
+    if (typeof this._body === 'string') {
+      return JSON.parse(this._body);
+    }
+    return this._body;
+  }
+
+  async text(): Promise<string> {
+    if (this._bodyParsed) {
+      return typeof this._body === 'string' ? this._body : JSON.stringify(this._body);
+    }
+    this._bodyParsed = true;
+    
+    if (typeof this._body === 'string') {
+      return this._body;
+    }
+    return JSON.stringify(this._body);
+  }
+
+  clone(): Response {
+    const headersObj: Record<string, string> = {}; this.headers.forEach((value, key) => { headersObj[key] = value; }); return new HttpResponse(this._body, this.status, this.statusText, headersObj) as Response;
+  }
+  };
+  
+  return fetchFunction as typeof fetch;
+}
+
+/**
+ * Creates a fetch-like function using n8n's httpRequest helper
+ */
+function createFetchFromHttpHelper(httpHelper: HttpRequestHelper): typeof fetch {
+  const fetchFunction = async (input: URL | RequestInfo | string, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    const method = (init?.method || 'GET') as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+    const headers: Record<string, string> = {};
+
+    // Extract headers from init
+    if (init?.headers) {
+      if (init.headers instanceof Headers) {
+        init.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(init.headers)) {
+        init.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        Object.assign(headers, init.headers);
+      }
+    }
+
+    try {
+      const response = await httpHelper({
+        url,
+        method,
+        headers,
+        body: init?.body,
+        returnFullResponse: true,
+      });
+
+      // n8n's httpRequest returns { body, headers, statusCode, statusMessage }
+      const status = response.statusCode || 200;
+      const statusText = response.statusMessage || '';
+      const responseHeaders = response.headers || {};
+
+      return new HttpResponse(response.body, status, statusText, responseHeaders) as Response;
+    } catch (error: any) {
+      // Handle errors from n8n httpRequest
+      const status = error.statusCode || error.response?.statusCode || 500;
+      const statusText = error.statusMessage || error.message || 'Internal Server Error';
+      const body = error.response?.body || error.body || error.message;
+      const headers = error.response?.headers || error.headers || {};
+
+      return new HttpResponse(body, status, statusText, headers) as Response;
+    }
+  };
+  
+  return fetchFunction as typeof fetch;
+}
+
 function normaliseBaseUrl(host: string): string {
   if (!host) {
     throw new Error("DATEVconnect host must be provided");
@@ -112,6 +236,9 @@ function buildUrl(
   }
 
   return url;
+  };
+  
+  return fetchFunction as typeof fetch;
 }
 
 async function readResponseBody(response: Response): Promise<JsonValue | undefined> {
@@ -134,6 +261,9 @@ async function readResponseBody(response: Response): Promise<JsonValue | undefin
   } catch {
     return undefined;
   }
+  };
+  
+  return fetchFunction as typeof fetch;
 }
 
 function buildErrorMessage(response: Response, body: JsonValue | undefined): string {
@@ -158,10 +288,13 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
   }
 
   return prefix;
+  };
+  
+  return fetchFunction as typeof fetch;
 }
 
 async function sendRequest(options: SendRequestOptions): Promise<RequestResult> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper } = options;
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -180,6 +313,8 @@ async function sendRequest(options: SendRequestOptions): Promise<RequestResult> 
     requestInit.body = JSON.stringify(body);
   }
 
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : fetch;
+  
   const response = await fetchImpl(url, requestInit);
   const responseBody = await readResponseBody(response);
 
@@ -430,4 +565,7 @@ export class IdentityAndAccessManagementClient {
       location: extractLocationHeader(result.response) ?? undefined,
     };
   }
+  };
+  
+  return fetchFunction as typeof fetch;
 }
