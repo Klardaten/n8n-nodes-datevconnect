@@ -1,4 +1,4 @@
-import type { JsonValue, HttpRequestHelper } from "./datevConnectClient";
+import type { JsonValue, HttpRequestHelper } from "./shared";
 import { createFetchFromHttpHelper } from "./httpHelpers";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";

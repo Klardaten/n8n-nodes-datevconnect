@@ -2,14 +2,12 @@ import { createFetchFromHttpHelper } from './httpHelpers';
 import {
   type JsonValue,
   type HttpRequestHelper,
-  type AuthenticateOptions,
-  type AuthenticateResponse,
   type BaseRequestOptions,
-  authenticate,
   buildHeaders,
   buildApiUrl,
   ensureSuccess,
   JSON_CONTENT_TYPE_HEADER,
+  DEFAULT_ERROR_PREFIX,
 } from './shared';
 
 // Re-export for backward compatibility

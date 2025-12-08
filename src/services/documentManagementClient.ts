@@ -1,5 +1,5 @@
-import type { JsonValue, HttpRequestHelper } from './datevConnectClient';
-import { authenticate } from './datevConnectClient';
+import type { JsonValue, HttpRequestHelper } from './shared';
+import { authenticate } from './shared';
 import { createFetchFromHttpHelper } from './httpHelpers';
 
 export interface DocumentManagementAuthenticateOptions {

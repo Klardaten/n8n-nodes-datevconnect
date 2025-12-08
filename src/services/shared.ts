@@ -35,7 +35,7 @@ export interface BaseRequestOptions {
 }
 
 const JSON_CONTENT_TYPE = "application/json";
-const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
+export const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
 
 export function normaliseBaseUrl(host: string): string {
   if (!host) {
