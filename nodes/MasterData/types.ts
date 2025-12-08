@@ -1,4 +1,4 @@
-import type { IDataObject } from "n8n-workflow";
+import type { IDataObject, IExecuteFunctions } from "n8n-workflow";
 import type { JsonValue } from "../../src/services/datevConnectClient";
 
 /**
@@ -18,6 +18,7 @@ export interface AuthContext {
   host: string;
   token: string;
   clientInstanceId: string;
+  helpers: IExecuteFunctions["helpers"];
 }
 
 /**

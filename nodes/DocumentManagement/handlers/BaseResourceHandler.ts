@@ -120,6 +120,7 @@ export abstract class BaseResourceHandler {
       host: credentials.host,
       token,
       clientInstanceId: credentials.clientInstanceId,
+      helpers: this.context.helpers,
     };
   }
 

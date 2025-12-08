@@ -99,6 +99,7 @@ export class Accounting implements INodeType {
         host,
         email,
         password,
+        helpers: this.helpers,
       });
       token = authResponse.access_token;
     } catch (error) {
@@ -114,7 +115,7 @@ export class Accounting implements INodeType {
         const operation = this.getNodeParameter("operation", itemIndex) as string;
 
         // Create request context with auth data and operation parameters
-        const requestContext: RequestContext = { host, token, clientInstanceId };
+        const requestContext: RequestContext = { host, token, clientInstanceId, helpers: this.helpers };
 
         // Add clientId if needed (all operations except /clients getAll)
         if (!(resource === "client" && operation === "getAll")) {

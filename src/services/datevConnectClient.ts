@@ -1,3 +1,7 @@
+import type { IExecuteFunctions } from "n8n-workflow";
+
+type N8nHttpHelpers = Pick<IExecuteFunctions["helpers"], "httpRequest">;
+
 export type JsonValue =
   | null
   | boolean
@@ -10,6 +14,7 @@ export interface AuthenticateOptions {
   host: string;
   email: string;
   password: string;
+  helpers?: N8nHttpHelpers;
   fetchImpl?: typeof fetch;
 }
 
@@ -21,6 +26,7 @@ export interface BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  helpers?: N8nHttpHelpers;
   fetchImpl?: typeof fetch;
 }
 
@@ -336,20 +342,54 @@ async function ensureSuccess(response: Response): Promise<JsonValue | undefined>
   throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected JSON response body.`);
 }
 
+type HttpRequestOptions = {
+  method: string;
+  url: string;
+  headers?: Record<string, string>;
+  body?: JsonValue;
+  json?: boolean;
+};
+
+type HttpRequestFunction = (options: HttpRequestOptions) => Promise<JsonValue | undefined>;
+
+function resolveHttpRequest(
+  helpers?: N8nHttpHelpers,
+  fetchImpl?: typeof fetch,
+): HttpRequestFunction {
+  if (helpers?.httpRequest) {
+    return async (options: HttpRequestOptions) =>
+      (helpers.httpRequest(options) as Promise<JsonValue | undefined>);
+  }
+
+  const fetchFn = fetchImpl ?? fetch;
+
+  return async (options: HttpRequestOptions) => {
+    const response = await fetchFn(options.url, {
+      method: options.method,
+      headers: options.headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    });
+
+    return ensureSuccess(response);
+  };
+}
+
 export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
-  const { host, email, password, fetchImpl = fetch } = options;
+  const { host, email, password, helpers, fetchImpl } = options;
   const baseUrl = normaliseBaseUrl(host);
   const url = new URL("api/auth/login", baseUrl);
 
-  const response = await fetchImpl(url, {
+  const httpRequest = resolveHttpRequest(helpers, fetchImpl);
+
+  const body = (await httpRequest({
     method: "POST",
+    url: url.toString(),
     headers: buildHeaders({
       "content-type": JSON_CONTENT_TYPE,
     }),
-    body: JSON.stringify({ email, password }),
-  });
-
-  const body = await ensureSuccess(response);
+    body: { email, password },
+    json: true,
+  })) as JsonValue;
 
   if (!body || typeof body !== "object" || !("access_token" in body) || typeof body.access_token !== "string") {
     throw new Error(`${DEFAULT_ERROR_PREFIX}: Authentication response missing access_token.`);
@@ -384,6 +424,7 @@ interface MasterDataRequestOptions {
   method: RequestMethod;
   query?: Record<string, string | number | undefined | null>;
   body?: JsonValue;
+  helpers?: N8nHttpHelpers;
   fetchImpl?: typeof fetch;
 }
 
@@ -396,8 +437,10 @@ function buildApiUrl(host: string, path: string): URL {
 async function sendMasterDataRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const { host, token, clientInstanceId, path, method, query, body, helpers, fetchImpl } = options;
   const url = buildApiUrl(host, path);
+
+  const httpRequest = resolveHttpRequest(helpers, fetchImpl);
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {
@@ -408,18 +451,20 @@ async function sendMasterDataRequest(
     }
   }
 
-  const response = await fetchImpl(url, {
+  const responseBody = (await httpRequest({
     method,
+    url: url.toString(),
     headers: buildHeaders({
       accept: JSON_CONTENT_TYPE,
       authorization: `Bearer ${token}`,
       "content-type": JSON_CONTENT_TYPE,
       "x-client-instance-id": clientInstanceId,
     }),
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+    body,
+    json: true,
+  })) as JsonValue | undefined;
 
-  return ensureSuccess(response);
+  return responseBody;
 }
 
 export async function fetchClients(options: FetchClientsOptions): Promise<JsonValue> {
