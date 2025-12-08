@@ -10,13 +10,14 @@ export type JsonValue =
 import type { IHttpRequestOptions } from "n8n-workflow";
 
 // Type for n8n's httpRequest helper
-export type HttpRequestHelper = (options: IHttpRequestOptions) => Promise<any>;
+export type HttpRequestHelper = (options: IHttpRequestOptions) => Promise<unknown>;
 
 export interface AuthenticateOptions {
   host: string;
   email: string;
   password: string;
   httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 export interface AuthenticateResponse extends Record<string, JsonValue> {
@@ -28,6 +29,7 @@ export interface BaseRequestOptions {
   token: string;
   clientInstanceId: string;
   httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 export interface FetchClientsOptions extends BaseRequestOptions {
@@ -290,10 +292,10 @@ class HttpResponse {
   readonly type: ResponseType = 'basic';
   readonly url: string = '';
 
-  private _body: any;
+  private _body: unknown;
   private _bodyParsed: boolean = false;
 
-  constructor(body: any, status: number, statusText: string, headers: Record<string, string> = {}) {
+  constructor(body: unknown, status: number, statusText: string, headers: Record<string, string> = {}) {
     this._body = body;
     this.status = status;
     this.statusText = statusText;
@@ -317,7 +319,7 @@ class HttpResponse {
     throw new Error('formData() not implemented');
   }
 
-  async json(): Promise<any> {
+  async json(): Promise<unknown> {
     if (this._bodyParsed) return this._body;
     this._bodyParsed = true;
     
@@ -387,12 +389,14 @@ function createFetchFromHttpHelper(httpHelper: HttpRequestHelper): typeof fetch 
       const responseHeaders = response.headers || {};
 
       return new HttpResponse(response.body, status, statusText, responseHeaders) as Response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle errors from n8n httpRequest
-      const status = error.statusCode || error.response?.statusCode || 500;
-      const statusText = error.statusMessage || error.message || 'Internal Server Error';
-      const body = error.response?.body || error.body || error.message;
-      const headers = error.response?.headers || error.headers || {};
+      const errorObj = error as Record<string, unknown>;
+      const response = errorObj.response as Record<string, unknown> | undefined;
+      const status = (errorObj.statusCode || response?.statusCode || 500) as number;
+      const statusText = (errorObj.statusMessage || errorObj.message || 'Internal Server Error') as string;
+      const body = response?.body || errorObj.body || errorObj.message;
+      const headers = (response?.headers || errorObj.headers || {}) as Record<string, string>;
 
       return new HttpResponse(body, status, statusText, headers) as Response;
     }
@@ -468,11 +472,11 @@ async function ensureSuccess(response: Response): Promise<JsonValue | undefined>
 }
 
 export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
-  const { host, email, password, httpHelper } = options;
+  const { host, email, password, httpHelper, fetchImpl: providedFetchImpl } = options;
   const baseUrl = normaliseBaseUrl(host);
   const url = new URL("api/auth/login", baseUrl);
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : fetch;
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   
   const response = await fetchImpl(url, {
     method: "POST",
@@ -518,6 +522,7 @@ interface MasterDataRequestOptions {
   query?: Record<string, string | number | undefined | null>;
   body?: JsonValue;
   httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 function buildApiUrl(host: string, path: string): URL {
@@ -529,7 +534,7 @@ function buildApiUrl(host: string, path: string): URL {
 async function sendMasterDataRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, httpHelper } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -541,7 +546,7 @@ async function sendMasterDataRequest(
     }
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : fetch;
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   
   const response = await fetchImpl(url, {
     method,
@@ -1822,7 +1827,7 @@ async function sendAccountingRequest(
     }
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : fetch;
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   
   const response = await fetchImpl(url, {
     method,

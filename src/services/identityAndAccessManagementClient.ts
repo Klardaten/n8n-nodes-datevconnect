@@ -18,6 +18,7 @@ interface BaseIamRequestOptions {
   token: string;
   clientInstanceId: string;
   httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 interface SendRequestOptions extends BaseIamRequestOptions {
@@ -99,10 +100,10 @@ class HttpResponse {
   readonly type: ResponseType = 'basic';
   readonly url: string = '';
 
-  private _body: any;
+  private _body: unknown;
   private _bodyParsed: boolean = false;
 
-  constructor(body: any, status: number, statusText: string, headers: Record<string, string> = {}) {
+  constructor(body: unknown, status: number, statusText: string, headers: Record<string, string> = {}) {
     this._body = body;
     this.status = status;
     this.statusText = statusText;
@@ -126,7 +127,7 @@ class HttpResponse {
     throw new Error('formData() not implemented');
   }
 
-  async json(): Promise<any> {
+  async json(): Promise<unknown> {
     if (this._bodyParsed) return this._body;
     this._bodyParsed = true;
     
@@ -196,12 +197,14 @@ function createFetchFromHttpHelper(httpHelper: HttpRequestHelper): typeof fetch 
       const responseHeaders = response.headers || {};
 
       return new HttpResponse(response.body, status, statusText, responseHeaders) as Response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle errors from n8n httpRequest
-      const status = error.statusCode || error.response?.statusCode || 500;
-      const statusText = error.statusMessage || error.message || 'Internal Server Error';
-      const body = error.response?.body || error.body || error.message;
-      const headers = error.response?.headers || error.headers || {};
+      const errorObj = error as Record<string, unknown>;
+      const response = errorObj.response as Record<string, unknown> | undefined;
+      const status = (errorObj.statusCode || response?.statusCode || 500) as number;
+      const statusText = (errorObj.statusMessage || errorObj.message || 'Internal Server Error') as string;
+      const body = response?.body || errorObj.body || errorObj.message;
+      const headers = (response?.headers || errorObj.headers || {}) as Record<string, string>;
 
       return new HttpResponse(body, status, statusText, headers) as Response;
     }
@@ -287,7 +290,7 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
 }
 
 async function sendRequest(options: SendRequestOptions): Promise<RequestResult> {
-  const { host, token, clientInstanceId, path, method, query, body, httpHelper } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -306,7 +309,7 @@ async function sendRequest(options: SendRequestOptions): Promise<RequestResult> 
     requestInit.body = JSON.stringify(body);
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : fetch;
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   
   const response = await fetchImpl(url, requestInit);
   const responseBody = await readResponseBody(response);
