@@ -34,7 +34,7 @@ export interface BaseRequestOptions {
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
-const JSON_CONTENT_TYPE = "application/json";
+export const JSON_CONTENT_TYPE = "application/json";
 export const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
 
 export function normaliseBaseUrl(host: string): string {
@@ -128,12 +128,14 @@ export function buildApiUrl(host: string, path: string): URL {
 
 /**
  * Authenticate with DATEV API
+ * Uses httpHelper (n8n's httpRequest) when available, falls back to fetchImpl for tests, or global fetch
  */
 export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
   const { host, email, password, httpHelper, fetchImpl: providedFetchImpl } = options;
   const baseUrl = normaliseBaseUrl(host);
   const url = new URL("api/auth/login", baseUrl);
 
+  // Use httpHelper if provided (n8n runtime), else fetchImpl (tests), else global fetch (fallback)
   const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   
   const response = await fetchImpl(url, {
@@ -152,5 +154,3 @@ export async function authenticate(options: AuthenticateOptions): Promise<Authen
 
   return body as AuthenticateResponse;
 }
-
-export const JSON_CONTENT_TYPE_HEADER = JSON_CONTENT_TYPE;

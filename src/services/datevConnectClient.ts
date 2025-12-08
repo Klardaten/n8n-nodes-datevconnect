@@ -6,15 +6,13 @@ import {
   buildHeaders,
   buildApiUrl,
   ensureSuccess,
-  JSON_CONTENT_TYPE_HEADER,
+  JSON_CONTENT_TYPE,
   DEFAULT_ERROR_PREFIX,
 } from './shared';
 
 // Re-export for backward compatibility
 export type { JsonValue, HttpRequestHelper, AuthenticateOptions, AuthenticateResponse, BaseRequestOptions } from './shared';
 export { authenticate } from './shared';
-
-const JSON_CONTENT_TYPE = JSON_CONTENT_TYPE_HEADER;
 
 export interface FetchClientsOptions extends BaseRequestOptions {
   top?: number;
