@@ -12,7 +12,7 @@ export type HttpRequestHelper = (options: IHttpRequestOptions) => Promise<unknow
  */
 class HttpResponse {
   readonly body: ReadableStream<Uint8Array> | null = null;
-  readonly bodyUsed: boolean = false;
+  bodyUsed: boolean = false;
   readonly headers: Headers;
   readonly ok: boolean;
   readonly redirected: boolean = false;
@@ -23,6 +23,8 @@ class HttpResponse {
 
   private _body: unknown;
   private _bodyParsed: boolean = false;
+  private _bodyBytes?: Uint8Array;
+  private _bodyText?: string;
 
   constructor(body: unknown, status: number, statusText: string, headers: Record<string, string> = {}) {
     this._body = body;
@@ -33,15 +35,60 @@ class HttpResponse {
   }
 
   async arrayBuffer(): Promise<ArrayBuffer> {
-    throw new Error('arrayBuffer() not implemented');
+    this.bodyUsed = true;
+    const bytes = await this.bytes();
+    const buffer = new ArrayBuffer(bytes.byteLength);
+    new Uint8Array(buffer).set(bytes);
+    return buffer;
   }
 
   async blob(): Promise<Blob> {
-    throw new Error('blob() not implemented');
+    this.bodyUsed = true;
+    const bytes = await this.arrayBuffer();
+    const type = this.headers.get('content-type') || undefined;
+    return new Blob([bytes], type ? { type } : undefined);
   }
 
   async bytes(): Promise<Uint8Array> {
-    throw new Error('bytes() not implemented');
+    this.bodyUsed = true;
+
+    if (this._bodyBytes) return this._bodyBytes;
+
+    if (this._body instanceof ArrayBuffer) {
+      this._bodyBytes = new Uint8Array(this._body);
+      return this._bodyBytes;
+    }
+
+    if (ArrayBuffer.isView(this._body)) {
+      const view = this._body as ArrayBufferView;
+      this._bodyBytes = new Uint8Array(
+        view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength),
+      );
+      return this._bodyBytes;
+    }
+
+    if (typeof Blob !== 'undefined' && this._body instanceof Blob) {
+      this._bodyBytes = new Uint8Array(await this._body.arrayBuffer());
+      return this._bodyBytes;
+    }
+
+    if (typeof this._body === 'string') {
+      this._bodyBytes = new TextEncoder().encode(this._body);
+      return this._bodyBytes;
+    }
+
+    if (this._body === undefined || this._body === null) {
+      this._bodyBytes = new Uint8Array();
+      return this._bodyBytes;
+    }
+
+    if (typeof this._body === 'object') {
+      this._bodyBytes = new TextEncoder().encode(JSON.stringify(this._body));
+      return this._bodyBytes;
+    }
+
+    this._bodyBytes = new TextEncoder().encode(String(this._body));
+    return this._bodyBytes;
   }
 
   async formData(): Promise<FormData> {
@@ -50,24 +97,62 @@ class HttpResponse {
 
   async json(): Promise<unknown> {
     if (this._bodyParsed) return this._body;
-    this._bodyParsed = true;
-    
+
     if (typeof this._body === 'string') {
-      return JSON.parse(this._body);
+      this._bodyParsed = true;
+      this.bodyUsed = true;
+      this._body = JSON.parse(this._body);
+      return this._body;
     }
+
+    if (
+      typeof this._body === 'object' &&
+      this._body !== null &&
+      !(this._body instanceof ArrayBuffer) &&
+      !ArrayBuffer.isView(this._body) &&
+      !(typeof Blob !== 'undefined' && this._body instanceof Blob)
+    ) {
+      this._bodyParsed = true;
+      this.bodyUsed = true;
+      return this._body;
+    }
+
+    const textBody = await this.text();
+    this._body = JSON.parse(textBody);
+    this._bodyParsed = true;
     return this._body;
   }
 
   async text(): Promise<string> {
-    if (this._bodyParsed) {
-      return typeof this._body === 'string' ? this._body : JSON.stringify(this._body);
+    if (this._bodyText !== undefined) {
+      this.bodyUsed = true;
+      return this._bodyText;
     }
-    this._bodyParsed = true;
-    
+
     if (typeof this._body === 'string') {
-      return this._body;
+      this._bodyParsed = true;
+      this.bodyUsed = true;
+      this._bodyText = this._body;
+      return this._bodyText;
     }
-    return JSON.stringify(this._body);
+
+    if (
+      typeof this._body === 'object' &&
+      this._body !== null &&
+      !(this._body instanceof ArrayBuffer) &&
+      !ArrayBuffer.isView(this._body) &&
+      !(typeof Blob !== 'undefined' && this._body instanceof Blob)
+    ) {
+      this._bodyParsed = true;
+      this.bodyUsed = true;
+      this._bodyText = JSON.stringify(this._body);
+      return this._bodyText;
+    }
+
+    const decoder = new TextDecoder();
+    this._bodyText = decoder.decode(await this.bytes());
+    this._bodyParsed = true;
+    return this._bodyText;
   }
 
   clone(): Response {
