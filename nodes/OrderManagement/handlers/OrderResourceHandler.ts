@@ -92,10 +92,12 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const select = this.getOptionalString("select");
     const filter = this.getOptionalString("filter");
-    const costRate = this.getNumberParameter("costRate", 0) || undefined;
+    const costRate = this.getOptionalCostRate();
     const expand = this.getOptionalString("expand");
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
+
+    this.ensureOrdersCostRateIsValid(costRate, expand);
 
     const response = await fetchOrders({
       ...authContext,
@@ -116,8 +118,10 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const orderId = this.getRequiredNumber("orderId");
     const select = this.getOptionalString("select");
-    const costRate = this.getNumberParameter("costRate", 0) || undefined;
+    const costRate = this.getOptionalCostRate();
     const expand = this.getOptionalString("expand");
+
+    this.ensureOrdersCostRateIsValid(costRate, expand);
 
     const response = await fetchOrder({
       ...authContext,
@@ -153,7 +157,7 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const orderId = this.getRequiredNumber("orderId");
     const select = this.getOptionalString("select");
-    const costRate = this.getNumberParameter("costRate", 0) || undefined;
+    const costRate = this.getOptionalCostRate();
 
     const response = await fetchOrderMonthlyValues({
       ...authContext,
@@ -171,7 +175,7 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const select = this.getOptionalString("select");
     const filter = this.getOptionalString("filter");
-    const costRate = this.getNumberParameter("costRate", 0) || undefined;
+    const costRate = this.getOptionalCostRate();
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
 
@@ -371,5 +375,41 @@ export class OrderResourceHandler extends BaseResourceHandler {
     });
 
     sendSuccess(response ?? { success: true, orderId, suborderId });
+  }
+
+  private getOptionalCostRate(): number | undefined {
+    const value = this.context.getNodeParameter("costRate", this.itemIndex, undefined) as number | undefined;
+    if (typeof value !== "number" || Number.isNaN(value) || value === 0) {
+      return undefined;
+    }
+    if (value < 1 || value > 9) {
+      throw new NodeOperationError(
+        this.context.getNode(),
+        'Cost Rate must be between 1 and 9 when provided.',
+        { itemIndex: this.itemIndex },
+      );
+    }
+    return value;
+  }
+
+  private ensureOrdersCostRateIsValid(costRate?: number, expand?: string): void {
+    if (costRate === undefined || costRate === null) {
+      return;
+    }
+
+    const expandParts = expand
+      ?.split(",")
+      .map((part) => part.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (expandParts?.includes("suborders")) {
+      return;
+    }
+
+    throw new NodeOperationError(
+      this.context.getNode(),
+      'When using "Cost Rate" for orders, you must also expand "suborders" (expand=suborders) or use the monthly values operations.',
+      { itemIndex: this.itemIndex },
+    );
   }
 }

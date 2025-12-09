@@ -500,8 +500,9 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
           operation: ["getAll", "get", "getMonthlyValuesForOrder", "getMonthlyValuesAll"],
         },
       },
-      default: 0,
-      description: "Optional cost rate used for valuations",
+      default: null,
+      description:
+        'Optional cost rate (1-9) used for valuations. For "Get" and "Get All" you must also set Expand to "suborders".',
     },
     {
       displayName: "Expand",
@@ -514,7 +515,7 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: "",
-      description: "Expand sub-resources (e.g. suborders)",
+      description: "Expand sub-resources (e.g. suborders). Required when using Cost Rate.",
     },
 
     // Required identifiers

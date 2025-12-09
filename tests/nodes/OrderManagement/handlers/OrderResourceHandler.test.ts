@@ -69,6 +69,32 @@ describe("OrderResourceHandler", () => {
     expect(returnData[0].json).toEqual({ orderid: 1 });
   });
 
+  test("getAll operation requires expand=suborders when costRate is set", async () => {
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _itemIndex: number, defaultValue?: unknown) => {
+        if (name === "costRate") return 2;
+        return defaultValue;
+      },
+    );
+
+    const returnData: any[] = [];
+    await expect(handler.execute("getAll", authContext, returnData)).rejects.toThrow(/suborders/);
+    expect(returnData).toHaveLength(0);
+  });
+
+  test("getAll operation rejects costRate outside allowed range", async () => {
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _itemIndex: number, defaultValue?: unknown) => {
+        if (name === "costRate") return 10;
+        return defaultValue;
+      },
+    );
+
+    const returnData: any[] = [];
+    await expect(handler.execute("getAll", authContext, returnData)).rejects.toThrow(/between 1 and 9/);
+    expect(returnData).toHaveLength(0);
+  });
+
   test("get operation fetches a single order", async () => {
     mockContext.getNodeParameter.mockImplementation((name: string) => {
       if (name === "orderId") return 42;
@@ -88,6 +114,34 @@ describe("OrderResourceHandler", () => {
       expand: undefined,
     });
     expect(returnData[0].json).toEqual({ orderid: 2 });
+  });
+
+  test("get operation requires expand=suborders when costRate is set", async () => {
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _itemIndex: number, defaultValue?: unknown) => {
+        if (name === "orderId") return 42;
+        if (name === "costRate") return 1;
+        return defaultValue;
+      },
+    );
+
+    const returnData: any[] = [];
+    await expect(handler.execute("get", authContext, returnData)).rejects.toThrow(/suborders/);
+    expect(returnData).toHaveLength(0);
+  });
+
+  test("get operation rejects costRate outside allowed range", async () => {
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _itemIndex: number, defaultValue?: unknown) => {
+        if (name === "orderId") return 42;
+        if (name === "costRate") return -1;
+        return defaultValue;
+      },
+    );
+
+    const returnData: any[] = [];
+    await expect(handler.execute("get", authContext, returnData)).rejects.toThrow(/between 1 and 9/);
+    expect(returnData).toHaveLength(0);
   });
 
   test("update operation passes payload", async () => {

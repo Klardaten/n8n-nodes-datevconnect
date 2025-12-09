@@ -43,7 +43,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/ordertypes?top=5&skip=2",
+      "https://localhost:58454/datevconnect/order-management/v1/ordertypes?top=5&skip=2",
     );
     expect(options).toEqual({
       method: "GET",
@@ -73,7 +73,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/clientgroup?clientid=abc",
+      "https://localhost:58454/datevconnect/order-management/v1/clientgroup?clientid=abc",
     );
     expect(options).toEqual({
       method: "GET",
@@ -108,7 +108,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders?select=orderid%2Corder_name&filter=client_id+eq+123&costrate=3&top=10&skip=5&expand=suborders",
+      "https://localhost:58454/datevconnect/order-management/v1/orders?select=orderid%2Corder_name&filter=client_id+eq+123&costrate=3&top=10&skip=5&expand=suborders",
     );
     expect(options).toEqual({
       method: "GET",
@@ -120,6 +120,20 @@ describe("OrderManagementClient - All Endpoints", () => {
     });
 
     expect(result).toEqual([{ orderid: 1, order_name: "Order A" }]);
+  });
+
+  test("GET /orders - fetchOrders rejects costRate without expand suborders", async () => {
+    await expect(
+      fetchOrders({
+        host: "https://localhost:58454/",
+        token: "token",
+        clientInstanceId: "inst",
+        costRate: 1,
+      }),
+    ).rejects.toThrow(
+      "costRate is only supported when expanding suborders (expand=suborders) on orders requests",
+    );
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   test("GET /orders/{orderid} - fetchOrder with costRate and expand", async () => {
@@ -141,7 +155,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/11?select=order_name&costrate=2&expand=suborders",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/11?select=order_name&costrate=2&expand=suborders",
     );
     expect(options).toEqual({
       method: "GET",
@@ -153,6 +167,21 @@ describe("OrderManagementClient - All Endpoints", () => {
     });
 
     expect(result).toEqual({ orderid: 11, order_name: "Order B" });
+  });
+
+  test("GET /orders/{orderid} - fetchOrder rejects costRate without expand suborders", async () => {
+    await expect(
+      fetchOrder({
+        host: "https://localhost:58454",
+        token: "token",
+        clientInstanceId: "inst",
+        orderId: 11,
+        costRate: 2,
+      }),
+    ).rejects.toThrow(
+      "costRate is only supported when expanding suborders (expand=suborders) on orders requests",
+    );
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   test("PUT /orders/{orderid} - updateOrder", async () => {
@@ -173,7 +202,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/22",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/22",
     );
     expect(options).toEqual({
       method: "PUT",
@@ -207,7 +236,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/33/monthlyvalues?select=total_costs&costrate=4",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/33/monthlyvalues?select=total_costs&costrate=4",
     );
     expect(options).toEqual({
       method: "GET",
@@ -242,7 +271,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/44/suborders/2/expensepostings?automaticintegration=true&deletemassdataonfailure=false",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/44/suborders/2/expensepostings?automaticintegration=true&deletemassdataonfailure=false",
     );
     expect(options).toEqual({
       method: "POST",
@@ -277,7 +306,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const [url, options] = mockFetch.mock.calls[0];
     expect((url as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/55/suborders/9",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/55/suborders/9",
     );
     expect(options).toEqual({
       method: "PUT",
@@ -317,7 +346,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const firstCall = mockFetch.mock.calls[0];
     expect((firstCall[0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/invoices?filter=client_id+eq+abc&top=20&skip=0",
+      "https://localhost:58454/datevconnect/order-management/v1/invoices?filter=client_id+eq+abc&top=20&skip=0",
     );
     expect(firstCall[1]).toEqual({
       method: "GET",
@@ -337,7 +366,7 @@ describe("OrderManagementClient - All Endpoints", () => {
 
     const secondCall = mockFetch.mock.calls[1];
     expect((secondCall[0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/invoices/10",
+      "https://localhost:58454/datevconnect/order-management/v1/invoices/10",
     );
     expect(secondCall[1]).toEqual({
       method: "GET",
@@ -416,7 +445,7 @@ describe("OrderManagementClient - All Endpoints", () => {
     });
 
     expect((mockFetch.mock.calls[0][0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/employeecapacities?top=5",
+      "https://localhost:58454/datevconnect/order-management/v1/employeecapacities?top=5",
     );
     expect(mockFetch.mock.calls[0][1]).toEqual({
       method: "GET",
@@ -427,7 +456,7 @@ describe("OrderManagementClient - All Endpoints", () => {
       },
     });
     expect((mockFetch.mock.calls[1][0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/feeplans?filter=fee_plan_active+eq+true",
+      "https://localhost:58454/datevconnect/order-management/v1/feeplans?filter=fee_plan_active+eq+true",
     );
     expect(mockFetch.mock.calls[1][1]).toEqual({
       method: "GET",
@@ -438,7 +467,7 @@ describe("OrderManagementClient - All Endpoints", () => {
       },
     });
     expect((mockFetch.mock.calls[2][0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/costcenters?select=costcenter_id",
+      "https://localhost:58454/datevconnect/order-management/v1/costcenters?select=costcenter_id",
     );
     expect(mockFetch.mock.calls[2][1]).toEqual({
       method: "GET",
@@ -449,7 +478,7 @@ describe("OrderManagementClient - All Endpoints", () => {
       },
     });
     expect((mockFetch.mock.calls[3][0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/chargerates?filter=charge_rate_active+eq+true",
+      "https://localhost:58454/datevconnect/order-management/v1/chargerates?filter=charge_rate_active+eq+true",
     );
     expect(mockFetch.mock.calls[3][1]).toEqual({
       method: "GET",
@@ -460,7 +489,7 @@ describe("OrderManagementClient - All Endpoints", () => {
       },
     });
     expect((mockFetch.mock.calls[4][0] as URL).toString()).toBe(
-      "https://localhost:58454/datev/api/order-management/v1/orders/expensepostings?skip=1",
+      "https://localhost:58454/datevconnect/order-management/v1/orders/expensepostings?skip=1",
     );
     expect(mockFetch.mock.calls[4][1]).toEqual({
       method: "GET",

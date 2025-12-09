@@ -2,7 +2,7 @@ import type { JsonValue } from "./datevConnectClient";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV Order Management request failed";
-const ORDER_MANAGEMENT_BASE_PATH = "datev/api/order-management/v1";
+const ORDER_MANAGEMENT_BASE_PATH = "datevconnect/order-management/v1";
 
 type RequestMethod = "GET" | "PUT" | "POST";
 
@@ -47,6 +47,21 @@ function buildUrl(
   }
 
   return url;
+}
+
+function validateCostRateUsage(costRate: number | undefined, expand?: string): void {
+  if (costRate === undefined || costRate === null) {
+    return;
+  }
+
+  const expandParts = expand
+    ?.split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!expandParts?.includes("suborders")) {
+    throw new Error("costRate is only supported when expanding suborders (expand=suborders) on orders requests");
+  }
 }
 
 async function readResponseBody(response: Response): Promise<JsonValue | undefined> {
@@ -326,6 +341,7 @@ export async function fetchClientGroup(options: FetchClientGroupOptions): Promis
 }
 
 export async function fetchOrders(options: FetchOrdersOptions): Promise<JsonValue | undefined> {
+  validateCostRateUsage(options.costRate, options.expand);
   return sendRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders`,
@@ -343,6 +359,7 @@ export async function fetchOrders(options: FetchOrdersOptions): Promise<JsonValu
 
 export async function fetchOrder(options: FetchOrderOptions): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
+  validateCostRateUsage(rest.costRate, rest.expand);
   return sendRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}`,
