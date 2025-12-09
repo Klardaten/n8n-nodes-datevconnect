@@ -57,13 +57,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@n8n/node-cli": "*",
-    "@types/node": "^24.10.0",
+    "@n8n/node-cli": "^0.17.0",
+    "@types/node": "^24.10.2",
     "bun": "^1.3.2",
     "bun-types": "^1.3.2",
     "eslint": "9.39.1",
     "nock": "14.0.10",
-    "prettier": "3.6.2",
+    "prettier": "^3.7.4",
     "release-it": "^19.0.4",
     "typescript": "5.9.3"
   },
