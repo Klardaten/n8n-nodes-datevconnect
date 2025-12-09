@@ -1,5 +1,6 @@
 import type { IDataObject } from "n8n-workflow";
 import type { JsonValue } from "../../src/services/datevConnectClient";
+import type { HttpRequestHelper } from "../../src/services/shared";
 
 export interface OrderManagementCredentials {
   host: string;
@@ -12,6 +13,7 @@ export interface AuthContext {
   host: string;
   token: string;
   clientInstanceId: string;
+  httpHelper?: HttpRequestHelper;
 }
 
 export type Resource =

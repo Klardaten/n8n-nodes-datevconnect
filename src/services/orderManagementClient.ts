@@ -1,4 +1,5 @@
-import type { JsonValue } from "./datevConnectClient";
+import type { JsonValue, HttpRequestHelper } from "./shared";
+import { createFetchFromHttpHelper } from "./httpHelpers";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV Order Management request failed";
@@ -10,7 +11,8 @@ interface BaseOrderManagementRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 interface SendRequestOptions extends BaseOrderManagementRequestOptions {
@@ -111,7 +113,17 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
 }
 
 async function sendRequest(options: SendRequestOptions): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const {
+    host,
+    token,
+    clientInstanceId,
+    path,
+    method,
+    query,
+    body,
+    httpHelper,
+    fetchImpl: providedFetchImpl,
+  } = options;
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -130,6 +142,7 @@ async function sendRequest(options: SendRequestOptions): Promise<JsonValue | und
     init.body = JSON.stringify(body);
   }
 
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
   const response = await fetchImpl(url, init);
   const responseBody = await readResponseBody(response);
 

@@ -55,13 +55,19 @@ export class OrderManagement implements INodeType {
         host,
         email,
         password,
+        httpHelper: this.helpers.httpRequest,
       });
       token = authResponse.access_token;
     } catch (error) {
       throw new NodeApiError(this.getNode(), toErrorObject(error));
     }
 
-    const authContext: AuthContext = { host, token, clientInstanceId };
+    const authContext: AuthContext = {
+      host,
+      token,
+      clientInstanceId,
+      httpHelper: this.helpers.httpRequest,
+    };
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       const resource = this.getNodeParameter("resource", itemIndex) as Resource;
