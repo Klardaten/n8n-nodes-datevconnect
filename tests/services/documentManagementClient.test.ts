@@ -112,6 +112,29 @@ describe('DocumentManagementClient - All Endpoints', () => {
     expect(result).toBe(mockResponse);
   });
 
+  test("3a. GET /document-files/{file-id} - fetchDocumentFile with httpHelper", async () => {
+    const mockHttpHelper = async (options: any) => ({
+      body: Buffer.from([1, 2, 3]),
+      headers: { "content-type": "application/octet-stream" },
+      statusCode: 200,
+      statusMessage: "OK",
+      requestOptions: options,
+    });
+
+    const response = await DocumentManagementClient.fetchDocumentFile({
+      host: "https://localhost:58452",
+      token: "test-token",
+      clientInstanceId: "test-client-id",
+      fileId: "file-123",
+      httpHelper: mockHttpHelper as any,
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(response.ok).toBe(true);
+    expect(response.headers.get("content-type")).toBe("application/octet-stream");
+    expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual([1, 2, 3]);
+  });
+
   test("4. POST /document-files - uploadDocumentFile", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

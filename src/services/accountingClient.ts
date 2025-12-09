@@ -17,12 +17,14 @@ async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
     host: credentials.host,
     email: credentials.email,
     password: credentials.password,
+    httpHelper: executeFunctions.helpers.httpRequest,
   });
 
   return {
     host: credentials.host,
     token: authResponse.access_token,
     clientInstanceId: credentials.clientInstanceId,
+    httpHelper: executeFunctions.helpers.httpRequest,
   };
 }
 

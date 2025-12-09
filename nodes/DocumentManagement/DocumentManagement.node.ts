@@ -59,6 +59,7 @@ export class DocumentManagement implements INodeType {
         host,
         email,
         password,
+        httpHelper: this.helpers.httpRequest,
       });
       token = authResponse.access_token;
     } catch (error) {
@@ -66,7 +67,12 @@ export class DocumentManagement implements INodeType {
     }
 
     // Create authentication context
-    const authContext = { host, token, clientInstanceId };
+    const authContext = { 
+      host, 
+      token, 
+      clientInstanceId,
+      httpHelper: this.helpers.httpRequest,
+    };
 
     // Process each input item
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {

@@ -1,33 +1,20 @@
-export type JsonValue =
-  | null
-  | boolean
-  | number
-  | string
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+import { createFetchFromHttpHelper } from './httpHelpers';
+import {
+  type JsonValue,
+  type HttpRequestHelper,
+  type BaseRequestOptions,
+  buildHeaders,
+  buildApiUrl,
+  ensureSuccess,
+  JSON_CONTENT_TYPE,
+  DEFAULT_ERROR_PREFIX,
+} from './shared';
 
-export interface AuthenticateOptions {
-  host: string;
-  email: string;
-  password: string;
-  fetchImpl?: typeof fetch;
-}
-
-export interface AuthenticateResponse extends Record<string, JsonValue> {
-  access_token: string;
-}
-
-export interface BaseRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  fetchImpl?: typeof fetch;
-}
+// Re-export for backward compatibility
+export type { JsonValue, HttpRequestHelper, AuthenticateOptions, AuthenticateResponse, BaseRequestOptions } from './shared';
+export { authenticate } from './shared';
 
 export interface FetchClientsOptions extends BaseRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
   top?: number;
   skip?: number;
   select?: string;
@@ -249,114 +236,6 @@ export interface FetchAddresseesDeletionLogOptions extends BaseRequestOptions {
   skip?: number;
 }
 
-const JSON_CONTENT_TYPE = "application/json";
-
-const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
-
-function normaliseBaseUrl(host: string): string {
-  if (!host) {
-    throw new Error("DATEVconnect host must be provided");
-  }
-
-  return host.endsWith("/") ? host : `${host}/`;
-}
-
-function buildHeaders(headers: Record<string, string | undefined>): HeadersInit {
-  return Object.entries(headers).reduce<Record<string, string>>((acc, [key, value]) => {
-    if (value) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
-}
-
-async function readResponseBody(response: Response): Promise<JsonValue | string | undefined> {
-  const contentType = response.headers.get("content-type") ?? "";
-
-  if (contentType.toLowerCase().includes(JSON_CONTENT_TYPE)) {
-    try {
-      return (await response.json()) as JsonValue;
-    } catch {
-      return undefined;
-    }
-  }
-
-  try {
-    const text = await response.text();
-    return text.length > 0 ? text : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function extractErrorMessage(
-  response: Response,
-  body: JsonValue | string | undefined,
-): string {
-  const statusPart = `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
-  const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
-
-  if (typeof body === "string" && body.trim().length > 0) {
-    return `${prefix}: ${body.trim()}`;
-  }
-
-  if (body && typeof body === "object") {
-    const errorDescription = "error_description" in body && typeof body.error_description === "string"
-      ? body.error_description
-      : undefined;
-
-    const message =
-      ("message" in body && typeof body.message === "string"
-        ? body.message
-        : undefined) ||
-      ("error" in body && typeof body.error === "string" ? body.error : undefined);
-    if (message) {
-      return `${prefix}: ${message}${errorDescription ? `: ${errorDescription}` : ""}`;
-    }
-  }
-
-  return prefix;
-}
-
-async function ensureSuccess(response: Response): Promise<JsonValue | undefined> {
-  const body = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(extractErrorMessage(response, body));
-  }
-
-  if (body && typeof body === "object") {
-    return body as JsonValue;
-  }
-
-  if (body === undefined) {
-    return undefined;
-  }
-
-  throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected JSON response body.`);
-}
-
-export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
-  const { host, email, password, fetchImpl = fetch } = options;
-  const baseUrl = normaliseBaseUrl(host);
-  const url = new URL("api/auth/login", baseUrl);
-
-  const response = await fetchImpl(url, {
-    method: "POST",
-    headers: buildHeaders({
-      "content-type": JSON_CONTENT_TYPE,
-    }),
-    body: JSON.stringify({ email, password }),
-  });
-
-  const body = await ensureSuccess(response);
-
-  if (!body || typeof body !== "object" || !("access_token" in body) || typeof body.access_token !== "string") {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Authentication response missing access_token.`);
-  }
-
-  return body as AuthenticateResponse;
-}
 
 const MASTER_DATA_BASE_PATH = "datevconnect/master-data/v1";
 const CLIENTS_PATH = `${MASTER_DATA_BASE_PATH}/clients`;
@@ -384,19 +263,15 @@ interface MasterDataRequestOptions {
   method: RequestMethod;
   query?: Record<string, string | number | undefined | null>;
   body?: JsonValue;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
-function buildApiUrl(host: string, path: string): URL {
-  const baseUrl = normaliseBaseUrl(host);
-  const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  return new URL(trimmedPath, baseUrl);
-}
 
 async function sendMasterDataRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -408,6 +283,8 @@ async function sendMasterDataRequest(
     }
   }
 
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
+  
   const response = await fetchImpl(url, {
     method,
     headers: buildHeaders({
@@ -1675,7 +1552,7 @@ const ACCOUNTING_BASE_PATH = "datevconnect/accounting/v1";
 async function sendAccountingRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -1687,6 +1564,8 @@ async function sendAccountingRequest(
     }
   }
 
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
+  
   const response = await fetchImpl(url, {
     method,
     headers: buildHeaders({

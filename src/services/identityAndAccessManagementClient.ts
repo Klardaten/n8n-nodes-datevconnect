@@ -1,4 +1,5 @@
-import type { JsonValue } from "./datevConnectClient";
+import type { JsonValue, HttpRequestHelper } from "./shared";
+import { createFetchFromHttpHelper } from "./httpHelpers";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV IAM request failed";
@@ -17,7 +18,8 @@ interface BaseIamRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
-  fetchImpl?: typeof fetch;
+  httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 interface SendRequestOptions extends BaseIamRequestOptions {
@@ -112,7 +114,8 @@ function buildUrl(
   }
 
   return url;
-}
+  };
+  
 
 async function readResponseBody(response: Response): Promise<JsonValue | undefined> {
   if (response.status === 204 || response.status === 205) {
@@ -161,7 +164,7 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
 }
 
 async function sendRequest(options: SendRequestOptions): Promise<RequestResult> {
-  const { host, token, clientInstanceId, path, method, query, body, fetchImpl = fetch } = options;
+  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -180,6 +183,8 @@ async function sendRequest(options: SendRequestOptions): Promise<RequestResult> 
     requestInit.body = JSON.stringify(body);
   }
 
+  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
+  
   const response = await fetchImpl(url, requestInit);
   const responseBody = await readResponseBody(response);
 
