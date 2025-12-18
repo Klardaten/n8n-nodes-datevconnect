@@ -122,21 +122,18 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
     authContext: AuthContext,
     sendSuccess: SendSuccessFunction,
   ): Promise<void> {
-    // Get binary data from the input data
-    const inputData = this.context.getInputData();
-    const currentItem = inputData[this.itemIndex];
+    const bufferData = await this.context.helpers.getBinaryDataBuffer(
+      this.itemIndex,
+      'data'
+    );
 
-    if (!currentItem?.binary?.data) {
+    if (!bufferData || bufferData.length === 0) {
       throw new NodeOperationError(
         this.context.getNode(),
         "No binary data found. Please provide binary data through the 'data' binary property.",
         { itemIndex: this.itemIndex }
       );
     }
-
-    // Get from binary property
-    const binaryDataObj = currentItem.binary.data;
-    const bufferData = Buffer.from(binaryDataObj.data, 'base64');
 
     const response = await DocumentManagementClient.uploadDocumentFile({
       host: authContext.host,
