@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { RelationshipResourceHandler } from "../../../../nodes/MasterData/handlers/RelationshipResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -17,20 +25,24 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Relationship operations parameters (only select and filter are used)
-      "select": "id,type,status",
-      "filter": "status eq active",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Relationship operations parameters (only select and filter are used)
+        select: "id,type,status",
+        filter: "status eq active",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -45,8 +57,14 @@ const mockAuthContext: AuthContext = {
 
 describe("RelationshipResourceHandler", () => {
   beforeEach(() => {
-    fetchRelationshipsSpy = spyOn(datevConnectClientModule, "fetchRelationships").mockResolvedValue([]);
-    fetchRelationshipTypesSpy = spyOn(datevConnectClientModule, "fetchRelationshipTypes").mockResolvedValue([]);
+    fetchRelationshipsSpy = spyOn(
+      datevConnectClientModule,
+      "fetchRelationships",
+    ).mockResolvedValue([]);
+    fetchRelationshipTypesSpy = spyOn(
+      datevConnectClientModule,
+      "fetchRelationshipTypes",
+    ).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -77,8 +95,16 @@ describe("RelationshipResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ id: "1", type: "business", status: "active" });
-      expect(returnData[1].json).toEqual({ id: "2", type: "personal", status: "active" });
+      expect(returnData[0].json).toEqual({
+        id: "1",
+        type: "business",
+        status: "active",
+      });
+      expect(returnData[1].json).toEqual({
+        id: "2",
+        type: "personal",
+        status: "active",
+      });
     });
 
     test("handles empty results", async () => {
@@ -143,8 +169,16 @@ describe("RelationshipResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ id: "1", name: "Business Partner", category: "business" });
-      expect(returnData[1].json).toEqual({ id: "2", name: "Employee", category: "employment" });
+      expect(returnData[0].json).toEqual({
+        id: "1",
+        name: "Business Partner",
+        category: "business",
+      });
+      expect(returnData[1].json).toEqual({
+        id: "2",
+        name: "Employee",
+        category: "employment",
+      });
     });
 
     test("handles empty results for getTypes", async () => {
@@ -193,8 +227,10 @@ describe("RelationshipResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOp", mockAuthContext, returnData)
-      ).rejects.toThrow("The operation \"unsupportedOp\" is not supported for resource \"relationship\".");
+        handler.execute("unsupportedOp", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOp" is not supported for resource "relationship".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
@@ -214,7 +250,9 @@ describe("RelationshipResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      fetchRelationshipsSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchRelationshipsSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => false) },
@@ -223,7 +261,7 @@ describe("RelationshipResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Connection Failed");
     });
   });
@@ -267,7 +305,7 @@ describe("RelationshipResourceHandler", () => {
       // Verify metadata construction is called
       expect(context.helpers.constructExecutionMetaData).toHaveBeenCalledWith(
         [{ json: { id: "rel-123", type: "business" } }],
-        { itemData: { item: 0 } }
+        { itemData: { item: 0 } },
       );
     });
   });

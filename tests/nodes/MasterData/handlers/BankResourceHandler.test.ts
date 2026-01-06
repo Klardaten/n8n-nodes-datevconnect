@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { BankResourceHandler } from "../../../../nodes/MasterData/handlers/BankResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -16,20 +24,24 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Bank operations parameters
-      "select": "id,name,city",
-      "filter": "city eq Nürnberg",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Bank operations parameters
+        select: "id,name,city",
+        filter: "city eq Nürnberg",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -44,7 +56,10 @@ const mockAuthContext: AuthContext = {
 
 describe("BankResourceHandler", () => {
   beforeEach(() => {
-    fetchBanksSpy = spyOn(datevConnectClientModule, "fetchBanks").mockResolvedValue([
+    fetchBanksSpy = spyOn(
+      datevConnectClientModule,
+      "fetchBanks",
+    ).mockResolvedValue([
       {
         id: "007130",
         bank_code: "76050101",
@@ -53,8 +68,8 @@ describe("BankResourceHandler", () => {
         country_code: "DE",
         name: "Sparkasse Nürnberg",
         standard: true,
-        timestamp: "2019-03-31T20:06:51.670"
-      }
+        timestamp: "2019-03-31T20:06:51.670",
+      },
     ]);
   });
 
@@ -86,7 +101,7 @@ describe("BankResourceHandler", () => {
         country_code: "DE",
         name: "Sparkasse Nürnberg",
         standard: true,
-        timestamp: "2019-03-31T20:06:51.670"
+        timestamp: "2019-03-31T20:06:51.670",
       });
     });
 
@@ -107,7 +122,7 @@ describe("BankResourceHandler", () => {
         parameters: {
           select: undefined,
           filter: undefined,
-        }
+        },
       });
       const handler = new BankResourceHandler(mockContextWithDefaults, 0);
       const returnData: any[] = [];
@@ -131,8 +146,10 @@ describe("BankResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupported", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupported" is not supported for resource "bank".');
+        handler.execute("unsupported", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupported" is not supported for resource "bank".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
@@ -160,7 +177,7 @@ describe("BankResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
@@ -178,7 +195,7 @@ describe("BankResourceHandler", () => {
           host: "https://api.example.com",
           token: "test-token",
           clientInstanceId: "instance-1",
-        })
+        }),
       );
     });
 
@@ -199,7 +216,7 @@ describe("BankResourceHandler", () => {
           country_code: "DE",
           name: "Sparkasse Nürnberg",
           standard: true,
-          timestamp: "2019-03-31T20:06:51.670"
+          timestamp: "2019-03-31T20:06:51.670",
         },
         pairedItem: { item: 2 },
       });
@@ -217,7 +234,7 @@ describe("BankResourceHandler", () => {
       expect(fetchBanksSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           select: "id,name,city",
-        })
+        }),
       );
     });
 
@@ -231,7 +248,7 @@ describe("BankResourceHandler", () => {
       expect(fetchBanksSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           filter: "city eq Nürnberg",
-        })
+        }),
       );
     });
   });

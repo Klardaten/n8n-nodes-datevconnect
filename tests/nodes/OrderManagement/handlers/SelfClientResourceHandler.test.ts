@@ -16,11 +16,14 @@ describe("SelfClientResourceHandler", () => {
 
   beforeEach(() => {
     mockContext = {
-      getNodeParameter: mock((_name: string, _idx: number, defaultValue?: unknown) => defaultValue),
+      getNodeParameter: mock(
+        (_name: string, _idx: number, defaultValue?: unknown) => defaultValue,
+      ),
       continueOnFail: mock(() => false),
       getNode: mock(() => ({ type: "test-node" })),
       helpers: {
-        returnJsonArray: (data: Array<Record<string, unknown>>) => data.map((json) => ({ json })),
+        returnJsonArray: (data: Array<Record<string, unknown>>) =>
+          data.map((json) => ({ json })),
         constructExecutionMetaData: (
           data: Array<{ json: Record<string, unknown> }>,
           { itemData }: { itemData: { item: number } },
@@ -28,14 +31,18 @@ describe("SelfClientResourceHandler", () => {
       },
     };
     handler = new SelfClientResourceHandler(mockContext, 0);
-    spyOn(client, "fetchSelfClients").mockResolvedValue([{ client_id: "self" }]);
+    spyOn(client, "fetchSelfClients").mockResolvedValue([
+      { client_id: "self" },
+    ]);
   });
 
   test("getAll forwards params", async () => {
-    mockContext.getNodeParameter.mockImplementation((name: string, _idx: number, defaultValue?: unknown) => {
-      if (name === "top") return 1;
-      return defaultValue;
-    });
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _idx: number, defaultValue?: unknown) => {
+        if (name === "top") return 1;
+        return defaultValue;
+      },
+    );
 
     const returnData: any[] = [];
     await handler.execute("getAll", authContext, returnData);

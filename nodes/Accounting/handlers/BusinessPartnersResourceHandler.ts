@@ -5,16 +5,16 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
 import type { RequestContext } from "../types";
 
-type BusinessPartnersOperation = 
-  | "getDebitors" 
-  | "getDebitor" 
-  | "createDebitor" 
-  | "updateDebitor" 
+type BusinessPartnersOperation =
+  | "getDebitors"
+  | "getDebitor"
+  | "createDebitor"
+  | "updateDebitor"
   | "getNextAvailableDebitor"
-  | "getCreditors" 
-  | "getCreditor" 
-  | "createCreditor" 
-  | "updateCreditor" 
+  | "getCreditors"
+  | "getCreditor"
+  | "createCreditor"
+  | "updateCreditor"
   | "getNextAvailableCreditor";
 
 /**
@@ -28,16 +28,20 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
 
   private validateRequiredParameters(requestContext: RequestContext): void {
     if (!requestContext.clientId || !requestContext.fiscalYearId) {
-      throw new NodeOperationError(this.context.getNode(), 'Client ID and Fiscal Year ID are required for business partner operations', {
-        itemIndex: this.itemIndex,
-      });
+      throw new NodeOperationError(
+        this.context.getNode(),
+        "Client ID and Fiscal Year ID are required for business partner operations",
+        {
+          itemIndex: this.itemIndex,
+        },
+      );
     }
   }
 
   async execute(
     operation: BusinessPartnersOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getDebitors":
@@ -71,20 +75,31 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
         await this.handleGetNextAvailableCreditor(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
   // New handle methods for the converted pattern
-  private async handleGetDebitors(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetDebitors(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       if (!requestContext.clientId || !requestContext.fiscalYearId) {
-        throw new NodeOperationError(this.context.getNode(), 'Client ID and Fiscal Year ID are required for this operation', {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          "Client ID and Fiscal Year ID are required for this operation",
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
       }
 
       const queryParams = this.buildQueryParams();
@@ -92,9 +107,9 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(debitors);
     } catch (error) {
@@ -102,19 +117,25 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetDebitor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetDebitor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
-      const id = this.context.getNodeParameter("debitorId", this.itemIndex) as string;
+      const id = this.context.getNodeParameter(
+        "debitorId",
+        this.itemIndex,
+      ) as string;
       const queryParams = this.buildQueryParams();
       const debitor = await datevConnectClient.accounting.getDebitor(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         id,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(debitor);
     } catch (error) {
@@ -122,22 +143,31 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleCreateDebitor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleCreateDebitor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
-      const debitorDataRaw = this.context.getNodeParameter("debitorData", this.itemIndex);
-      const debitorData = this.parseJsonParameter(debitorDataRaw, "debitorData");
+      const debitorDataRaw = this.context.getNodeParameter(
+        "debitorData",
+        this.itemIndex,
+      );
+      const debitorData = this.parseJsonParameter(
+        debitorDataRaw,
+        "debitorData",
+      );
       if (debitorData === undefined) {
         throw new Error("debitorData is required for creating debitor");
       }
-      
+
       const result = await datevConnectClient.accounting.createDebitor(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
-        debitorData as JsonValue
+        debitorData as JsonValue,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
     } catch (error) {
@@ -145,24 +175,33 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleUpdateDebitor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleUpdateDebitor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const debitorId = this.getRequiredString("debitorId");
-      const debitorDataRaw = this.context.getNodeParameter("debitorData", this.itemIndex);
-      const debitorData = this.parseJsonParameter(debitorDataRaw, "debitorData");
+      const debitorDataRaw = this.context.getNodeParameter(
+        "debitorData",
+        this.itemIndex,
+      );
+      const debitorData = this.parseJsonParameter(
+        debitorDataRaw,
+        "debitorData",
+      );
       if (debitorData === undefined) {
         throw new Error("debitorData is required for updating debitor");
       }
-      
+
       const result = await datevConnectClient.accounting.updateDebitor(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         debitorId,
-        debitorData as JsonValue
+        debitorData as JsonValue,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
     } catch (error) {
@@ -170,17 +209,21 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetNextAvailableDebitor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetNextAvailableDebitor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const queryParams = this.buildQueryParams();
-      const nextAvailable = await datevConnectClient.accounting.getNextAvailableDebitor(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const nextAvailable =
+        await datevConnectClient.accounting.getNextAvailableDebitor(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(nextAvailable);
     } catch (error) {
@@ -188,7 +231,10 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetCreditors(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetCreditors(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const queryParams = this.buildQueryParams();
@@ -196,9 +242,9 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(creditors);
     } catch (error) {
@@ -206,7 +252,10 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetCreditor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetCreditor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const creditorId = this.getRequiredString("creditorId");
@@ -216,9 +265,9 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         creditorId,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(creditor);
     } catch (error) {
@@ -226,22 +275,31 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleCreateCreditor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleCreateCreditor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
-      const creditorDataRaw = this.context.getNodeParameter("creditorData", this.itemIndex);
-      const creditorData = this.parseJsonParameter(creditorDataRaw, "creditorData");
+      const creditorDataRaw = this.context.getNodeParameter(
+        "creditorData",
+        this.itemIndex,
+      );
+      const creditorData = this.parseJsonParameter(
+        creditorDataRaw,
+        "creditorData",
+      );
       if (creditorData === undefined) {
         throw new Error("creditorData is required for creating creditor");
       }
-      
+
       const result = await datevConnectClient.accounting.createCreditor(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
-        creditorData as JsonValue
+        creditorData as JsonValue,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
     } catch (error) {
@@ -249,24 +307,33 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleUpdateCreditor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleUpdateCreditor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const creditorId = this.getRequiredString("creditorId");
-      const creditorDataRaw = this.context.getNodeParameter("creditorData", this.itemIndex);
-      const creditorData = this.parseJsonParameter(creditorDataRaw, "creditorData");
+      const creditorDataRaw = this.context.getNodeParameter(
+        "creditorData",
+        this.itemIndex,
+      );
+      const creditorData = this.parseJsonParameter(
+        creditorDataRaw,
+        "creditorData",
+      );
       if (creditorData === undefined) {
         throw new Error("creditorData is required for updating creditor");
       }
-      
+
       const result = await datevConnectClient.accounting.updateCreditor(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         creditorId,
-        creditorData as JsonValue
+        creditorData as JsonValue,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
     } catch (error) {
@@ -274,17 +341,21 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetNextAvailableCreditor(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetNextAvailableCreditor(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     this.validateRequiredParameters(requestContext);
     try {
       const queryParams = this.buildQueryParams();
-      const nextAvailable = await datevConnectClient.accounting.getNextAvailableCreditor(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const nextAvailable =
+        await datevConnectClient.accounting.getNextAvailableCreditor(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(nextAvailable);
     } catch (error) {

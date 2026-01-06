@@ -76,9 +76,17 @@ export class ClientCategoryTypeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleCreate(authContext: AuthContext): Promise<JsonValue | undefined> {
-    const rawClientCategoryType = this.context.getNodeParameter("clientCategoryTypeData", this.itemIndex);
-    const clientCategoryTypePayload = this.parseJsonParameter(rawClientCategoryType, "Client Category Type Data");
+  private async handleCreate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
+    const rawClientCategoryType = this.context.getNodeParameter(
+      "clientCategoryTypeData",
+      this.itemIndex,
+    );
+    const clientCategoryTypePayload = this.parseJsonParameter(
+      rawClientCategoryType,
+      "Client Category Type Data",
+    );
 
     return await createClientCategoryType({
       ...authContext,
@@ -86,10 +94,18 @@ export class ClientCategoryTypeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdate(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientCategoryTypeId = this.getRequiredString("clientCategoryTypeId");
-    const rawClientCategoryType = this.context.getNodeParameter("clientCategoryTypeData", this.itemIndex);
-    const clientCategoryTypePayload = this.parseJsonParameter(rawClientCategoryType, "Client Category Type Data");
+    const rawClientCategoryType = this.context.getNodeParameter(
+      "clientCategoryTypeData",
+      this.itemIndex,
+    );
+    const clientCategoryTypePayload = this.parseJsonParameter(
+      rawClientCategoryType,
+      "Client Category Type Data",
+    );
 
     return await updateClientCategoryType({
       ...authContext,

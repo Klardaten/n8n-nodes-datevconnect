@@ -31,7 +31,9 @@ export abstract class BaseResourceHandler {
     returnData: INodeExecutionData[],
   ): Promise<void>;
 
-  protected createSendSuccess(returnData: INodeExecutionData[]): SendSuccessFunction {
+  protected createSendSuccess(
+    returnData: INodeExecutionData[],
+  ): SendSuccessFunction {
     return (payload?: JsonValue): void => {
       const formattedItems = normaliseToObjects(payload ?? { success: true });
       const executionData = this.context.helpers.constructExecutionMetaData(
@@ -42,7 +44,10 @@ export abstract class BaseResourceHandler {
     };
   }
 
-  protected handleError(error: unknown, returnData: INodeExecutionData[]): void {
+  protected handleError(
+    error: unknown,
+    returnData: INodeExecutionData[],
+  ): void {
     if (this.context.continueOnFail()) {
       returnData.push({
         json: {
@@ -74,7 +79,15 @@ export abstract class BaseResourceHandler {
     return getNumberParameter(this.context, name, this.itemIndex, defaultValue);
   }
 
-  protected parseJsonParameter(rawValue: unknown, parameterLabel: string): JsonValue {
-    return parseJsonParameter(rawValue, parameterLabel, this.context, this.itemIndex);
+  protected parseJsonParameter(
+    rawValue: unknown,
+    parameterLabel: string,
+  ): JsonValue {
+    return parseJsonParameter(
+      rawValue,
+      parameterLabel,
+      this.context,
+      this.itemIndex,
+    );
   }
 }

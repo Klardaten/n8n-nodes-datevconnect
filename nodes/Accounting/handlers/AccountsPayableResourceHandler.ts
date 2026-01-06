@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type AccountsPayableOperation = "getAll" | "get" | "getCondensed";
 
-
 /**
  * Handler for Accounts Payable operations
  * Manages operations related to accounts payable (open items on the payable side)
@@ -19,7 +18,7 @@ export class AccountsPayableResourceHandler extends BaseResourceHandler {
   async execute(
     operation: AccountsPayableOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -32,22 +31,30 @@ export class AccountsPayableResourceHandler extends BaseResourceHandler {
         await this.handleGetCondensed(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const accountsPayable = await datevConnectClient.accounting.getAccountsPayable(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const accountsPayable =
+        await datevConnectClient.accounting.getAccountsPayable(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accountsPayable);
     } catch (error) {
@@ -55,18 +62,22 @@ export class AccountsPayableResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const accountsPayableId = this.getRequiredString("accountsPayableId");
       const queryParams = this.buildQueryParams();
-      const accountPayable = await datevConnectClient.accounting.getAccountPayable(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        accountsPayableId,
-        queryParams
-      );
-      
+      const accountPayable =
+        await datevConnectClient.accounting.getAccountPayable(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          accountsPayableId,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accountPayable);
     } catch (error) {
@@ -74,16 +85,20 @@ export class AccountsPayableResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetCondensed(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetCondensed(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const condensedAccountsPayable = await datevConnectClient.accounting.getAccountsPayableCondensed(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const condensedAccountsPayable =
+        await datevConnectClient.accounting.getAccountsPayableCondensed(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(condensedAccountsPayable);
     } catch (error) {

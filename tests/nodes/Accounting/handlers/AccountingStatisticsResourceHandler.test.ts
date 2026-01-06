@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountingStatisticsResourceHandler } from "../../../../nodes/Accounting/handlers/AccountingStatisticsResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -12,20 +20,20 @@ const mockAccountingStatisticsData = [
     id: "1",
     count_of_accounting_journal: 1250,
     count_of_accounting_prima_nota: 125,
-    month: 1
+    month: 1,
   },
   {
     id: "2",
     count_of_accounting_journal: 1380,
     count_of_accounting_prima_nota: 138,
-    month: 2
+    month: 2,
   },
   {
     id: "3",
     count_of_accounting_journal: 1450,
     count_of_accounting_prima_nota: 145,
-    month: 3
-  }
+    month: 3,
+  },
 ];
 
 // Mock IExecuteFunctions
@@ -37,23 +45,27 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "top": 50,
-      "skip": 10,
-      "select": "id,count_of_accounting_journal,month",
-      "filter": "month ge 1",
-      "expand": "details",
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        top: 50,
+        skip: 10,
+        select: "id,count_of_accounting_journal,month",
+        filter: "month ge 1",
+        expand: "details",
 
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -65,12 +77,15 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountingStatisticsResourceHandler", () => {
   beforeEach(() => {
-    getAccountingStatisticsSpy = spyOn(datevConnectClient.accounting, "getAccountingStatistics").mockResolvedValue(mockAccountingStatisticsData);
+    getAccountingStatisticsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingStatistics",
+    ).mockResolvedValue(mockAccountingStatisticsData);
   });
 
   afterEach(() => {
@@ -85,20 +100,25 @@ describe("AccountingStatisticsResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,count_of_accounting_journal,month",
-        filter: "month ge 1",
-        expand: "details"
-      });
+      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,count_of_accounting_journal,month",
+          filter: "month ge 1",
+          expand: "details",
+        },
+      );
 
       expect(returnData).toHaveLength(3);
       expect(returnData[0].json).toEqual({
         id: "1",
         count_of_accounting_journal: 1250,
         count_of_accounting_prima_nota: 125,
-        month: 1
+        month: 1,
       });
     });
 
@@ -128,44 +148,54 @@ describe("AccountingStatisticsResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
 
     test("handles custom query parameters", async () => {
       const context = createMockContext({
         parameters: {
-          "top": 25,
-          "skip": 5,
-          "select": "period,net_income",
-          "filter": "net_income gt 0",
-          "expand": undefined  // Override default expand parameter
-        }
+          top: 25,
+          skip: 5,
+          select: "period,net_income",
+          filter: "net_income gt 0",
+          expand: undefined, // Override default expand parameter
+        },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 25,
-        skip: 5,
-        select: "period,net_income",
-        filter: "net_income gt 0"
-      });
+      expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 25,
+          skip: 5,
+          select: "period,net_income",
+          filter: "net_income gt 0",
+        },
+      );
     });
   });
 
@@ -176,7 +206,11 @@ describe("AccountingStatisticsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
@@ -184,10 +218,10 @@ describe("AccountingStatisticsResourceHandler", () => {
       getAccountingStatisticsSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -204,18 +238,20 @@ describe("AccountingStatisticsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles network timeout errors", async () => {
-      getAccountingStatisticsSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      getAccountingStatisticsSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -226,13 +262,15 @@ describe("AccountingStatisticsResourceHandler", () => {
     });
 
     test("handles authentication errors", async () => {
-      getAccountingStatisticsSpy.mockRejectedValueOnce(new Error("Unauthorized"));
+      getAccountingStatisticsSpy.mockRejectedValueOnce(
+        new Error("Unauthorized"),
+      );
       const context = createMockContext();
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
   });
@@ -249,7 +287,7 @@ describe("AccountingStatisticsResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -267,10 +305,10 @@ describe("AccountingStatisticsResourceHandler", () => {
       getAccountingStatisticsSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingStatisticsResourceHandler(context, 5);
       const returnData: any[] = [];
 
@@ -288,14 +326,14 @@ describe("AccountingStatisticsResourceHandler", () => {
 
       // Verify that the handler constructs data properly through BaseResourceHandler
       expect(returnData).toHaveLength(3);
-      expect(returnData.every(item => item.json !== undefined)).toBe(true);
+      expect(returnData.every((item) => item.json !== undefined)).toBe(true);
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "id,count_of_accounting_journal" }
+        parameters: { select: "id,count_of_accounting_journal" },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -306,13 +344,13 @@ describe("AccountingStatisticsResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "id,count_of_accounting_journal" })
+        expect.objectContaining({ select: "id,count_of_accounting_journal" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "count_of_accounting_journal gt 1000" }
+        parameters: { filter: "count_of_accounting_journal gt 1000" },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -321,15 +359,17 @@ describe("AccountingStatisticsResourceHandler", () => {
 
       expect(getAccountingStatisticsSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
-        expect.objectContaining({ filter: "count_of_accounting_journal gt 1000" })
+        expect.objectContaining({
+          filter: "count_of_accounting_journal gt 1000",
+        }),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { top: 10, skip: 20 }
+        parameters: { top: 10, skip: 20 },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -340,13 +380,13 @@ describe("AccountingStatisticsResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 10, skip: 20 })
+        expect.objectContaining({ top: 10, skip: 20 }),
       );
     });
 
     test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { expand: "financial_ratios" }
+        parameters: { expand: "financial_ratios" },
       });
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -357,7 +397,7 @@ describe("AccountingStatisticsResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ expand: "financial_ratios" })
+        expect.objectContaining({ expand: "financial_ratios" }),
       );
     });
   });
@@ -369,11 +409,13 @@ describe("AccountingStatisticsResourceHandler", () => {
           id: "15",
           count_of_accounting_journal: 1250,
           count_of_accounting_prima_nota: 125,
-          month: 15
-        }
+          month: 15,
+        },
       ];
-      
-      getAccountingStatisticsSpy.mockResolvedValueOnce(mockDataWithVariousNumbers);
+
+      getAccountingStatisticsSpy.mockResolvedValueOnce(
+        mockDataWithVariousNumbers,
+      );
       const context = createMockContext();
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -384,7 +426,7 @@ describe("AccountingStatisticsResourceHandler", () => {
         id: "15",
         count_of_accounting_journal: 1250,
         count_of_accounting_prima_nota: 125,
-        month: 15
+        month: 15,
       });
     });
 
@@ -392,12 +434,14 @@ describe("AccountingStatisticsResourceHandler", () => {
       const mockDataWithMissingFields = [
         {
           id: "1",
-          count_of_accounting_journal: 1250
+          count_of_accounting_journal: 1250,
           // missing count_of_accounting_prima_nota, month
-        }
+        },
       ];
-      
-      getAccountingStatisticsSpy.mockResolvedValueOnce(mockDataWithMissingFields);
+
+      getAccountingStatisticsSpy.mockResolvedValueOnce(
+        mockDataWithMissingFields,
+      );
       const context = createMockContext();
       const handler = new AccountingStatisticsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -406,7 +450,7 @@ describe("AccountingStatisticsResourceHandler", () => {
 
       expect(returnData[0].json).toEqual({
         id: "1",
-        count_of_accounting_journal: 1250
+        count_of_accounting_journal: 1250,
       });
     });
   });

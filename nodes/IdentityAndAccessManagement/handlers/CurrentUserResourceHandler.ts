@@ -19,7 +19,8 @@ export class CurrentUserResourceHandler extends BaseResourceHandler {
       );
     }
 
-    const response = await IdentityAndAccessManagementClient.fetchCurrentUser(authContext);
+    const response =
+      await IdentityAndAccessManagementClient.fetchCurrentUser(authContext);
     sendSuccess(response);
   }
 }

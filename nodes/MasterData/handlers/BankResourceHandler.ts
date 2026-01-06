@@ -1,5 +1,8 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { type JsonValue, fetchBanks } from "../../../src/services/datevConnectClient";
+import {
+  type JsonValue,
+  fetchBanks,
+} from "../../../src/services/datevConnectClient";
 import type { AuthContext, BankOperation } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 

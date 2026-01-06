@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountingSumsAndBalancesResourceHandler } from "../../../../nodes/Accounting/handlers/AccountingSumsAndBalancesResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -14,47 +22,47 @@ const mockAccountingSumsAndBalancesData = [
     account_number: "1000",
     account_name: "Cash and Cash Equivalents",
     balance_type: "debit",
-    opening_balance: 50000.00,
-    period_debits: 125000.00,
-    period_credits: 85000.00,
-    closing_balance: 90000.00,
-    period: "2023-Q1"
+    opening_balance: 50000.0,
+    period_debits: 125000.0,
+    period_credits: 85000.0,
+    closing_balance: 90000.0,
+    period: "2023-Q1",
   },
   {
     account_number: "2000",
     account_name: "Accounts Payable",
     balance_type: "credit",
-    opening_balance: -25000.00,
-    period_debits: 45000.00,
-    period_credits: 55000.00,
-    closing_balance: -35000.00,
-    period: "2023-Q1"
+    opening_balance: -25000.0,
+    period_debits: 45000.0,
+    period_credits: 55000.0,
+    closing_balance: -35000.0,
+    period: "2023-Q1",
   },
   {
     account_number: "4000",
     account_name: "Revenue",
     balance_type: "credit",
-    opening_balance: 0.00,
-    period_debits: 5000.00,
-    period_credits: 150000.00,
-    closing_balance: -145000.00,
-    period: "2023-Q1"
-  }
+    opening_balance: 0.0,
+    period_debits: 5000.0,
+    period_credits: 150000.0,
+    closing_balance: -145000.0,
+    period: "2023-Q1",
+  },
 ];
 
 const mockSingleSumsAndBalance = {
   account_number: "1000",
   account_name: "Cash and Cash Equivalents",
   balance_type: "debit",
-  opening_balance: 50000.00,
-  period_debits: 125000.00,
-  period_credits: 85000.00,
-  closing_balance: 90000.00,
+  opening_balance: 50000.0,
+  period_debits: 125000.0,
+  period_credits: 85000.0,
+  closing_balance: 90000.0,
   period: "2023-Q1",
   details: {
     transactions_count: 245,
-    last_updated: "2023-03-31T23:59:59Z"
-  }
+    last_updated: "2023-03-31T23:59:59Z",
+  },
 };
 
 // Mock IExecuteFunctions
@@ -66,23 +74,27 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "accountingSumsAndBalancesId": "BALANCE001",
-      "top": 50,
-      "skip": 10,
-      "select": "account_number,account_name,closing_balance",
-      "filter": "balance_type eq 'debit'",
-      "expand": "details",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        accountingSumsAndBalancesId: "BALANCE001",
+        top: 50,
+        skip: 10,
+        select: "account_number,account_name,closing_balance",
+        filter: "balance_type eq 'debit'",
+        expand: "details",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -94,13 +106,19 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountingSumsAndBalancesResourceHandler", () => {
   beforeEach(() => {
-    getAccountingSumsAndBalancesSpy = spyOn(datevConnectClient.accounting, "getAccountingSumsAndBalances").mockResolvedValue(mockAccountingSumsAndBalancesData);
-    getAccountingSumsAndBalanceSpy = spyOn(datevConnectClient.accounting, "getAccountingSumsAndBalance").mockResolvedValue(mockSingleSumsAndBalance);
+    getAccountingSumsAndBalancesSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingSumsAndBalances",
+    ).mockResolvedValue(mockAccountingSumsAndBalancesData);
+    getAccountingSumsAndBalanceSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingSumsAndBalance",
+    ).mockResolvedValue(mockSingleSumsAndBalance);
   });
 
   afterEach(() => {
@@ -116,24 +134,29 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingSumsAndBalancesSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "account_number,account_name,closing_balance",
-        filter: "balance_type eq 'debit'",
-        expand: "details"
-      });
+      expect(getAccountingSumsAndBalancesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "account_number,account_name,closing_balance",
+          filter: "balance_type eq 'debit'",
+          expand: "details",
+        },
+      );
 
       expect(returnData).toHaveLength(3);
       expect(returnData[0].json).toEqual({
         account_number: "1000",
         account_name: "Cash and Cash Equivalents",
         balance_type: "debit",
-        opening_balance: 50000.00,
-        period_debits: 125000.00,
-        period_credits: 85000.00,
-        closing_balance: 90000.00,
-        period: "2023-Q1"
+        opening_balance: 50000.0,
+        period_debits: 125000.0,
+        period_credits: 85000.0,
+        closing_balance: 90000.0,
+        period: "2023-Q1",
       });
     });
 
@@ -163,21 +186,26 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingSumsAndBalancesSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountingSumsAndBalancesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -189,22 +217,27 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountingSumsAndBalanceSpy).toHaveBeenCalledWith(context, "client-123", "2023", "BALANCE001");
+      expect(getAccountingSumsAndBalanceSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "BALANCE001",
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
         account_number: "1000",
         account_name: "Cash and Cash Equivalents",
         balance_type: "debit",
-        opening_balance: 50000.00,
-        period_debits: 125000.00,
-        period_credits: 85000.00,
-        closing_balance: 90000.00,
+        opening_balance: 50000.0,
+        period_debits: 125000.0,
+        period_credits: 85000.0,
+        closing_balance: 90000.0,
         period: "2023-Q1",
         details: {
           transactions_count: 245,
-          last_updated: "2023-03-31T23:59:59Z"
-        }
+          last_updated: "2023-03-31T23:59:59Z",
+        },
       });
     });
 
@@ -231,7 +264,6 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({ success: true });
     });
-
   });
 
   describe("error handling", () => {
@@ -241,18 +273,24 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(new Error("API Error"));
+      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -263,24 +301,28 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(new Error("API Error"));
+      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext();
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles network timeout errors", async () => {
-      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -291,13 +333,15 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
     });
 
     test("handles authentication errors", async () => {
-      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(new Error("Unauthorized"));
+      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(
+        new Error("Unauthorized"),
+      );
       const context = createMockContext();
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
   });
@@ -314,7 +358,7 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -329,13 +373,15 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
     });
 
     test("respects item index in error handling", async () => {
-      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(new Error("Test error"));
+      getAccountingSumsAndBalancesSpy.mockRejectedValueOnce(
+        new Error("Test error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 8);
       const returnData: any[] = [];
 
@@ -353,14 +399,14 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       // Verify that the handler constructs data properly through BaseResourceHandler
       expect(returnData).toHaveLength(3);
-      expect(returnData.every(item => item.json !== undefined)).toBe(true);
+      expect(returnData.every((item) => item.json !== undefined)).toBe(true);
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "account_number,closing_balance" }
+        parameters: { select: "account_number,closing_balance" },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -371,13 +417,13 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "account_number,closing_balance" })
+        expect.objectContaining({ select: "account_number,closing_balance" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "closing_balance gt 0" }
+        parameters: { filter: "closing_balance gt 0" },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -386,15 +432,15 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       expect(getAccountingSumsAndBalancesSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
-        expect.objectContaining({ filter: "closing_balance gt 0" })
+        expect.objectContaining({ filter: "closing_balance gt 0" }),
       );
     });
 
     test("correctly retrieves accountingSumsAndBalancesId parameter", async () => {
       const context = createMockContext({
-        parameters: { accountingSumsAndBalancesId: "BALANCE999" }
+        parameters: { accountingSumsAndBalancesId: "BALANCE999" },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -405,13 +451,13 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { top: 25, skip: 5 },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -422,13 +468,13 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
 
     test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { expand: "transactions" }
+        parameters: { expand: "transactions" },
       });
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -439,7 +485,7 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ expand: "transactions" })
+        expect.objectContaining({ expand: "transactions" }),
       );
     });
   });
@@ -455,11 +501,13 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
           period_debits: 2500,
           period_credits: 1000.25,
           closing_balance: 2750.5,
-          period: "2023-Q1"
-        }
+          period: "2023-Q1",
+        },
       ];
-      
-      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(mockDataWithVariousNumbers);
+
+      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(
+        mockDataWithVariousNumbers,
+      );
       const context = createMockContext();
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -474,7 +522,7 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         period_debits: 2500,
         period_credits: 1000.25,
         closing_balance: 2750.5,
-        period: "2023-Q1"
+        period: "2023-Q1",
       });
     });
 
@@ -484,15 +532,17 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
           account_number: "2000",
           account_name: "Liability Account",
           balance_type: "credit",
-          opening_balance: -5000.00,
-          period_debits: 1000.00,
-          period_credits: 2000.00,
-          closing_balance: -6000.00,
-          period: "2023-Q1"
-        }
+          opening_balance: -5000.0,
+          period_debits: 1000.0,
+          period_credits: 2000.0,
+          closing_balance: -6000.0,
+          period: "2023-Q1",
+        },
       ];
-      
-      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(mockDataWithNegativeBalances);
+
+      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(
+        mockDataWithNegativeBalances,
+      );
       const context = createMockContext();
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -501,13 +551,13 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
 
       expect(returnData[0].json).toEqual({
         account_number: "2000",
-        account_name: "Liability Account", 
+        account_name: "Liability Account",
         balance_type: "credit",
-        opening_balance: -5000.00,
-        period_debits: 1000.00,
-        period_credits: 2000.00,
-        closing_balance: -6000.00,
-        period: "2023-Q1"
+        opening_balance: -5000.0,
+        period_debits: 1000.0,
+        period_credits: 2000.0,
+        closing_balance: -6000.0,
+        period: "2023-Q1",
       });
     });
 
@@ -517,12 +567,14 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
           account_number: "3000",
           account_name: "Minimal Account",
           balance_type: "debit",
-          closing_balance: 1000.00
+          closing_balance: 1000.0,
           // missing opening_balance, period_debits, period_credits, period
-        }
+        },
       ];
-      
-      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(mockDataWithMissingFields);
+
+      getAccountingSumsAndBalancesSpy.mockResolvedValueOnce(
+        mockDataWithMissingFields,
+      );
       const context = createMockContext();
       const handler = new AccountingSumsAndBalancesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -533,7 +585,7 @@ describe("AccountingSumsAndBalancesResourceHandler", () => {
         account_number: "3000",
         account_name: "Minimal Account",
         balance_type: "debit",
-        closing_balance: 1000.00
+        closing_balance: 1000.0,
       });
     });
   });

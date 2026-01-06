@@ -19,7 +19,10 @@ export class ServiceProviderConfigResourceHandler extends BaseResourceHandler {
       );
     }
 
-    const response = await IdentityAndAccessManagementClient.fetchServiceProviderConfig(authContext);
+    const response =
+      await IdentityAndAccessManagementClient.fetchServiceProviderConfig(
+        authContext,
+      );
     sendSuccess(response);
   }
 }

@@ -114,10 +114,11 @@ function buildUrl(
   }
 
   return url;
-  };
-  
+}
 
-async function readResponseBody(response: Response): Promise<JsonValue | undefined> {
+async function readResponseBody(
+  response: Response,
+): Promise<JsonValue | undefined> {
   if (response.status === 204 || response.status === 205) {
     return undefined;
   }
@@ -139,7 +140,10 @@ async function readResponseBody(response: Response): Promise<JsonValue | undefin
   }
 }
 
-function buildErrorMessage(response: Response, body: JsonValue | undefined): string {
+function buildErrorMessage(
+  response: Response,
+  body: JsonValue | undefined,
+): string {
   const statusPart = `${response.status}${
     response.statusText ? ` ${response.statusText}` : ""
   }`.trim();
@@ -147,9 +151,15 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
 
   if (body && typeof body === "object") {
     const message =
-      ("message" in body && typeof body.message === "string" ? body.message : undefined) ||
-      ("detail" in body && typeof body.detail === "string" ? body.detail : undefined) ||
-      ("error" in body && typeof body.error === "string" ? body.error : undefined);
+      ("message" in body && typeof body.message === "string"
+        ? body.message
+        : undefined) ||
+      ("detail" in body && typeof body.detail === "string"
+        ? body.detail
+        : undefined) ||
+      ("error" in body && typeof body.error === "string"
+        ? body.error
+        : undefined);
 
     if (message) {
       return `${prefix}: ${message}`;
@@ -163,8 +173,20 @@ function buildErrorMessage(response: Response, body: JsonValue | undefined): str
   return prefix;
 }
 
-async function sendRequest(options: SendRequestOptions): Promise<RequestResult> {
-  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
+async function sendRequest(
+  options: SendRequestOptions,
+): Promise<RequestResult> {
+  const {
+    host,
+    token,
+    clientInstanceId,
+    path,
+    method,
+    query,
+    body,
+    httpHelper,
+    fetchImpl: providedFetchImpl,
+  } = options;
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -183,8 +205,10 @@ async function sendRequest(options: SendRequestOptions): Promise<RequestResult> 
     requestInit.body = JSON.stringify(body);
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
-  
+  const fetchImpl = httpHelper
+    ? createFetchFromHttpHelper(httpHelper)
+    : providedFetchImpl || fetch;
+
   const response = await fetchImpl(url, requestInit);
   const responseBody = await readResponseBody(response);
 
@@ -196,7 +220,11 @@ async function sendRequest(options: SendRequestOptions): Promise<RequestResult> 
 }
 
 function extractLocationHeader(response: Response): string | undefined {
-  return response.headers.get("Location") ?? response.headers.get("Link") ?? undefined;
+  return (
+    response.headers.get("Location") ??
+    response.headers.get("Link") ??
+    undefined
+  );
 }
 
 export class IdentityAndAccessManagementClient {
@@ -210,13 +238,17 @@ export class IdentityAndAccessManagementClient {
     });
 
     if (result.data === undefined) {
-      throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected service provider configuration.`);
+      throw new Error(
+        `${DEFAULT_ERROR_PREFIX}: Expected service provider configuration.`,
+      );
     }
 
     return result.data;
   }
 
-  static async fetchResourceTypes(options: FetchResourceTypesOptions): Promise<JsonValue> {
+  static async fetchResourceTypes(
+    options: FetchResourceTypesOptions,
+  ): Promise<JsonValue> {
     const result = await sendRequest({
       ...options,
       path: RESOURCE_TYPES_PATH,
@@ -224,7 +256,9 @@ export class IdentityAndAccessManagementClient {
     });
 
     if (result.data === undefined) {
-      throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected resource types response.`);
+      throw new Error(
+        `${DEFAULT_ERROR_PREFIX}: Expected resource types response.`,
+      );
     }
 
     return result.data;
@@ -238,7 +272,9 @@ export class IdentityAndAccessManagementClient {
     });
 
     if (result.data === undefined) {
-      throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected schema list response.`);
+      throw new Error(
+        `${DEFAULT_ERROR_PREFIX}: Expected schema list response.`,
+      );
     }
 
     return result.data;
@@ -331,7 +367,9 @@ export class IdentityAndAccessManagementClient {
     } as JsonValue;
   }
 
-  static async deleteUser(options: DeleteUserOptions): Promise<{ location?: string }> {
+  static async deleteUser(
+    options: DeleteUserOptions,
+  ): Promise<{ location?: string }> {
     const result = await sendRequest({
       ...options,
       path: `${USERS_PATH}/${encodeURIComponent(options.userId)}`,
@@ -343,7 +381,9 @@ export class IdentityAndAccessManagementClient {
     };
   }
 
-  static async fetchCurrentUser(options: FetchCurrentUserOptions): Promise<JsonValue> {
+  static async fetchCurrentUser(
+    options: FetchCurrentUserOptions,
+  ): Promise<JsonValue> {
     const result = await sendRequest({
       ...options,
       path: CURRENT_USER_PATH,
@@ -351,7 +391,9 @@ export class IdentityAndAccessManagementClient {
     });
 
     if (result.data === undefined) {
-      throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected current user response.`);
+      throw new Error(
+        `${DEFAULT_ERROR_PREFIX}: Expected current user response.`,
+      );
     }
 
     return result.data;
@@ -424,7 +466,9 @@ export class IdentityAndAccessManagementClient {
     } as JsonValue;
   }
 
-  static async deleteGroup(options: DeleteGroupOptions): Promise<{ location?: string }> {
+  static async deleteGroup(
+    options: DeleteGroupOptions,
+  ): Promise<{ location?: string }> {
     const result = await sendRequest({
       ...options,
       path: `${GROUPS_PATH}/${encodeURIComponent(options.groupId)}`,

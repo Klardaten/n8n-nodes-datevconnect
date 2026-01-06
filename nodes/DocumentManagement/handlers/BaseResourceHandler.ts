@@ -66,7 +66,10 @@ export abstract class BaseResourceHandler {
           },
         });
       } else {
-        if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+        if (
+          error instanceof NodeApiError ||
+          error instanceof NodeOperationError
+        ) {
           throw error;
         }
         throw new NodeApiError(this.context.getNode(), toErrorObject(error), {
@@ -89,12 +92,15 @@ export abstract class BaseResourceHandler {
    * Gets DATEVconnect credentials and validates them
    */
   protected async getCredentials(): Promise<DocumentManagementCredentials> {
-    const credentials = (await this.context.getCredentials("datevConnectApi")) as
-      | DocumentManagementCredentials
-      | null;
+    const credentials = (await this.context.getCredentials(
+      "datevConnectApi",
+    )) as DocumentManagementCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.context.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.context.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -102,7 +108,7 @@ export abstract class BaseResourceHandler {
     if (!host || !email || !password || !clientInstanceId) {
       throw new NodeOperationError(
         this.context.getNode(),
-        "All DATEVconnect credential fields must be provided"
+        "All DATEVconnect credential fields must be provided",
       );
     }
 
@@ -147,8 +153,16 @@ export abstract class BaseResourceHandler {
   /**
    * Parses a JSON parameter
    */
-  protected parseJsonParameter(rawValue: unknown, parameterLabel: string): JsonValue {
-    return parseJsonParameter(rawValue as JsonValue, parameterLabel, this.context, this.itemIndex);
+  protected parseJsonParameter(
+    rawValue: unknown,
+    parameterLabel: string,
+  ): JsonValue {
+    return parseJsonParameter(
+      rawValue as JsonValue,
+      parameterLabel,
+      this.context,
+      this.itemIndex,
+    );
   }
 
   /**
@@ -161,7 +175,9 @@ export abstract class BaseResourceHandler {
   /**
    * Builds query parameters from optional values
    */
-  protected buildQueryParams(params: Record<string, unknown>): Record<string, string> {
+  protected buildQueryParams(
+    params: Record<string, unknown>,
+  ): Record<string, string> {
     return buildQueryParams(params);
   }
 
@@ -169,10 +185,14 @@ export abstract class BaseResourceHandler {
    * Validates that request context has required authentication
    */
   protected validateRequestContext(authContext: AuthContext): void {
-    if (!authContext.host || !authContext.token || !authContext.clientInstanceId) {
+    if (
+      !authContext.host ||
+      !authContext.token ||
+      !authContext.clientInstanceId
+    ) {
       throw new NodeOperationError(
         this.context.getNode(),
-        "Authentication context is incomplete"
+        "Authentication context is incomplete",
       );
     }
   }

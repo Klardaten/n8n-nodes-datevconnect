@@ -20,7 +20,8 @@ describe("ClientGroupResourceHandler", () => {
       continueOnFail: mock(() => false),
       getNode: mock(() => ({ type: "test-node" })),
       helpers: {
-        returnJsonArray: (data: Array<Record<string, unknown>>) => data.map((json) => ({ json })),
+        returnJsonArray: (data: Array<Record<string, unknown>>) =>
+          data.map((json) => ({ json })),
         constructExecutionMetaData: (
           data: Array<{ json: Record<string, unknown> }>,
           { itemData }: { itemData: { item: number } },

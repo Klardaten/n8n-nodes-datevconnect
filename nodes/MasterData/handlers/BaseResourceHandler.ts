@@ -37,12 +37,15 @@ export abstract class BaseResourceHandler {
    * Gets DATEVconnect credentials and validates them
    */
   protected async getCredentials(): Promise<MasterDataCredentials> {
-    const credentials = (await this.context.getCredentials("datevConnectApi")) as
-      | MasterDataCredentials
-      | null;
+    const credentials = (await this.context.getCredentials(
+      "datevConnectApi",
+    )) as MasterDataCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.context.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.context.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -50,7 +53,7 @@ export abstract class BaseResourceHandler {
     if (!host || !email || !password || !clientInstanceId) {
       throw new NodeOperationError(
         this.context.getNode(),
-        "All DATEVconnect credential fields must be provided"
+        "All DATEVconnect credential fields must be provided",
       );
     }
 
@@ -95,14 +98,24 @@ export abstract class BaseResourceHandler {
   /**
    * Parses a JSON parameter
    */
-  protected parseJsonParameter(rawValue: unknown, parameterLabel: string): JsonValue {
-    return parseJsonParameter(rawValue, parameterLabel, this.context, this.itemIndex);
+  protected parseJsonParameter(
+    rawValue: unknown,
+    parameterLabel: string,
+  ): JsonValue {
+    return parseJsonParameter(
+      rawValue,
+      parameterLabel,
+      this.context,
+      this.itemIndex,
+    );
   }
 
   /**
    * Creates a success response function that formats and adds data to returnData
    */
-  protected createSendSuccess(returnData: INodeExecutionData[]): SendSuccessFunction {
+  protected createSendSuccess(
+    returnData: INodeExecutionData[],
+  ): SendSuccessFunction {
     return (payload?: JsonValue): void => {
       const formattedItems = normaliseToObjects(payload ?? { success: true });
       const executionData = this.context.helpers.constructExecutionMetaData(
@@ -116,7 +129,10 @@ export abstract class BaseResourceHandler {
   /**
    * Handles errors according to continueOnFail setting
    */
-  protected handleError(error: unknown, returnData: INodeExecutionData[]): void {
+  protected handleError(
+    error: unknown,
+    returnData: INodeExecutionData[],
+  ): void {
     if (this.context.continueOnFail()) {
       returnData.push({
         json: {

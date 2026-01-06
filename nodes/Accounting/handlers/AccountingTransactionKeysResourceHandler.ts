@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type AccountingTransactionKeysOperation = "getAll" | "get";
 
-
 /**
  * Handler for Accounting Transaction Keys operations
  * Manages operations related to transaction key management
@@ -19,7 +18,7 @@ export class AccountingTransactionKeysResourceHandler extends BaseResourceHandle
   async execute(
     operation: AccountingTransactionKeysOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -29,22 +28,30 @@ export class AccountingTransactionKeysResourceHandler extends BaseResourceHandle
         await this.handleGet(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const accountingTransactionKeys = await datevConnectClient.accounting.getAccountingTransactionKeys(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const accountingTransactionKeys =
+        await datevConnectClient.accounting.getAccountingTransactionKeys(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accountingTransactionKeys);
     } catch (error) {
@@ -52,18 +59,24 @@ export class AccountingTransactionKeysResourceHandler extends BaseResourceHandle
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
-      const accountingTransactionKeyId = this.getRequiredString("accountingTransactionKeyId");
-      const queryParams = this.buildQueryParams();
-      const accountingTransactionKey = await datevConnectClient.accounting.getAccountingTransactionKey(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        accountingTransactionKeyId,
-        queryParams
+      const accountingTransactionKeyId = this.getRequiredString(
+        "accountingTransactionKeyId",
       );
-      
+      const queryParams = this.buildQueryParams();
+      const accountingTransactionKey =
+        await datevConnectClient.accounting.getAccountingTransactionKey(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          accountingTransactionKeyId,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accountingTransactionKey);
     } catch (error) {

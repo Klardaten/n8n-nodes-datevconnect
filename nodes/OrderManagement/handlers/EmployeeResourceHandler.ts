@@ -6,7 +6,11 @@ import {
   fetchEmployeeQualifications,
   fetchEmployeesWithGroup,
 } from "../../../src/services/orderManagementClient";
-import type { AuthContext, EmployeeOperation, SendSuccessFunction } from "../types";
+import type {
+  AuthContext,
+  EmployeeOperation,
+  SendSuccessFunction,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class EmployeeResourceHandler extends BaseResourceHandler {

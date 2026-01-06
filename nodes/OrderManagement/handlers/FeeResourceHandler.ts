@@ -1,5 +1,8 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { fetchFeePlans, fetchFees } from "../../../src/services/orderManagementClient";
+import {
+  fetchFeePlans,
+  fetchFees,
+} from "../../../src/services/orderManagementClient";
 import type { AuthContext, FeeOperation, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 

@@ -76,9 +76,17 @@ export class ClientGroupTypeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleCreate(authContext: AuthContext): Promise<JsonValue | undefined> {
-    const rawClientGroupType = this.context.getNodeParameter("clientGroupTypeData", this.itemIndex);
-    const clientGroupTypePayload = this.parseJsonParameter(rawClientGroupType, "Client Group Type Data");
+  private async handleCreate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
+    const rawClientGroupType = this.context.getNodeParameter(
+      "clientGroupTypeData",
+      this.itemIndex,
+    );
+    const clientGroupTypePayload = this.parseJsonParameter(
+      rawClientGroupType,
+      "Client Group Type Data",
+    );
 
     return await createClientGroupType({
       ...authContext,
@@ -86,10 +94,18 @@ export class ClientGroupTypeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdate(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientGroupTypeId = this.getRequiredString("clientGroupTypeId");
-    const rawClientGroupType = this.context.getNodeParameter("clientGroupTypeData", this.itemIndex);
-    const clientGroupTypePayload = this.parseJsonParameter(rawClientGroupType, "Client Group Type Data");
+    const rawClientGroupType = this.context.getNodeParameter(
+      "clientGroupTypeData",
+      this.itemIndex,
+    );
+    const clientGroupTypePayload = this.parseJsonParameter(
+      rawClientGroupType,
+      "Client Group Type Data",
+    );
 
     return await updateClientGroupType({
       ...authContext,

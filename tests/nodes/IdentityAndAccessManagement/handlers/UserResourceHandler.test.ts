@@ -25,7 +25,10 @@ describe("IdentityAndAccessManagement - UserResourceHandler", () => {
   });
 
   test("getAll forwards filtering/pagination parameters", async () => {
-    const fetchUsersSpy = spyOn(IdentityAndAccessManagementClient, "fetchUsers").mockResolvedValue({
+    const fetchUsersSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchUsers",
+    ).mockResolvedValue({
       Resources: [{ id: "user-1" }],
       totalResults: 1,
     });
@@ -64,7 +67,10 @@ describe("IdentityAndAccessManagement - UserResourceHandler", () => {
   });
 
   test("create operation parses JSON payload", async () => {
-    const createUserSpy = spyOn(IdentityAndAccessManagementClient, "createUser").mockResolvedValue({
+    const createUserSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "createUser",
+    ).mockResolvedValue({
       id: "user-99",
     });
 
@@ -94,7 +100,10 @@ describe("IdentityAndAccessManagement - UserResourceHandler", () => {
   });
 
   test("update operation requires userId", async () => {
-    const updateUserSpy = spyOn(IdentityAndAccessManagementClient, "updateUser").mockResolvedValue({
+    const updateUserSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "updateUser",
+    ).mockResolvedValue({
       id: "user-1",
       success: true,
     });
@@ -124,7 +133,10 @@ describe("IdentityAndAccessManagement - UserResourceHandler", () => {
   });
 
   test("delete operation reports location metadata", async () => {
-    const deleteUserSpy = spyOn(IdentityAndAccessManagementClient, "deleteUser").mockResolvedValue({
+    const deleteUserSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "deleteUser",
+    ).mockResolvedValue({
       location: "/iam/v1/Users/user-1",
     });
 
@@ -151,9 +163,10 @@ describe("IdentityAndAccessManagement - UserResourceHandler", () => {
   });
 
   test("propagates errors via continueOnFail", async () => {
-    const fetchUsersSpy = spyOn(IdentityAndAccessManagementClient, "fetchUsers").mockRejectedValue(
-      new Error("IAM error"),
-    );
+    const fetchUsersSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchUsers",
+    ).mockRejectedValue(new Error("IAM error"));
     context.continueOnFail.mockReturnValue(true);
     context.getNodeParameter.mockImplementation((parameter: string) => {
       if (parameter === "startIndex") {

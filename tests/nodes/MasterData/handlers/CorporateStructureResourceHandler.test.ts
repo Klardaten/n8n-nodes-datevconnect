@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { CorporateStructureResourceHandler } from "../../../../nodes/MasterData/handlers/CorporateStructureResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -18,22 +26,26 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Corporate structure operations parameters
-      "select": "id,name,number",
-      "filter": "status eq active",
-      "organizationId": "f43f9c3g-380c-494e-97c8-d12fff738180",
-      "establishmentId": "h63f9c3g-380c-494e-97c8-d12fff738180",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Corporate structure operations parameters
+        select: "id,name,number",
+        filter: "status eq active",
+        organizationId: "f43f9c3g-380c-494e-97c8-d12fff738180",
+        establishmentId: "h63f9c3g-380c-494e-97c8-d12fff738180",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -48,9 +60,18 @@ const mockAuthContext: AuthContext = {
 
 describe("CorporateStructureResourceHandler", () => {
   beforeEach(() => {
-    fetchCorporateStructuresSpy = spyOn(datevConnectClientModule, "fetchCorporateStructures").mockResolvedValue([]);
-    fetchCorporateStructureSpy = spyOn(datevConnectClientModule, "fetchCorporateStructure").mockResolvedValue({});
-    fetchEstablishmentSpy = spyOn(datevConnectClientModule, "fetchEstablishment").mockResolvedValue({});
+    fetchCorporateStructuresSpy = spyOn(
+      datevConnectClientModule,
+      "fetchCorporateStructures",
+    ).mockResolvedValue([]);
+    fetchCorporateStructureSpy = spyOn(
+      datevConnectClientModule,
+      "fetchCorporateStructure",
+    ).mockResolvedValue({});
+    fetchEstablishmentSpy = spyOn(
+      datevConnectClientModule,
+      "fetchEstablishment",
+    ).mockResolvedValue({});
   });
 
   afterEach(() => {
@@ -62,7 +83,7 @@ describe("CorporateStructureResourceHandler", () => {
   describe("getAll operation", () => {
     test("fetches corporate structures with parameters", async () => {
       const mockCorporateStructures = [
-        { 
+        {
           id: "f43f9c3g-380c-494e-97c8-d12fff738180",
           name: "Musterkanzlei",
           number: 1,
@@ -75,8 +96,8 @@ describe("CorporateStructureResourceHandler", () => {
               number: 1,
               short_name: "Hauptsitz",
               status: "active",
-              timestamp: "2018-03-31"
-            }
+              timestamp: "2018-03-31",
+            },
           ],
           functional_areas: [
             {
@@ -84,12 +105,14 @@ describe("CorporateStructureResourceHandler", () => {
               name: "Gesamtunternehmen",
               short_name: "999",
               status: "active",
-              timestamp: "2018-01-31"
-            }
-          ]
+              timestamp: "2018-01-31",
+            },
+          ],
         },
       ];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const context = createMockContext();
       const handler = new CorporateStructureResourceHandler(context as any, 0);
@@ -123,11 +146,15 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("handles parameters with default values", async () => {
-      const mockCorporateStructures = [{ 
-        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei"
-      }];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      const mockCorporateStructures = [
+        {
+          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei",
+        },
+      ];
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const context = createMockContext({
         parameters: {
@@ -155,13 +182,13 @@ describe("CorporateStructureResourceHandler", () => {
 
   describe("get operation", () => {
     test("fetches specific organization with parameters", async () => {
-      const mockOrganization = { 
+      const mockOrganization = {
         id: "f43f9c3g-380c-494e-97c8-d12fff738180",
         name: "Musterkanzlei",
         number: 1,
         status: "active",
         establishments: [],
-        functional_areas: []
+        functional_areas: [],
       };
       fetchCorporateStructureSpy.mockResolvedValueOnce(mockOrganization);
 
@@ -182,9 +209,9 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("handles parameters with default values for get", async () => {
-      const mockOrganization = { 
+      const mockOrganization = {
         id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei"
+        name: "Musterkanzlei",
       };
       fetchCorporateStructureSpy.mockResolvedValueOnce(mockOrganization);
 
@@ -212,13 +239,13 @@ describe("CorporateStructureResourceHandler", () => {
 
   describe("getEstablishment operation", () => {
     test("fetches specific establishment with parameters", async () => {
-      const mockEstablishment = { 
+      const mockEstablishment = {
         id: "h63f9c3g-380c-494e-97c8-d12fff738180",
         name: "Musterkanzlei - Hauptsitz",
         number: 1,
         short_name: "Hauptsitz",
         status: "active",
-        timestamp: "2018-03-31"
+        timestamp: "2018-03-31",
       };
       fetchEstablishmentSpy.mockResolvedValueOnce(mockEstablishment);
 
@@ -240,9 +267,9 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("handles parameters with default values for getEstablishment", async () => {
-      const mockEstablishment = { 
+      const mockEstablishment = {
         id: "h63f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei - Hauptsitz"
+        name: "Musterkanzlei - Hauptsitz",
       };
       fetchEstablishmentSpy.mockResolvedValueOnce(mockEstablishment);
 
@@ -277,12 +304,16 @@ describe("CorporateStructureResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOp", mockAuthContext, returnData)
-      ).rejects.toThrow("The operation \"unsupportedOp\" is not supported for resource \"corporateStructure\".");
+        handler.execute("unsupportedOp", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOp" is not supported for resource "corporateStructure".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      fetchCorporateStructuresSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchCorporateStructuresSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => true) },
@@ -298,7 +329,9 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("throws error when continueOnFail is false", async () => {
-      fetchCorporateStructureSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchCorporateStructureSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => false) },
@@ -307,7 +340,7 @@ describe("CorporateStructureResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
+        handler.execute("get", mockAuthContext, returnData),
       ).rejects.toThrow("API Connection Failed");
     });
 
@@ -321,7 +354,7 @@ describe("CorporateStructureResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
+        handler.execute("get", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
@@ -336,18 +369,22 @@ describe("CorporateStructureResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getEstablishment", mockAuthContext, returnData)
+        handler.execute("getEstablishment", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
 
   describe("inheritance from BaseResourceHandler", () => {
     test("uses proper authentication context", async () => {
-      const mockCorporateStructures = [{ 
-        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei"
-      }];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      const mockCorporateStructures = [
+        {
+          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei",
+        },
+      ];
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const customAuthContext: AuthContext = {
         host: "https://custom.api.com",
@@ -371,11 +408,15 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("handles metadata properly", async () => {
-      const mockCorporateStructures = [{ 
-        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei"
-      }];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      const mockCorporateStructures = [
+        {
+          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei",
+        },
+      ];
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const context = createMockContext();
       const handler = new CorporateStructureResourceHandler(context as any, 0);
@@ -385,13 +426,22 @@ describe("CorporateStructureResourceHandler", () => {
 
       // Verify metadata construction is called
       expect(context.helpers.constructExecutionMetaData).toHaveBeenCalledWith(
-        [{ json: { id: "f43f9c3g-380c-494e-97c8-d12fff738180", name: "Musterkanzlei" } }],
-        { itemData: { item: 0 } }
+        [
+          {
+            json: {
+              id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+              name: "Musterkanzlei",
+            },
+          },
+        ],
+        { itemData: { item: 0 } },
       );
     });
 
     test("respects item index in error handling", async () => {
-      fetchCorporateStructuresSpy.mockRejectedValueOnce(new Error("Test Error"));
+      fetchCorporateStructuresSpy.mockRejectedValueOnce(
+        new Error("Test Error"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => true) },
@@ -408,8 +458,12 @@ describe("CorporateStructureResourceHandler", () => {
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
-      const mockCorporateStructures = [{ id: "f43f9c3g-380c-494e-97c8-d12fff738180" }];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      const mockCorporateStructures = [
+        { id: "f43f9c3g-380c-494e-97c8-d12fff738180" },
+      ];
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const context = createMockContext({
         parameters: {
@@ -431,8 +485,12 @@ describe("CorporateStructureResourceHandler", () => {
     });
 
     test("correctly retrieves filter parameter", async () => {
-      const mockCorporateStructures = [{ id: "f43f9c3g-380c-494e-97c8-d12fff738180" }];
-      fetchCorporateStructuresSpy.mockResolvedValueOnce(mockCorporateStructures);
+      const mockCorporateStructures = [
+        { id: "f43f9c3g-380c-494e-97c8-d12fff738180" },
+      ];
+      fetchCorporateStructuresSpy.mockResolvedValueOnce(
+        mockCorporateStructures,
+      );
 
       const context = createMockContext({
         parameters: {

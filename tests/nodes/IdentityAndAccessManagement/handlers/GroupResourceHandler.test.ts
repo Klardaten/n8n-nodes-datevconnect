@@ -25,7 +25,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("getAll operation fetches groups", async () => {
-    const fetchGroupsSpy = spyOn(IdentityAndAccessManagementClient, "fetchGroups").mockResolvedValue({
+    const fetchGroupsSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchGroups",
+    ).mockResolvedValue({
       Resources: [{ id: "group-1" }],
     });
 
@@ -42,7 +45,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("get operation requires groupId", async () => {
-    const fetchGroupSpy = spyOn(IdentityAndAccessManagementClient, "fetchGroup").mockResolvedValue({
+    const fetchGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchGroup",
+    ).mockResolvedValue({
       id: "group-1",
       displayName: "Administrators",
     });
@@ -65,7 +71,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("create operation parses JSON payload", async () => {
-    const createGroupSpy = spyOn(IdentityAndAccessManagementClient, "createGroup").mockResolvedValue({
+    const createGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "createGroup",
+    ).mockResolvedValue({
       id: "group-2",
       success: true,
     });
@@ -93,7 +102,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("update operation sends groupId and payload", async () => {
-    const updateGroupSpy = spyOn(IdentityAndAccessManagementClient, "updateGroup").mockResolvedValue({
+    const updateGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "updateGroup",
+    ).mockResolvedValue({
       id: "group-3",
       success: true,
     });
@@ -123,7 +135,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("delete operation reports deletion metadata", async () => {
-    const deleteGroupSpy = spyOn(IdentityAndAccessManagementClient, "deleteGroup").mockResolvedValue({
+    const deleteGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "deleteGroup",
+    ).mockResolvedValue({
       location: "/iam/v1/Groups/group-3",
     });
 
@@ -146,9 +161,10 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
   });
 
   test("continueOnFail captures client errors", async () => {
-    const fetchGroupSpy = spyOn(IdentityAndAccessManagementClient, "fetchGroup").mockRejectedValue(
-      new Error("boom"),
-    );
+    const fetchGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchGroup",
+    ).mockRejectedValue(new Error("boom"));
     context.continueOnFail.mockReturnValue(true);
     context.getNodeParameter.mockImplementation((parameter: string) =>
       parameter === "groupId" ? "group-404" : undefined,

@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type CostCentersUnitsOperation = "getAll" | "get";
 
-
 /**
  * Handler for Cost Centers/Units operations
  * Manages operations related to cost center and cost unit management
@@ -19,7 +18,7 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
   async execute(
     operation: CostCentersUnitsOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -29,13 +28,20 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
         await this.handleGet(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const queryParams = this.buildQueryParams();
@@ -44,9 +50,9 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         costSystemId,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costCenters);
     } catch (error) {
@@ -54,7 +60,10 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const costCenterId = this.getRequiredString("costCenterId");
@@ -65,9 +74,9 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
         requestContext.fiscalYearId!,
         costSystemId,
         costCenterId,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costCenter);
     } catch (error) {

@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("IndividualReference2ResourceHandler", () => {
@@ -21,37 +21,62 @@ describe("IndividualReference2ResourceHandler", () => {
       getNode: mock(() => ({ type: "test-node" })),
       getCredentials: mock(() => null),
     };
-    individualReference2ResourceHandler = new IndividualReference2ResourceHandler(mockContext, 0);
+    individualReference2ResourceHandler =
+      new IndividualReference2ResourceHandler(mockContext, 0);
 
     // Mock the DocumentManagementClient methods
-    spyOn(DocumentManagementClient, "fetchIndividualReferences2").mockResolvedValue([
-      { id: 1, name: "Reference 2-1", correspondence_partner_domain: "clients" },
-      { id: 2, name: "Reference 2-2", correspondence_partner_domain: "employees" }
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualReferences2",
+    ).mockResolvedValue([
+      {
+        id: 1,
+        name: "Reference 2-1",
+        correspondence_partner_domain: "clients",
+      },
+      {
+        id: 2,
+        name: "Reference 2-2",
+        correspondence_partner_domain: "employees",
+      },
     ]);
 
-    spyOn(DocumentManagementClient, "createIndividualReference2").mockResolvedValue([
-      { id: 3, name: "Test Reference 2", correspondence_partner_domain: "legal" }
+    spyOn(
+      DocumentManagementClient,
+      "createIndividualReference2",
+    ).mockResolvedValue([
+      {
+        id: 3,
+        name: "Test Reference 2",
+        correspondence_partner_domain: "legal",
+      },
     ]);
   });
 
   test("getAll operation fetches individual references 2", async () => {
     const returnData: any[] = [];
-    await individualReference2ResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualReference2ResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(2);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 1,
       name: "Reference 2-1",
-      correspondence_partner_domain: "clients"
+      correspondence_partner_domain: "clients",
     });
     expect(returnData[1].json).toEqual({
       success: true,
       id: 2,
       name: "Reference 2-2",
-      correspondence_partner_domain: "employees"
+      correspondence_partner_domain: "employees",
     });
-    expect(DocumentManagementClient.fetchIndividualReferences2).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.fetchIndividualReferences2,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -64,35 +89,54 @@ describe("IndividualReference2ResourceHandler", () => {
     // Mock the required parameter
     mockContext.getNodeParameter.mockImplementation((name: string) => {
       if (name === "individualReferenceData") {
-        return JSON.stringify({ name: "Test Reference 2", correspondence_partner_domain: "legal" });
+        return JSON.stringify({
+          name: "Test Reference 2",
+          correspondence_partner_domain: "legal",
+        });
       }
       return undefined;
     });
 
     const returnData: any[] = [];
-    await individualReference2ResourceHandler.execute("create", mockAuthContext, returnData);
+    await individualReference2ResourceHandler.execute(
+      "create",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 3,
       name: "Test Reference 2",
-      correspondence_partner_domain: "legal"
+      correspondence_partner_domain: "legal",
     });
-    expect(DocumentManagementClient.createIndividualReference2).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.createIndividualReference2,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
-      individualReference: { name: "Test Reference 2", correspondence_partner_domain: "legal" },
+      individualReference: {
+        name: "Test Reference 2",
+        correspondence_partner_domain: "legal",
+      },
     });
   });
 
   test("handles API errors gracefully when continueOnFail is true", async () => {
     mockContext.continueOnFail.mockReturnValue(true);
-    spyOn(DocumentManagementClient, "fetchIndividualReferences2").mockRejectedValue(new Error("API Error"));
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualReferences2",
+    ).mockRejectedValue(new Error("API Error"));
 
     const returnData: any[] = [];
-    await individualReference2ResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualReference2ResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({

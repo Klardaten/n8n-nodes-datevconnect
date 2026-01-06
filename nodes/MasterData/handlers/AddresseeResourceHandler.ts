@@ -82,9 +82,17 @@ export class AddresseeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleCreate(authContext: AuthContext): Promise<JsonValue | undefined> {
-    const rawAddressee = this.context.getNodeParameter("addresseeData", this.itemIndex);
-    const addresseePayload = this.parseJsonParameter(rawAddressee, "Addressee Data");
+  private async handleCreate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
+    const rawAddressee = this.context.getNodeParameter(
+      "addresseeData",
+      this.itemIndex,
+    );
+    const addresseePayload = this.parseJsonParameter(
+      rawAddressee,
+      "Addressee Data",
+    );
     const nationalRight = this.getOptionalString("nationalRight");
 
     return await createAddressee({
@@ -94,10 +102,18 @@ export class AddresseeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdate(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const addresseeId = this.getRequiredString("addresseeId");
-    const rawAddressee = this.context.getNodeParameter("addresseeData", this.itemIndex);
-    const addresseePayload = this.parseJsonParameter(rawAddressee, "Addressee Data");
+    const rawAddressee = this.context.getNodeParameter(
+      "addresseeData",
+      this.itemIndex,
+    );
+    const addresseePayload = this.parseJsonParameter(
+      rawAddressee,
+      "Addressee Data",
+    );
 
     return await updateAddressee({
       ...authContext,
@@ -106,7 +122,9 @@ export class AddresseeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetDeletionLog(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetDeletionLog(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
     const select = this.getOptionalString("select");
