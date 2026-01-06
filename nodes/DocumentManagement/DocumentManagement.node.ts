@@ -66,16 +66,17 @@ export class DocumentManagement implements INodeType {
       throw new NodeApiError(this.getNode(), toErrorObject(error));
     }
 
-    // Create authentication context
-    const authContext = { 
-      host, 
-      token, 
-      clientInstanceId,
-      httpHelper: this.helpers.httpRequest,
-    };
-
     // Process each input item
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
+      const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+
+      const authContext = { 
+        host, 
+        token, 
+        clientInstanceId: effectiveClientInstanceId,
+        httpHelper: this.helpers.httpRequest,
+      };
       const resource = this.getNodeParameter("resource", itemIndex) as Resource;
       const operation = this.getNodeParameter("operation", itemIndex) as string;
 

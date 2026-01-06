@@ -62,14 +62,16 @@ export class OrderManagement implements INodeType {
       throw new NodeApiError(this.getNode(), toErrorObject(error));
     }
 
-    const authContext: AuthContext = {
-      host,
-      token,
-      clientInstanceId,
-      httpHelper: this.helpers.httpRequest,
-    };
-
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
+      const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+
+      const authContext: AuthContext = {
+        host,
+        token,
+        clientInstanceId: effectiveClientInstanceId,
+        httpHelper: this.helpers.httpRequest,
+      };
       const resource = this.getNodeParameter("resource", itemIndex) as Resource;
       const operation = this.getNodeParameter("operation", itemIndex) as string;
 

@@ -652,5 +652,12 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       default: false,
       description: "Whether to delete failed mass data entries when automatic integration is enabled",
     },
+    {
+      displayName: "Client Instance ID",
+      name: "clientInstanceId",
+      type: "string",
+      default: "",
+      description: "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
+    },
   ],
 };
