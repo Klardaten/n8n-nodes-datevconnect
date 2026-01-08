@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("PropertyTemplateResourceHandler", () => {
@@ -21,13 +21,18 @@ describe("PropertyTemplateResourceHandler", () => {
       getNode: mock(() => ({ type: "test-node" })),
       getCredentials: mock(() => null),
     };
-    propertyTemplateResourceHandler = new PropertyTemplateResourceHandler(mockContext, 0);
+    propertyTemplateResourceHandler = new PropertyTemplateResourceHandler(
+      mockContext,
+      0,
+    );
 
     // Mock the DocumentManagementClient methods
-    spyOn(DocumentManagementClient, "fetchPropertyTemplates").mockResolvedValue([
-      { id: 1, name: "Invoice Template", document_class: 1 },
-      { id: 2, name: "Contract Template", document_class: 2 }
-    ]);
+    spyOn(DocumentManagementClient, "fetchPropertyTemplates").mockResolvedValue(
+      [
+        { id: 1, name: "Invoice Template", document_class: 1 },
+        { id: 2, name: "Contract Template", document_class: 2 },
+      ],
+    );
   });
 
   test("getAll operation fetches property templates", async () => {
@@ -37,22 +42,28 @@ describe("PropertyTemplateResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await propertyTemplateResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await propertyTemplateResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(2);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 1,
       name: "Invoice Template",
-      document_class: 1
+      document_class: 1,
     });
     expect(returnData[1].json).toEqual({
       success: true,
       id: 2,
       name: "Contract Template",
-      document_class: 2
+      document_class: 2,
     });
-    expect(DocumentManagementClient.fetchPropertyTemplates).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.fetchPropertyTemplates,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -67,9 +78,15 @@ describe("PropertyTemplateResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await propertyTemplateResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await propertyTemplateResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
-    expect(DocumentManagementClient.fetchPropertyTemplates).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.fetchPropertyTemplates,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -79,18 +96,26 @@ describe("PropertyTemplateResourceHandler", () => {
 
   test("handles API errors gracefully when continueOnFail is true", async () => {
     mockContext.continueOnFail.mockReturnValue(true);
-    mockContext.getNodeParameter.mockImplementation((paramName: string, itemIndex: number, defaultValue: any) => {
-      if (paramName === "filter") return defaultValue || "";
-      return defaultValue;
-    });
-    spyOn(DocumentManagementClient, "fetchPropertyTemplates").mockRejectedValue(new Error("API Error"));
-    
+    mockContext.getNodeParameter.mockImplementation(
+      (paramName: string, itemIndex: number, defaultValue: any) => {
+        if (paramName === "filter") return defaultValue || "";
+        return defaultValue;
+      },
+    );
+    spyOn(DocumentManagementClient, "fetchPropertyTemplates").mockRejectedValue(
+      new Error("API Error"),
+    );
+
     const returnData: any[] = [];
-    await propertyTemplateResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await propertyTemplateResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
-      error: "API Error"
+      error: "API Error",
     });
   });
 });

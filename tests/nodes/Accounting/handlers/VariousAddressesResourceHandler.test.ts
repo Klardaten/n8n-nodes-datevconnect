@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { VariousAddressesResourceHandler } from "../../../../nodes/Accounting/handlers/VariousAddressesResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -20,40 +28,40 @@ const mockVariousAddresses = [
       {
         id: "addr_001",
         address_usage_type: {
-          is_correspondence_address: true
+          is_correspondence_address: true,
         },
         street: "Hauptstraße 123",
         zip_code: "10115",
         city: "Berlin",
-        country_code: "DE"
-      }
+        country_code: "DE",
+      },
     ],
     communications: [
       {
         id: "comm_001",
         communication_usage_type: {
-          is_main_communication_usage_type: true
+          is_main_communication_usage_type: true,
         },
         communication_type: "email",
-        communication_connection: "info@techsolutions.de"
+        communication_connection: "info@techsolutions.de",
       },
       {
         id: "comm_002",
         communication_type: "phone",
-        communication_connection: "+49 30 12345678"
-      }
+        communication_connection: "+49 30 12345678",
+      },
     ],
     banks: [
       {
         id: "bank_001",
         bank_code: "12030000",
         bank_account_number: "1234567890",
-        bank_name: "Deutsche Bank"
-      }
+        bank_name: "Deutsche Bank",
+      },
     ],
     correspondence_information: {
-      alternative_contact_person: "Max Mustermann"
-    }
+      alternative_contact_person: "Max Mustermann",
+    },
   },
   {
     id: "2_-672289625",
@@ -65,33 +73,33 @@ const mockVariousAddresses = [
       {
         id: "addr_002",
         address_usage_type: {
-          is_correspondence_address: true
+          is_correspondence_address: true,
         },
         street: "Industrial Park 45",
         zip_code: "20095",
         city: "Hamburg",
-        country_code: "DE"
-      }
+        country_code: "DE",
+      },
     ],
     communications: [
       {
         id: "comm_003",
         communication_usage_type: {
-          is_main_communication_usage_type: true
+          is_main_communication_usage_type: true,
         },
         communication_type: "email",
-        communication_connection: "orders@officesupplies.de"
+        communication_connection: "orders@officesupplies.de",
       },
       {
         id: "comm_004",
         communication_type: "phone",
-        communication_connection: "+49 40 9876543"
-      }
+        communication_connection: "+49 40 9876543",
+      },
     ],
     correspondence_information: {
-      alternative_contact_person: "Anna Schmidt"
-    }
-  }
+      alternative_contact_person: "Anna Schmidt",
+    },
+  },
 ];
 
 const mockSingleVariousAddress = {
@@ -104,45 +112,45 @@ const mockSingleVariousAddress = {
     {
       id: "addr_001",
       address_usage_type: {
-        is_correspondence_address: true
+        is_correspondence_address: true,
       },
       street: "Hauptstraße 123",
       zip_code: "10115",
       city: "Berlin",
-      country_code: "DE"
-    }
+      country_code: "DE",
+    },
   ],
   communications: [
     {
       id: "comm_001",
       communication_usage_type: {
-        is_main_communication_usage_type: true
+        is_main_communication_usage_type: true,
       },
       communication_type: "email",
-      communication_connection: "info@techsolutions.de"
+      communication_connection: "info@techsolutions.de",
     },
     {
       id: "comm_002",
       communication_type: "phone",
-      communication_connection: "+49 30 12345678"
+      communication_connection: "+49 30 12345678",
     },
     {
       id: "comm_003",
       communication_type: "fax",
-      communication_connection: "+49 30 12345679"
-    }
+      communication_connection: "+49 30 12345679",
+    },
   ],
   banks: [
     {
       id: "bank_001",
       bank_code: "12030000",
       bank_account_number: "1234567890",
-      bank_name: "Deutsche Bank"
-    }
+      bank_name: "Deutsche Bank",
+    },
   ],
   correspondence_information: {
-    alternative_contact_person: "Max Mustermann"
-  }
+    alternative_contact_person: "Max Mustermann",
+  },
 };
 
 const mockCreateResult = {
@@ -155,32 +163,32 @@ const mockCreateResult = {
     {
       id: "addr_003",
       address_usage_type: {
-        is_correspondence_address: true
+        is_correspondence_address: true,
       },
       street: "Innovation Street 100",
       zip_code: "80331",
       city: "Munich",
-      country_code: "DE"
-    }
+      country_code: "DE",
+    },
   ],
   communications: [
     {
       id: "comm_005",
       communication_usage_type: {
-        is_main_communication_usage_type: true
+        is_main_communication_usage_type: true,
       },
       communication_type: "email",
-      communication_connection: "contact@newcustomer.com"
+      communication_connection: "contact@newcustomer.com",
     },
     {
       id: "comm_006",
       communication_type: "phone",
-      communication_connection: "+49 89 12345678"
-    }
+      communication_connection: "+49 89 12345678",
+    },
   ],
   correspondence_information: {
-    alternative_contact_person: "John Doe"
-  }
+    alternative_contact_person: "John Doe",
+  },
 };
 
 // Mock IExecuteFunctions
@@ -192,35 +200,40 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "variousAddressId": "ADDR001",
-      "variousAddressData": JSON.stringify({
-        address_type: "customer",
-        partner_name: "New Customer Corp",
-        company_name: "New Customer Corp",
-        street: "Innovation Street 100",
-        postal_code: "80331",
-        city: "Munich",
-        country: "Germany",
-        contact_person: "John Doe",
-        email: "contact@newcustomer.com",
-        phone: "+49 89 12345678"
-      }),
-      "top": 50,
-      "skip": 10,
-      "select": "address_id,partner_name,company_name,street,city,country,email,phone",
-      "filter": "status eq 'active'",
-      "expand": "bank_details,business_hours",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        variousAddressId: "ADDR001",
+        variousAddressData: JSON.stringify({
+          address_type: "customer",
+          partner_name: "New Customer Corp",
+          company_name: "New Customer Corp",
+          street: "Innovation Street 100",
+          postal_code: "80331",
+          city: "Munich",
+          country: "Germany",
+          contact_person: "John Doe",
+          email: "contact@newcustomer.com",
+          phone: "+49 89 12345678",
+        }),
+        top: 50,
+        skip: 10,
+        select:
+          "address_id,partner_name,company_name,street,city,country,email,phone",
+        filter: "status eq 'active'",
+        expand: "bank_details,business_hours",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -232,14 +245,23 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "FY2023"
+  fiscalYearId: "FY2023",
 };
 
 describe("VariousAddressesResourceHandler", () => {
   beforeEach(() => {
-    getVariousAddressesSpy = spyOn(datevConnectClient.accounting, "getVariousAddresses").mockResolvedValue(mockVariousAddresses as any);
-    getVariousAddressSpy = spyOn(datevConnectClient.accounting, "getVariousAddress").mockResolvedValue(mockSingleVariousAddress as any);
-    createVariousAddressSpy = spyOn(datevConnectClient.accounting, "createVariousAddress").mockResolvedValue(mockCreateResult as any);
+    getVariousAddressesSpy = spyOn(
+      datevConnectClient.accounting,
+      "getVariousAddresses",
+    ).mockResolvedValue(mockVariousAddresses as any);
+    getVariousAddressSpy = spyOn(
+      datevConnectClient.accounting,
+      "getVariousAddress",
+    ).mockResolvedValue(mockSingleVariousAddress as any);
+    createVariousAddressSpy = spyOn(
+      datevConnectClient.accounting,
+      "createVariousAddress",
+    ).mockResolvedValue(mockCreateResult as any);
   });
 
   afterEach(() => {
@@ -263,10 +285,11 @@ describe("VariousAddressesResourceHandler", () => {
         {
           top: 50,
           skip: 10,
-          select: "address_id,partner_name,company_name,street,city,country,email,phone",
+          select:
+            "address_id,partner_name,company_name,street,city,country,email,phone",
           filter: "status eq 'active'",
-          expand: "bank_details,business_hours"
-        }
+          expand: "bank_details,business_hours",
+        },
       );
 
       expect(returnData).toHaveLength(2); // Array with 2 addresses becomes 2 items
@@ -304,8 +327,8 @@ describe("VariousAddressesResourceHandler", () => {
           skip: 5,
           select: "address_id,partner_name,city,country",
           filter: "address_type eq 'business_partner'",
-          expand: "bank_details"
-        }
+          expand: "bank_details",
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -321,8 +344,8 @@ describe("VariousAddressesResourceHandler", () => {
           skip: 5,
           select: "address_id,partner_name,city,country",
           filter: "address_type eq 'business_partner'",
-          expand: "bank_details"
-        })
+          expand: "bank_details",
+        }),
       );
     });
   });
@@ -343,10 +366,11 @@ describe("VariousAddressesResourceHandler", () => {
         {
           top: 50,
           skip: 10,
-          select: "address_id,partner_name,company_name,street,city,country,email,phone",
+          select:
+            "address_id,partner_name,company_name,street,city,country,email,phone",
           filter: "status eq 'active'",
-          expand: "bank_details,business_hours"
-        }
+          expand: "bank_details,business_hours",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -355,26 +379,26 @@ describe("VariousAddressesResourceHandler", () => {
 
     test("requires variousAddressId parameter", async () => {
       const context = createMockContext({
-        parameters: { variousAddressId: undefined }
+        parameters: { variousAddressId: undefined },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"variousAddressId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "variousAddressId" is required');
     });
 
     test("handles empty variousAddressId parameter", async () => {
       const context = createMockContext({
-        parameters: { variousAddressId: "" }
+        parameters: { variousAddressId: "" },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"variousAddressId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "variousAddressId" is required');
     });
 
     test("handles null response for single address", async () => {
@@ -394,8 +418,8 @@ describe("VariousAddressesResourceHandler", () => {
         parameters: {
           variousAddressId: "ADDR002",
           select: "address_id,partner_name,street,city",
-          expand: "business_hours"
-        }
+          expand: "business_hours",
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -409,8 +433,8 @@ describe("VariousAddressesResourceHandler", () => {
         "ADDR002",
         expect.objectContaining({
           select: "address_id,partner_name,street,city",
-          expand: "business_hours"
-        })
+          expand: "business_hours",
+        }),
       );
     });
   });
@@ -437,8 +461,8 @@ describe("VariousAddressesResourceHandler", () => {
           country: "Germany",
           contact_person: "John Doe",
           email: "contact@newcustomer.com",
-          phone: "+49 89 12345678"
-        }
+          phone: "+49 89 12345678",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -447,61 +471,61 @@ describe("VariousAddressesResourceHandler", () => {
 
     test("requires variousAddressData parameter", async () => {
       const context = createMockContext({
-        parameters: { variousAddressData: undefined }
+        parameters: { variousAddressData: undefined },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"variousAddressData\" is required");
+        handler.execute("create", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "variousAddressData" is required');
     });
 
     test("handles invalid JSON in variousAddressData parameter", async () => {
       const context = createMockContext({
         parameters: {
-          variousAddressData: "invalid json"
-        }
+          variousAddressData: "invalid json",
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
-      ).rejects.toThrow("Invalid JSON in parameter \"variousAddressData\"");
+        handler.execute("create", mockAuthContext, returnData),
+      ).rejects.toThrow('Invalid JSON in parameter "variousAddressData"');
     });
 
     test("validates variousAddressData is an object", async () => {
       const context = createMockContext({
         parameters: {
-          variousAddressData: JSON.stringify([{ invalid: "array" }])
-        }
+          variousAddressData: JSON.stringify([{ invalid: "array" }]),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Various address data must be a valid JSON object");
     });
 
     test("validates variousAddressData is not null", async () => {
       const context = createMockContext({
         parameters: {
-          variousAddressData: JSON.stringify(null)
-        }
+          variousAddressData: JSON.stringify(null),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Various address data must be a valid JSON object");
     });
 
     test("handles complex address creation", async () => {
       const complexAddressData = {
-        address_type: "supplier", 
+        address_type: "supplier",
         partner_name: "Global Supplies International",
         company_name: "Global Supplies International Ltd",
         street: "Corporate Boulevard 500",
@@ -521,23 +545,23 @@ describe("VariousAddressesResourceHandler", () => {
         vat_id: "DE987654321",
         business_hours: {
           monday: "09:00-17:00",
-          friday: "09:00-15:00"
+          friday: "09:00-15:00",
         },
         bank_details: {
           bank_name: "Commerzbank AG",
           iban: "DE98765432109876543210",
-          bic: "COBADEFF"
+          bic: "COBADEFF",
         },
         custom_fields: {
           industry: "Manufacturing",
-          payment_terms: "30 days"
-        }
+          payment_terms: "30 days",
+        },
       };
 
       const context = createMockContext({
         parameters: {
-          variousAddressData: JSON.stringify(complexAddressData)
-        }
+          variousAddressData: JSON.stringify(complexAddressData),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -557,17 +581,17 @@ describe("VariousAddressesResourceHandler", () => {
           contact_person: "Maria Rodriguez",
           business_hours: expect.objectContaining({
             monday: "09:00-17:00",
-            friday: "09:00-15:00"
+            friday: "09:00-15:00",
           }),
           bank_details: expect.objectContaining({
             bank_name: "Commerzbank AG",
-            iban: "DE98765432109876543210"
+            iban: "DE98765432109876543210",
           }),
           custom_fields: expect.objectContaining({
             industry: "Manufacturing",
-            payment_terms: "30 days"
-          })
-        })
+            payment_terms: "30 days",
+          }),
+        }),
       );
     });
 
@@ -585,20 +609,22 @@ describe("VariousAddressesResourceHandler", () => {
 
     test("handles undefined variousAddressData parameter gracefully", async () => {
       const context = createMockContext({
-        parameters: { variousAddressData: undefined }
+        parameters: { variousAddressData: undefined },
       });
       // Override getNodeParameter to return undefined
-      context.getNodeParameter = mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-        if (name === "variousAddressData") return undefined;
-        return defaultValue;
-      });
-      
+      context.getNodeParameter = mock(
+        (name: string, itemIndex: number, defaultValue?: unknown) => {
+          if (name === "variousAddressData") return undefined;
+          return defaultValue;
+        },
+      );
+
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"variousAddressData\" is required");
+        handler.execute("create", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "variousAddressData" is required');
     });
   });
 
@@ -609,18 +635,20 @@ describe("VariousAddressesResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "variousAddresses".');
+        handler.execute("unsupportedOperation", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "variousAddresses".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getVariousAddressesSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -631,24 +659,28 @@ describe("VariousAddressesResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      getVariousAddressSpy.mockRejectedValueOnce(new Error("Address not found"));
+      getVariousAddressSpy.mockRejectedValueOnce(
+        new Error("Address not found"),
+      );
       const context = createMockContext();
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
+        handler.execute("get", mockAuthContext, returnData),
       ).rejects.toThrow("Address not found");
     });
 
     test("handles network timeout errors", async () => {
-      createVariousAddressSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      createVariousAddressSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -665,36 +697,42 @@ describe("VariousAddressesResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
 
     test("handles validation errors from create operations", async () => {
-      createVariousAddressSpy.mockRejectedValueOnce(new Error("Validation Error: Invalid postal code"));
+      createVariousAddressSpy.mockRejectedValueOnce(
+        new Error("Validation Error: Invalid postal code"),
+      );
       const context = createMockContext();
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Validation Error: Invalid postal code");
     });
 
     test("handles duplicate address errors", async () => {
-      createVariousAddressSpy.mockRejectedValueOnce(new Error("Duplicate address detected"));
+      createVariousAddressSpy.mockRejectedValueOnce(
+        new Error("Duplicate address detected"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("create", mockAuthContext, returnData);
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ error: "Duplicate address detected" });
+      expect(returnData[0].json).toEqual({
+        error: "Duplicate address detected",
+      });
     });
   });
 
@@ -710,7 +748,7 @@ describe("VariousAddressesResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -728,10 +766,10 @@ describe("VariousAddressesResourceHandler", () => {
       getVariousAddressesSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new VariousAddressesResourceHandler(context, 2);
       const returnData: any[] = [];
 
@@ -757,9 +795,9 @@ describe("VariousAddressesResourceHandler", () => {
         parameters: {
           variousAddressData: JSON.stringify({
             test: "data",
-            address_type: "test_type"
-          })
-        }
+            address_type: "test_type",
+          }),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -772,8 +810,8 @@ describe("VariousAddressesResourceHandler", () => {
         "FY2023",
         expect.objectContaining({
           test: "data",
-          address_type: "test_type"
-        })
+          address_type: "test_type",
+        }),
       );
     });
   });
@@ -781,7 +819,7 @@ describe("VariousAddressesResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves variousAddressId parameter", async () => {
       const context = createMockContext({
-        parameters: { variousAddressId: "TEST_ADDRESS" }
+        parameters: { variousAddressId: "TEST_ADDRESS" },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -793,7 +831,7 @@ describe("VariousAddressesResourceHandler", () => {
         "client-123",
         "FY2023",
         "TEST_ADDRESS",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -804,8 +842,8 @@ describe("VariousAddressesResourceHandler", () => {
           skip: 5,
           select: "address_id,partner_name,city",
           filter: "country eq 'Germany'",
-          expand: "bank_details"
-        }
+          expand: "bank_details",
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -821,8 +859,8 @@ describe("VariousAddressesResourceHandler", () => {
           skip: 5,
           select: "address_id,partner_name,city",
           filter: "country eq 'Germany'",
-          expand: "bank_details"
-        })
+          expand: "bank_details",
+        }),
       );
     });
 
@@ -833,36 +871,36 @@ describe("VariousAddressesResourceHandler", () => {
         addresses: {
           billing: {
             street: "Finance Street 1",
-            city: "Frankfurt"
+            city: "Frankfurt",
           },
           shipping: {
-            street: "Logistics Avenue 2", 
-            city: "Hamburg"
-          }
+            street: "Logistics Avenue 2",
+            city: "Hamburg",
+          },
         },
         contacts: [
           {
             name: "CFO John Smith",
             department: "Finance",
-            email: "cfo@company.com"
+            email: "cfo@company.com",
           },
           {
             name: "COO Jane Doe",
             department: "Operations",
-            email: "coo@company.com"
-          }
+            email: "coo@company.com",
+          },
         ],
         compliance: {
           gdpr_compliant: true,
           data_processing_agreement: true,
-          last_audit: "2023-06-15"
-        }
+          last_audit: "2023-06-15",
+        },
       };
 
       const context = createMockContext({
         parameters: {
-          variousAddressData: JSON.stringify(complexAddressData)
-        }
+          variousAddressData: JSON.stringify(complexAddressData),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -879,36 +917,36 @@ describe("VariousAddressesResourceHandler", () => {
           addresses: expect.objectContaining({
             billing: expect.objectContaining({
               street: "Finance Street 1",
-              city: "Frankfurt"
+              city: "Frankfurt",
             }),
             shipping: expect.objectContaining({
               street: "Logistics Avenue 2",
-              city: "Hamburg"
-            })
+              city: "Hamburg",
+            }),
           }),
           contacts: expect.arrayContaining([
             expect.objectContaining({
               name: "CFO John Smith",
-              department: "Finance"
+              department: "Finance",
             }),
             expect.objectContaining({
               name: "COO Jane Doe",
-              department: "Operations"
-            })
+              department: "Operations",
+            }),
           ]),
           compliance: expect.objectContaining({
             gdpr_compliant: true,
-            data_processing_agreement: true
-          })
-        })
+            data_processing_agreement: true,
+          }),
+        }),
       );
     });
 
     test("handles empty variousAddressData object", async () => {
       const context = createMockContext({
         parameters: {
-          variousAddressData: JSON.stringify({})
-        }
+          variousAddressData: JSON.stringify({}),
+        },
       });
       const handler = new VariousAddressesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -919,7 +957,7 @@ describe("VariousAddressesResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        {}
+        {},
       );
     });
   });
@@ -927,10 +965,26 @@ describe("VariousAddressesResourceHandler", () => {
   describe("data validation", () => {
     test("handles various address types", async () => {
       const addressesWithTypes = [
-        { address_id: "A1", address_type: "business_partner", partner_name: "BP Corp" },
-        { address_id: "A2", address_type: "supplier", partner_name: "Supplier Ltd" },
-        { address_id: "A3", address_type: "customer", partner_name: "Customer Inc" },
-        { address_id: "A4", address_type: "vendor", partner_name: "Vendor GmbH" }
+        {
+          address_id: "A1",
+          address_type: "business_partner",
+          partner_name: "BP Corp",
+        },
+        {
+          address_id: "A2",
+          address_type: "supplier",
+          partner_name: "Supplier Ltd",
+        },
+        {
+          address_id: "A3",
+          address_type: "customer",
+          partner_name: "Customer Inc",
+        },
+        {
+          address_id: "A4",
+          address_type: "vendor",
+          partner_name: "Vendor GmbH",
+        },
       ];
 
       getVariousAddressesSpy.mockResolvedValueOnce(addressesWithTypes as any);
@@ -958,7 +1012,7 @@ describe("VariousAddressesResourceHandler", () => {
         country: "United States",
         country_code: "US",
         phone: "+1 212 555-0123",
-        email: "contact@globalpartner.com"
+        email: "contact@globalpartner.com",
       };
 
       getVariousAddressSpy.mockResolvedValueOnce(internationalAddress as any);
@@ -982,7 +1036,7 @@ describe("VariousAddressesResourceHandler", () => {
         is_shipping: true,
         is_active: true,
         email_verified: false,
-        phone_verified: true
+        phone_verified: true,
       };
 
       getVariousAddressSpy.mockResolvedValueOnce(addressWithFlags as any);
@@ -1006,7 +1060,7 @@ describe("VariousAddressesResourceHandler", () => {
         created_date: "2023-01-15T10:30:00Z",
         last_modified: "2023-11-01T14:20:00Z",
         last_verified: "2023-10-15T09:00:00Z",
-        next_verification: "2024-10-15"
+        next_verification: "2024-10-15",
       };
 
       getVariousAddressSpy.mockResolvedValueOnce(addressWithDates as any);
@@ -1029,15 +1083,15 @@ describe("VariousAddressesResourceHandler", () => {
           bank_name: "Deutsche Bank",
           iban: "DE12345678901234567890",
           bic: "DEUTDEFF",
-          account_holder: "Company Name"
+          account_holder: "Company Name",
         },
         business_hours: {
           monday: "09:00-17:00",
           tuesday: "09:00-17:00",
           wednesday: "09:00-17:00",
           thursday: "09:00-17:00",
-          friday: "09:00-16:00"
-        }
+          friday: "09:00-16:00",
+        },
       };
 
       getVariousAddressSpy.mockResolvedValueOnce(addressWithNested as any);
@@ -1048,7 +1102,9 @@ describe("VariousAddressesResourceHandler", () => {
       await handler.execute("get", mockAuthContext, returnData);
 
       expect(returnData[0].json.bank_details.bank_name).toBe("Deutsche Bank");
-      expect(returnData[0].json.bank_details.iban).toBe("DE12345678901234567890");
+      expect(returnData[0].json.bank_details.iban).toBe(
+        "DE12345678901234567890",
+      );
       expect(returnData[0].json.business_hours.monday).toBe("09:00-17:00");
       expect(returnData[0].json.business_hours.friday).toBe("09:00-16:00");
     });
@@ -1061,15 +1117,15 @@ describe("VariousAddressesResourceHandler", () => {
             name: "Primary Contact",
             role: "Manager",
             email: "manager@company.com",
-            phone: "+49 30 12345678"
+            phone: "+49 30 12345678",
           },
           {
             name: "Secondary Contact",
             role: "Assistant",
             email: "assistant@company.com",
-            phone: "+49 30 12345679"
-          }
-        ]
+            phone: "+49 30 12345679",
+          },
+        ],
       };
 
       getVariousAddressSpy.mockResolvedValueOnce(addressWithContacts as any);

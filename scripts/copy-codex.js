@@ -39,7 +39,9 @@ function copyCodexFiles() {
   if (copied === 0) {
     console.warn("No codex files found to copy.");
   } else {
-    console.log(`Copied ${copied} codex file${copied === 1 ? "" : "s"} to dist.`);
+    console.log(
+      `Copied ${copied} codex file${copied === 1 ? "" : "s"} to dist.`,
+    );
   }
 }
 

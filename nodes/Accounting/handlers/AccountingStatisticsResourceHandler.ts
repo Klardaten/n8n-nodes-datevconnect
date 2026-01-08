@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type AccountingStatisticsOperation = "getAll";
 
-
 /**
  * Handler for Accounting Statistics operations
  * Manages operations related to accounting statistics data
@@ -19,29 +18,37 @@ export class AccountingStatisticsResourceHandler extends BaseResourceHandler {
   async execute(
     operation: AccountingStatisticsOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
         await this.handleGetAll(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const accountingStatistics = await datevConnectClient.accounting.getAccountingStatistics(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const accountingStatistics =
+        await datevConnectClient.accounting.getAccountingStatistics(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accountingStatistics);
     } catch (error) {

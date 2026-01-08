@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("IndividualPropertyResourceHandler", () => {
@@ -21,33 +21,45 @@ describe("IndividualPropertyResourceHandler", () => {
       getNode: mock(() => ({ type: "test-node" })),
       getCredentials: mock(() => null),
     };
-    individualPropertyResourceHandler = new IndividualPropertyResourceHandler(mockContext, 0);
+    individualPropertyResourceHandler = new IndividualPropertyResourceHandler(
+      mockContext,
+      0,
+    );
 
     // Mock the DocumentManagementClient methods
-    spyOn(DocumentManagementClient, "fetchIndividualProperties").mockResolvedValue([
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualProperties",
+    ).mockResolvedValue([
       { id: 1, name: "Custom Property 1", data_type: "string" },
-      { id: 2, name: "Custom Property 2", data_type: "number" }
+      { id: 2, name: "Custom Property 2", data_type: "number" },
     ]);
   });
 
   test("getAll operation fetches individual properties", async () => {
     const returnData: any[] = [];
-    await individualPropertyResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualPropertyResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(2);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 1,
       name: "Custom Property 1",
-      data_type: "string"
+      data_type: "string",
     });
     expect(returnData[1].json).toEqual({
       success: true,
       id: 2,
       name: "Custom Property 2",
-      data_type: "number"
+      data_type: "number",
     });
-    expect(DocumentManagementClient.fetchIndividualProperties).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.fetchIndividualProperties,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -56,14 +68,21 @@ describe("IndividualPropertyResourceHandler", () => {
 
   test("handles API errors gracefully when continueOnFail is true", async () => {
     mockContext.continueOnFail.mockReturnValue(true);
-    spyOn(DocumentManagementClient, "fetchIndividualProperties").mockRejectedValue(new Error("API Error"));
-    
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualProperties",
+    ).mockRejectedValue(new Error("API Error"));
+
     const returnData: any[] = [];
-    await individualPropertyResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualPropertyResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
-      error: "API Error"
+      error: "API Error",
     });
   });
 });

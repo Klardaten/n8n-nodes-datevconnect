@@ -1,6 +1,10 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
 import { fetchOrderTypes } from "../../../src/services/orderManagementClient";
-import type { AuthContext, OrderTypeOperation, SendSuccessFunction } from "../types";
+import type {
+  AuthContext,
+  OrderTypeOperation,
+  SendSuccessFunction,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class OrderTypeResourceHandler extends BaseResourceHandler {

@@ -435,7 +435,15 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["order", "orderType", "invoice", "employee", "fee", "costCenter", "selfClient"],
+          resource: [
+            "order",
+            "orderType",
+            "invoice",
+            "employee",
+            "fee",
+            "costCenter",
+            "selfClient",
+          ],
           operation: [
             "getAll",
             "getMonthlyValuesAll",
@@ -465,7 +473,15 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["order", "orderType", "invoice", "employee", "fee", "costCenter", "selfClient"],
+          resource: [
+            "order",
+            "orderType",
+            "invoice",
+            "employee",
+            "fee",
+            "costCenter",
+            "selfClient",
+          ],
           operation: [
             "getAll",
             "getMonthlyValuesAll",
@@ -497,7 +513,12 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           resource: ["order"],
-          operation: ["getAll", "get", "getMonthlyValuesForOrder", "getMonthlyValuesAll"],
+          operation: [
+            "getAll",
+            "get",
+            "getMonthlyValuesForOrder",
+            "getMonthlyValuesAll",
+          ],
         },
       },
       default: null,
@@ -515,7 +536,8 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: "",
-      description: "Expand sub-resources (e.g. suborders). Required when using Cost Rate.",
+      description:
+        "Expand sub-resources (e.g. suborders). Required when using Cost Rate.",
     },
 
     // Required identifiers
@@ -637,7 +659,8 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: false,
-      description: "Whether to integrate the expense postings directly instead of staging",
+      description:
+        "Whether to integrate the expense postings directly instead of staging",
     },
     {
       displayName: "Delete Massdata on Failure",
@@ -650,14 +673,16 @@ export const orderManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: false,
-      description: "Whether to delete failed mass data entries when automatic integration is enabled",
+      description:
+        "Whether to delete failed mass data entries when automatic integration is enabled",
     },
     {
       displayName: "Client Instance ID",
       name: "clientInstanceId",
       type: "string",
       default: "",
-      description: "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
+      description:
+        "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
     },
   ],
 };

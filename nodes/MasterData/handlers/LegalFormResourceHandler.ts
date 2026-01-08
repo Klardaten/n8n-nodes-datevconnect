@@ -1,5 +1,8 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { type JsonValue, fetchLegalForms } from "../../../src/services/datevConnectClient";
+import {
+  type JsonValue,
+  fetchLegalForms,
+} from "../../../src/services/datevConnectClient";
 import type { AuthContext, LegalFormOperation } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 

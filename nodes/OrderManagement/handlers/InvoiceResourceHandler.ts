@@ -1,6 +1,13 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { fetchInvoice, fetchInvoices } from "../../../src/services/orderManagementClient";
-import type { AuthContext, InvoiceOperation, SendSuccessFunction } from "../types";
+import {
+  fetchInvoice,
+  fetchInvoices,
+} from "../../../src/services/orderManagementClient";
+import type {
+  AuthContext,
+  InvoiceOperation,
+  SendSuccessFunction,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class InvoiceResourceHandler extends BaseResourceHandler {

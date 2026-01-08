@@ -37,12 +37,15 @@ export class MasterData implements INodeType {
     const returnData: INodeExecutionData[] = [];
 
     // Get and validate credentials
-    const credentials = (await this.getCredentials("datevConnectApi")) as
-      | MasterDataCredentials
-      | null;
+    const credentials = (await this.getCredentials(
+      "datevConnectApi",
+    )) as MasterDataCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -50,7 +53,7 @@ export class MasterData implements INodeType {
     if (!host || !email || !password || !clientInstanceId) {
       throw new NodeOperationError(
         this.getNode(),
-        "All DATEVconnect credential fields must be provided"
+        "All DATEVconnect credential fields must be provided",
       );
     }
 
@@ -70,12 +73,17 @@ export class MasterData implements INodeType {
 
     // Process each input item
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
-      const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+      const paramClientInstanceId = this.getNodeParameter(
+        "clientInstanceId",
+        itemIndex,
+        "",
+      ) as string;
+      const effectiveClientInstanceId =
+        paramClientInstanceId || clientInstanceId;
 
-      const authContext = { 
-        host, 
-        token, 
+      const authContext = {
+        host,
+        token,
         clientInstanceId: effectiveClientInstanceId,
         httpHelper: this.helpers.httpRequest,
       };

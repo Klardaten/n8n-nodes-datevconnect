@@ -108,21 +108,32 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleCreate(authContext: AuthContext): Promise<JsonValue | undefined> {
-    const rawClient = this.context.getNodeParameter("clientData", this.itemIndex);
+  private async handleCreate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
+    const rawClient = this.context.getNodeParameter(
+      "clientData",
+      this.itemIndex,
+    );
     const clientPayload = this.parseJsonParameter(rawClient, "Client Data");
     const maxNumber = this.getNumberParameter("maxNumber", 0);
 
     return await createClient({
       ...authContext,
       client: clientPayload,
-      maxNumber: typeof maxNumber === "number" && maxNumber > 0 ? maxNumber : undefined,
+      maxNumber:
+        typeof maxNumber === "number" && maxNumber > 0 ? maxNumber : undefined,
     });
   }
 
-  private async handleUpdate(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientId = this.getRequiredString("clientId");
-    const rawClient = this.context.getNodeParameter("clientData", this.itemIndex);
+    const rawClient = this.context.getNodeParameter(
+      "clientData",
+      this.itemIndex,
+    );
     const clientPayload = this.parseJsonParameter(rawClient, "Client Data");
 
     return await updateClient({
@@ -132,7 +143,9 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetResponsibilities(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetResponsibilities(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const clientId = this.getRequiredString("clientId");
     const select = this.getOptionalString("select");
 
@@ -143,10 +156,18 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdateResponsibilities(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdateResponsibilities(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientId = this.getRequiredString("clientId");
-    const rawResponsibilities = this.context.getNodeParameter("responsibilitiesData", this.itemIndex);
-    const responsibilitiesPayload = this.parseJsonParameter(rawResponsibilities, "Responsibilities");
+    const rawResponsibilities = this.context.getNodeParameter(
+      "responsibilitiesData",
+      this.itemIndex,
+    );
+    const responsibilitiesPayload = this.parseJsonParameter(
+      rawResponsibilities,
+      "Responsibilities",
+    );
 
     return await updateClientResponsibilities({
       ...authContext,
@@ -155,7 +176,9 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetClientCategories(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetClientCategories(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const clientId = this.getRequiredString("clientId");
     const select = this.getOptionalString("select");
 
@@ -166,10 +189,18 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdateClientCategories(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdateClientCategories(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientId = this.getRequiredString("clientId");
-    const rawCategories = this.context.getNodeParameter("categoriesData", this.itemIndex);
-    const categoriesPayload = this.parseJsonParameter(rawCategories, "Client Categories");
+    const rawCategories = this.context.getNodeParameter(
+      "categoriesData",
+      this.itemIndex,
+    );
+    const categoriesPayload = this.parseJsonParameter(
+      rawCategories,
+      "Client Categories",
+    );
 
     return await updateClientCategories({
       ...authContext,
@@ -178,7 +209,9 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetClientGroups(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetClientGroups(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const clientId = this.getRequiredString("clientId");
     const select = this.getOptionalString("select");
 
@@ -189,9 +222,14 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdateClientGroups(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdateClientGroups(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const clientId = this.getRequiredString("clientId");
-    const rawGroups = this.context.getNodeParameter("groupsData", this.itemIndex);
+    const rawGroups = this.context.getNodeParameter(
+      "groupsData",
+      this.itemIndex,
+    );
     const groupsPayload = this.parseJsonParameter(rawGroups, "Client Groups");
 
     return await updateClientGroups({
@@ -201,7 +239,9 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetDeletionLog(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetDeletionLog(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const top = this.getNumberParameter("top", 100);
     const skip = this.getNumberParameter("skip", 0);
     const select = this.getOptionalString("select");
@@ -216,7 +256,9 @@ export class ClientResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetNextFreeNumber(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetNextFreeNumber(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const start = this.getNumberParameter("start", 1);
     const range = this.getNumberParameter("range", 0);
 

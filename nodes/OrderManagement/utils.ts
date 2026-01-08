@@ -14,7 +14,11 @@ export function toErrorObject(error: unknown): { message: string } {
     return { message: error };
   }
   if (error && typeof error === "object" && "message" in error) {
-    return { message: String((error as { message?: unknown }).message ?? "Unknown error") };
+    return {
+      message: String(
+        (error as { message?: unknown }).message ?? "Unknown error",
+      ),
+    };
   }
   return { message: "Unknown error" };
 }

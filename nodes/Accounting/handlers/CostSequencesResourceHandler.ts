@@ -4,8 +4,11 @@ import { NodeOperationError } from "n8n-workflow";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 import { datevConnectClient } from "../../../src/services/accountingClient";
 
-type CostSequencesOperation = "getAll" | "get" | "create" | "getCostAccountingRecords";
-
+type CostSequencesOperation =
+  | "getAll"
+  | "get"
+  | "create"
+  | "getCostAccountingRecords";
 
 /**
  * Handler for Cost Sequences operations
@@ -19,7 +22,7 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
   async execute(
     operation: CostSequencesOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -35,24 +38,32 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
         await this.handleGetCostAccountingRecords(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const queryParams = this.buildQueryParams();
-      const costSequences = await datevConnectClient.accounting.getCostSequences(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        costSystemId,
-        queryParams
-      );
-      
+      const costSequences =
+        await datevConnectClient.accounting.getCostSequences(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          costSystemId,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costSequences);
     } catch (error) {
@@ -60,7 +71,10 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const costSequenceId = this.getRequiredString("costSequenceId");
@@ -71,9 +85,9 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
         requestContext.fiscalYearId!,
         costSystemId,
         costSequenceId,
-        queryParams
+        queryParams,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costSequence);
     } catch (error) {
@@ -81,22 +95,31 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleCreate(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleCreate(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const costSequenceId = this.getRequiredString("costSequenceId");
-      const costSequenceDataRaw = this.context.getNodeParameter("costSequenceData", this.itemIndex);
-      const costSequenceData = this.parseJsonParameter(costSequenceDataRaw, "costSequenceData");
-      
+      const costSequenceDataRaw = this.context.getNodeParameter(
+        "costSequenceData",
+        this.itemIndex,
+      );
+      const costSequenceData = this.parseJsonParameter(
+        costSequenceDataRaw,
+        "costSequenceData",
+      );
+
       const result = await datevConnectClient.accounting.createCostSequence(
         this.context,
         requestContext.clientId!,
         requestContext.fiscalYearId!,
         costSystemId,
         costSequenceId,
-        costSequenceData
+        costSequenceData,
       );
-      
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
     } catch (error) {
@@ -104,20 +127,24 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetCostAccountingRecords(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetCostAccountingRecords(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
       const costSequenceId = this.getRequiredString("costSequenceId");
       const queryParams = this.buildQueryParams();
-      const costAccountingRecords = await datevConnectClient.accounting.getCostAccountingRecords(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        costSystemId,
-        costSequenceId,
-        queryParams
-      );
-      
+      const costAccountingRecords =
+        await datevConnectClient.accounting.getCostAccountingRecords(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          costSystemId,
+          costSequenceId,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costAccountingRecords);
     } catch (error) {

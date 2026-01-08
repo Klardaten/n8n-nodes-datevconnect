@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AreaOfResponsibilityResourceHandler } from "../../../../nodes/MasterData/handlers/AreaOfResponsibilityResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -16,20 +24,24 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Area of responsibility operations parameters
-      "select": "id,name,status",
-      "filter": "status eq active",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Area of responsibility operations parameters
+        select: "id,name,status",
+        filter: "status eq active",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -44,19 +56,22 @@ const mockAuthContext: AuthContext = {
 
 describe("AreaOfResponsibilityResourceHandler", () => {
   beforeEach(() => {
-    fetchAreaOfResponsibilitiesSpy = spyOn(datevConnectClientModule, "fetchAreaOfResponsibilities").mockResolvedValue([
+    fetchAreaOfResponsibilitiesSpy = spyOn(
+      datevConnectClientModule,
+      "fetchAreaOfResponsibilities",
+    ).mockResolvedValue([
       {
         id: "AB",
         name: "Anlagenbuchführung",
         standard: true,
-        status: "active"
+        status: "active",
       },
       {
         id: "MV",
         name: "Mandatsverantwortung",
         standard: true,
-        status: "active"
-      }
+        status: "active",
+      },
     ]);
   });
 
@@ -84,13 +99,13 @@ describe("AreaOfResponsibilityResourceHandler", () => {
         id: "AB",
         name: "Anlagenbuchführung",
         standard: true,
-        status: "active"
+        status: "active",
       });
       expect(returnData[1].json).toEqual({
         id: "MV",
         name: "Mandatsverantwortung",
         standard: true,
-        status: "active"
+        status: "active",
       });
     });
 
@@ -111,9 +126,12 @@ describe("AreaOfResponsibilityResourceHandler", () => {
         parameters: {
           select: undefined,
           filter: undefined,
-        }
+        },
       });
-      const handler = new AreaOfResponsibilityResourceHandler(mockContextWithDefaults, 0);
+      const handler = new AreaOfResponsibilityResourceHandler(
+        mockContextWithDefaults,
+        0,
+      );
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
@@ -135,8 +153,10 @@ describe("AreaOfResponsibilityResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupported", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupported" is not supported for resource "areaOfResponsibility".');
+        handler.execute("unsupported", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupported" is not supported for resource "areaOfResponsibility".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
@@ -146,7 +166,10 @@ describe("AreaOfResponsibilityResourceHandler", () => {
           continueOnFail: mock(() => true),
         },
       });
-      const handler = new AreaOfResponsibilityResourceHandler(mockContextWithContinueOnFail, 0);
+      const handler = new AreaOfResponsibilityResourceHandler(
+        mockContextWithContinueOnFail,
+        0,
+      );
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
@@ -164,7 +187,7 @@ describe("AreaOfResponsibilityResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
@@ -182,7 +205,7 @@ describe("AreaOfResponsibilityResourceHandler", () => {
           host: "https://api.example.com",
           token: "test-token",
           clientInstanceId: "instance-1",
-        })
+        }),
       );
     });
 
@@ -199,7 +222,7 @@ describe("AreaOfResponsibilityResourceHandler", () => {
           id: "AB",
           name: "Anlagenbuchführung",
           standard: true,
-          status: "active"
+          status: "active",
         },
         pairedItem: { item: 2 },
       });
@@ -217,7 +240,7 @@ describe("AreaOfResponsibilityResourceHandler", () => {
       expect(fetchAreaOfResponsibilitiesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           select: "id,name,status",
-        })
+        }),
       );
     });
 
@@ -231,7 +254,7 @@ describe("AreaOfResponsibilityResourceHandler", () => {
       expect(fetchAreaOfResponsibilitiesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           filter: "status eq active",
-        })
+        }),
       );
     });
   });

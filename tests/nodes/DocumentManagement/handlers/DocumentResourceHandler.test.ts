@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("DocumentResourceHandler", () => {
@@ -46,8 +46,13 @@ describe("DocumentResourceHandler", () => {
       state: { id: "active", name: "Active" },
     });
 
-    spyOn(DocumentManagementClient, "deleteDocument").mockResolvedValue(undefined);
-    spyOn(DocumentManagementClient, "deleteDocumentPermanently").mockResolvedValue(undefined);
+    spyOn(DocumentManagementClient, "deleteDocument").mockResolvedValue(
+      undefined,
+    );
+    spyOn(
+      DocumentManagementClient,
+      "deleteDocumentPermanently",
+    ).mockResolvedValue(undefined);
   });
 
   test("getAll operation fetches documents", async () => {
@@ -65,7 +70,11 @@ describe("DocumentResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await documentResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await documentResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
@@ -101,16 +110,21 @@ describe("DocumentResourceHandler", () => {
 
   test("create operation creates document with data", async () => {
     mockContext.getNodeParameter.mockImplementation((paramName: string) => {
-      if (paramName === "documentData") return JSON.stringify({
-        description: "Test document",
-        class: { id: 1 },
-        state: { id: "active" },
-      });
+      if (paramName === "documentData")
+        return JSON.stringify({
+          description: "Test document",
+          class: { id: 1 },
+          state: { id: "active" },
+        });
       return undefined;
     });
 
     const returnData: any[] = [];
-    await documentResourceHandler.execute("create", mockAuthContext, returnData);
+    await documentResourceHandler.execute(
+      "create",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
@@ -137,7 +151,11 @@ describe("DocumentResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await documentResourceHandler.execute("delete", mockAuthContext, returnData);
+    await documentResourceHandler.execute(
+      "delete",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json.success).toBe(true);
@@ -152,7 +170,11 @@ describe("DocumentResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await documentResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await documentResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json.error).toBeDefined();

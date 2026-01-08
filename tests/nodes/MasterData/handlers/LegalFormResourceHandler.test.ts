@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { LegalFormResourceHandler } from "../../../../nodes/MasterData/handlers/LegalFormResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -16,20 +24,24 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Legal form operations parameters
-      "select": "id,display_name,nation",
-      "nationalRight": "german",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Legal form operations parameters
+        select: "id,display_name,nation",
+        nationalRight: "german",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -44,7 +56,10 @@ const mockAuthContext: AuthContext = {
 
 describe("LegalFormResourceHandler", () => {
   beforeEach(() => {
-    fetchLegalFormsSpy = spyOn(datevConnectClientModule, "fetchLegalForms").mockResolvedValue([]);
+    fetchLegalFormsSpy = spyOn(
+      datevConnectClientModule,
+      "fetchLegalForms",
+    ).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -54,21 +69,21 @@ describe("LegalFormResourceHandler", () => {
   describe("getAll operation", () => {
     test("fetches legal forms with parameters", async () => {
       const mockLegalForms = [
-        { 
-          id: "000001", 
+        {
+          id: "000001",
           display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
           short_name: "GmbH",
           long_name: "Gesellschaft mit beschränkter Haftung",
           nation: "DE",
-          type: 3
+          type: 3,
         },
-        { 
-          id: "000002", 
+        {
+          id: "000002",
           display_name: "AG - Aktiengesellschaft",
           short_name: "AG",
           long_name: "Aktiengesellschaft",
           nation: "DE",
-          type: 3
+          type: 3,
         },
       ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockLegalForms);
@@ -88,21 +103,21 @@ describe("LegalFormResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ 
-        id: "000001", 
+      expect(returnData[0].json).toEqual({
+        id: "000001",
         display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
         short_name: "GmbH",
         long_name: "Gesellschaft mit beschränkter Haftung",
         nation: "DE",
-        type: 3
+        type: 3,
       });
-      expect(returnData[1].json).toEqual({ 
-        id: "000002", 
+      expect(returnData[1].json).toEqual({
+        id: "000002",
         display_name: "AG - Aktiengesellschaft",
         short_name: "AG",
         long_name: "Aktiengesellschaft",
         nation: "DE",
-        type: 3
+        type: 3,
       });
     });
 
@@ -120,10 +135,12 @@ describe("LegalFormResourceHandler", () => {
     });
 
     test("handles parameters with default values", async () => {
-      const mockLegalForms = [{ 
-        id: "000001", 
-        display_name: "GmbH - Gesellschaft mit beschränkter Haftung" 
-      }];
+      const mockLegalForms = [
+        {
+          id: "000001",
+          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+        },
+      ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockLegalForms);
 
       const context = createMockContext({
@@ -146,19 +163,21 @@ describe("LegalFormResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ 
-        id: "000001", 
-        display_name: "GmbH - Gesellschaft mit beschränkter Haftung" 
+      expect(returnData[0].json).toEqual({
+        id: "000001",
+        display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
       });
     });
 
     test("handles Austrian national right parameter", async () => {
-      const mockAustrianLegalForms = [{ 
-        id: "A00001", 
-        display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
-        nation: "AT",
-        type: 3
-      }];
+      const mockAustrianLegalForms = [
+        {
+          id: "A00001",
+          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+          nation: "AT",
+          type: 3,
+        },
+      ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockAustrianLegalForms);
 
       const context = createMockContext({
@@ -181,20 +200,40 @@ describe("LegalFormResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ 
-        id: "A00001", 
+      expect(returnData[0].json).toEqual({
+        id: "A00001",
         display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
         nation: "AT",
-        type: 3
+        type: 3,
       });
     });
 
     test("handles different legal form types", async () => {
       const mockLegalForms = [
-        { id: "000001", display_name: "Einzelunternehmen", type: 1, nation: "DE" },
-        { id: "000002", display_name: "OHG - Offene Handelsgesellschaft", type: 2, nation: "DE" },
-        { id: "000003", display_name: "GmbH - Gesellschaft mit beschränkter Haftung", type: 3, nation: "DE" },
-        { id: "000004", display_name: "e.V. - Eingetragener Verein", type: 4, nation: "DE" },
+        {
+          id: "000001",
+          display_name: "Einzelunternehmen",
+          type: 1,
+          nation: "DE",
+        },
+        {
+          id: "000002",
+          display_name: "OHG - Offene Handelsgesellschaft",
+          type: 2,
+          nation: "DE",
+        },
+        {
+          id: "000003",
+          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+          type: 3,
+          nation: "DE",
+        },
+        {
+          id: "000004",
+          display_name: "e.V. - Eingetragener Verein",
+          type: 4,
+          nation: "DE",
+        },
       ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockLegalForms);
 
@@ -210,7 +249,7 @@ describe("LegalFormResourceHandler", () => {
       await handler.execute("getAll", mockAuthContext, returnData);
 
       expect(returnData).toHaveLength(4);
-      expect(returnData.map(item => item.json.type)).toEqual([1, 2, 3, 4]);
+      expect(returnData.map((item) => item.json.type)).toEqual([1, 2, 3, 4]);
     });
   });
 
@@ -221,12 +260,16 @@ describe("LegalFormResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOp", mockAuthContext, returnData)
-      ).rejects.toThrow("The operation \"unsupportedOp\" is not supported for resource \"legalForm\".");
+        handler.execute("unsupportedOp", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOp" is not supported for resource "legalForm".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      fetchLegalFormsSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchLegalFormsSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => true) },
@@ -242,7 +285,9 @@ describe("LegalFormResourceHandler", () => {
     });
 
     test("throws error when continueOnFail is false", async () => {
-      fetchLegalFormsSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchLegalFormsSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => false) },
@@ -251,12 +296,14 @@ describe("LegalFormResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Connection Failed");
     });
 
     test("handles DATEVconnect API errors with proper message", async () => {
-      const apiError = new Error("DATEVconnect request failed (400 Bad Request): Invalid national right parameter");
+      const apiError = new Error(
+        "DATEVconnect request failed (400 Bad Request): Invalid national right parameter",
+      );
       fetchLegalFormsSpy.mockRejectedValueOnce(apiError);
 
       const context = createMockContext({
@@ -268,18 +315,21 @@ describe("LegalFormResourceHandler", () => {
       await handler.execute("getAll", mockAuthContext, returnData);
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ 
-        error: "DATEVconnect request failed (400 Bad Request): Invalid national right parameter" 
+      expect(returnData[0].json).toEqual({
+        error:
+          "DATEVconnect request failed (400 Bad Request): Invalid national right parameter",
       });
     });
   });
 
   describe("inheritance from BaseResourceHandler", () => {
     test("uses proper authentication context", async () => {
-      const mockLegalForms = [{ 
-        id: "000001", 
-        display_name: "GmbH - Gesellschaft mit beschränkter Haftung" 
-      }];
+      const mockLegalForms = [
+        {
+          id: "000001",
+          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+        },
+      ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockLegalForms);
 
       const customAuthContext: AuthContext = {
@@ -304,10 +354,12 @@ describe("LegalFormResourceHandler", () => {
     });
 
     test("handles metadata properly", async () => {
-      const mockLegalForms = [{ 
-        id: "000001", 
-        display_name: "GmbH - Gesellschaft mit beschränkter Haftung" 
-      }];
+      const mockLegalForms = [
+        {
+          id: "000001",
+          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+        },
+      ];
       fetchLegalFormsSpy.mockResolvedValueOnce(mockLegalForms);
 
       const context = createMockContext();
@@ -318,8 +370,15 @@ describe("LegalFormResourceHandler", () => {
 
       // Verify metadata construction is called
       expect(context.helpers.constructExecutionMetaData).toHaveBeenCalledWith(
-        [{ json: { id: "000001", display_name: "GmbH - Gesellschaft mit beschränkter Haftung" } }],
-        { itemData: { item: 0 } }
+        [
+          {
+            json: {
+              id: "000001",
+              display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+            },
+          },
+        ],
+        { itemData: { item: 0 } },
       );
     });
 

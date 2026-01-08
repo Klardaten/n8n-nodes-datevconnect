@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test, mock } from "bun:test";
-import { NodeOperationError, type IExecuteFunctions, type INode, type JsonObject } from "n8n-workflow";
+import {
+  NodeOperationError,
+  type IExecuteFunctions,
+  type INode,
+  type JsonObject,
+} from "n8n-workflow";
 import {
   toErrorObject,
   toErrorMessage,
@@ -13,21 +18,23 @@ import {
 
 // Mock IExecuteFunctions for testing
 const mockContext = {
-  getNode: (): INode => ({ name: "TestNode" } as INode),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockData: Record<string, unknown> = {
-      "optional-empty": "",
-      "optional-whitespace": "  ",
-      "optional-value": "test-value",
-      "required-value": "required-test",
-      "required-empty": "",
-      "number-value": 42,
-      "number-default": undefined,
-    };
-    const key = `${name}-${itemIndex === 0 ? "value" : itemIndex === 1 ? "empty" : itemIndex === 2 ? "whitespace" : "default"}`;
-    return mockData[key] !== undefined ? mockData[key] : defaultValue;
-  }),
-} as Pick<IExecuteFunctions, 'getNode' | 'getNodeParameter'>;
+  getNode: (): INode => ({ name: "TestNode" }) as INode,
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockData: Record<string, unknown> = {
+        "optional-empty": "",
+        "optional-whitespace": "  ",
+        "optional-value": "test-value",
+        "required-value": "required-test",
+        "required-empty": "",
+        "number-value": 42,
+        "number-default": undefined,
+      };
+      const key = `${name}-${itemIndex === 0 ? "value" : itemIndex === 1 ? "empty" : itemIndex === 2 ? "whitespace" : "default"}`;
+      return mockData[key] !== undefined ? mockData[key] : defaultValue;
+    },
+  ),
+} as Pick<IExecuteFunctions, "getNode" | "getNodeParameter">;
 
 describe("Utils", () => {
   describe("toErrorObject", () => {
@@ -92,7 +99,10 @@ describe("Utils", () => {
 
   describe("normaliseToObjects", () => {
     test("normalizes array of objects", () => {
-      const data = [{ id: 1, name: "Test" }, { id: 2, name: "Test2" }];
+      const data = [
+        { id: 1, name: "Test" },
+        { id: 2, name: "Test2" },
+      ];
       const result = normaliseToObjects(data);
       expect(result).toEqual([
         { id: 1, name: "Test" },
@@ -127,58 +137,103 @@ describe("Utils", () => {
 
   describe("parseJsonParameter", () => {
     test("parses valid JSON string", () => {
-      const result = parseJsonParameter('{"key":"value"}', "Test Param", mockContext as IExecuteFunctions, 0);
+      const result = parseJsonParameter(
+        '{"key":"value"}',
+        "Test Param",
+        mockContext as IExecuteFunctions,
+        0,
+      );
       expect(result).toEqual({ key: "value" });
     });
 
     test("returns non-string values as-is", () => {
       const obj = { key: "value" };
-      const result = parseJsonParameter(obj, "Test Param", mockContext as IExecuteFunctions, 0);
+      const result = parseJsonParameter(
+        obj,
+        "Test Param",
+        mockContext as IExecuteFunctions,
+        0,
+      );
       expect(result).toEqual(obj);
     });
 
     test("throws NodeOperationError for null/undefined", () => {
       expect(() => {
-        parseJsonParameter(null, "Test Param", mockContext as IExecuteFunctions, 0);
+        parseJsonParameter(
+          null,
+          "Test Param",
+          mockContext as IExecuteFunctions,
+          0,
+        );
       }).toThrow(NodeOperationError);
 
       expect(() => {
-        parseJsonParameter(undefined, "Test Param", mockContext as IExecuteFunctions, 0);
+        parseJsonParameter(
+          undefined,
+          "Test Param",
+          mockContext as IExecuteFunctions,
+          0,
+        );
       }).toThrow(NodeOperationError);
     });
 
     test("throws NodeOperationError for invalid JSON", () => {
       expect(() => {
-        parseJsonParameter("invalid json", "Test Param", mockContext as IExecuteFunctions, 0);
+        parseJsonParameter(
+          "invalid json",
+          "Test Param",
+          mockContext as IExecuteFunctions,
+          0,
+        );
       }).toThrow(NodeOperationError);
     });
   });
 
   describe("getOptionalString", () => {
     test("returns string value", () => {
-      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 0);
+      const result = getOptionalString(
+        mockContext as IExecuteFunctions,
+        "optional",
+        0,
+      );
       expect(result).toBe("test-value");
     });
 
     test("returns undefined for empty string", () => {
-      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 1);
+      const result = getOptionalString(
+        mockContext as IExecuteFunctions,
+        "optional",
+        1,
+      );
       expect(result).toBeUndefined();
     });
 
     test("returns undefined for whitespace-only string", () => {
-      const result = getOptionalString(mockContext as IExecuteFunctions, "optional", 2);
+      const result = getOptionalString(
+        mockContext as IExecuteFunctions,
+        "optional",
+        2,
+      );
       expect(result).toBeUndefined();
     });
 
     test("returns undefined for non-string value", () => {
-      const result = getOptionalString(mockContext as IExecuteFunctions, "number", 0);
+      const result = getOptionalString(
+        mockContext as IExecuteFunctions,
+        "number",
+        0,
+      );
       expect(result).toBeUndefined();
     });
   });
 
   describe("getRequiredString", () => {
     test("returns string value", () => {
-      const result = getRequiredString(mockContext as IExecuteFunctions, "required", 0);
+      const result = getRequiredString(
+        mockContext as IExecuteFunctions,
+        "required",
+        0,
+      );
       expect(result).toBe("required-test");
     });
 
@@ -197,12 +252,22 @@ describe("Utils", () => {
 
   describe("getNumberParameter", () => {
     test("returns number value", () => {
-      const result = getNumberParameter(mockContext as IExecuteFunctions, "number", 0, 0);
+      const result = getNumberParameter(
+        mockContext as IExecuteFunctions,
+        "number",
+        0,
+        0,
+      );
       expect(result).toBe(42);
     });
 
     test("returns default value when parameter is undefined", () => {
-      const result = getNumberParameter(mockContext as IExecuteFunctions, "number", 3, 100);
+      const result = getNumberParameter(
+        mockContext as IExecuteFunctions,
+        "number",
+        3,
+        100,
+      );
       expect(result).toBe(100);
     });
   });

@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { EmployeeResourceHandler } from "../../../../nodes/MasterData/handlers/EmployeeResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -19,22 +27,26 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Employee operations parameters
-      "employeeId": "employee-123",
-      "employeeData": '{"name":"Test Employee","email":"test@example.com"}',
-      "select": "id,name,email",
-      "filter": "status eq active",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Employee operations parameters
+        employeeId: "employee-123",
+        employeeData: '{"name":"Test Employee","email":"test@example.com"}',
+        select: "id,name,email",
+        filter: "status eq active",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -49,10 +61,22 @@ const mockAuthContext: AuthContext = {
 
 describe("EmployeeResourceHandler", () => {
   beforeEach(() => {
-    fetchEmployeesSpy = spyOn(datevConnectClientModule, "fetchEmployees").mockResolvedValue([]);
-    fetchEmployeeSpy = spyOn(datevConnectClientModule, "fetchEmployee").mockResolvedValue({ id: "employee-123" });
-    createEmployeeSpy = spyOn(datevConnectClientModule, "createEmployee").mockResolvedValue(undefined);
-    updateEmployeeSpy = spyOn(datevConnectClientModule, "updateEmployee").mockResolvedValue(undefined);
+    fetchEmployeesSpy = spyOn(
+      datevConnectClientModule,
+      "fetchEmployees",
+    ).mockResolvedValue([]);
+    fetchEmployeeSpy = spyOn(
+      datevConnectClientModule,
+      "fetchEmployee",
+    ).mockResolvedValue({ id: "employee-123" });
+    createEmployeeSpy = spyOn(
+      datevConnectClientModule,
+      "createEmployee",
+    ).mockResolvedValue(undefined);
+    updateEmployeeSpy = spyOn(
+      datevConnectClientModule,
+      "updateEmployee",
+    ).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -66,7 +90,7 @@ describe("EmployeeResourceHandler", () => {
     test("fetches employees with parameters", async () => {
       const mockEmployees = [
         { id: "1", name: "Employee 1", email: "emp1@example.com" },
-        { id: "2", name: "Employee 2", email: "emp2@example.com" }
+        { id: "2", name: "Employee 2", email: "emp2@example.com" },
       ];
       fetchEmployeesSpy.mockResolvedValueOnce(mockEmployees);
 
@@ -85,8 +109,16 @@ describe("EmployeeResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ id: "1", name: "Employee 1", email: "emp1@example.com" });
-      expect(returnData[1].json).toEqual({ id: "2", name: "Employee 2", email: "emp2@example.com" });
+      expect(returnData[0].json).toEqual({
+        id: "1",
+        name: "Employee 1",
+        email: "emp1@example.com",
+      });
+      expect(returnData[1].json).toEqual({
+        id: "2",
+        name: "Employee 2",
+        email: "emp2@example.com",
+      });
     });
 
     test("handles empty results", async () => {
@@ -132,7 +164,11 @@ describe("EmployeeResourceHandler", () => {
 
   describe("get operation", () => {
     test("fetches single employee by ID", async () => {
-      const mockEmployee = { id: "employee-123", name: "Test Employee", email: "test@example.com" };
+      const mockEmployee = {
+        id: "employee-123",
+        name: "Test Employee",
+        email: "test@example.com",
+      };
       fetchEmployeeSpy.mockResolvedValueOnce(mockEmployee);
 
       const context = createMockContext();
@@ -264,8 +300,10 @@ describe("EmployeeResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOp", mockAuthContext, returnData)
-      ).rejects.toThrow("The operation \"unsupportedOp\" is not supported for resource \"employee\".");
+        handler.execute("unsupportedOp", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOp" is not supported for resource "employee".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
@@ -285,7 +323,9 @@ describe("EmployeeResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      fetchEmployeesSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchEmployeesSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => false) },
@@ -294,7 +334,7 @@ describe("EmployeeResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Connection Failed");
     });
   });
@@ -335,10 +375,10 @@ describe("EmployeeResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      // Verify metadata construction is called  
+      // Verify metadata construction is called
       expect(context.helpers.constructExecutionMetaData).toHaveBeenCalledWith(
         [{ json: { id: "emp-123", name: "Test Employee" } }],
-        { itemData: { item: 0 } }
+        { itemData: { item: 0 } },
       );
     });
 

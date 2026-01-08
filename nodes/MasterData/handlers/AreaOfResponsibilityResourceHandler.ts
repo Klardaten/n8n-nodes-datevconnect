@@ -1,5 +1,8 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { type JsonValue, fetchAreaOfResponsibilities } from "../../../src/services/datevConnectClient";
+import {
+  type JsonValue,
+  fetchAreaOfResponsibilities,
+} from "../../../src/services/datevConnectClient";
 import type { AuthContext, AreaOfResponsibilityOperation } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 

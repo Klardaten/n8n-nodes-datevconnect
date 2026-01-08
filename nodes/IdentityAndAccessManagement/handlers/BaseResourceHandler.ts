@@ -62,7 +62,10 @@ export abstract class BaseResourceHandler {
         return;
       }
 
-      if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+      if (
+        error instanceof NodeApiError ||
+        error instanceof NodeOperationError
+      ) {
         throw error;
       }
 
@@ -79,12 +82,15 @@ export abstract class BaseResourceHandler {
   ): Promise<void>;
 
   protected async getCredentials(): Promise<IdentityAndAccessManagementCredentials> {
-    const credentials = (await this.context.getCredentials("datevConnectApi")) as
-      | IdentityAndAccessManagementCredentials
-      | null;
+    const credentials = (await this.context.getCredentials(
+      "datevConnectApi",
+    )) as IdentityAndAccessManagementCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.context.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.context.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -122,21 +128,38 @@ export abstract class BaseResourceHandler {
     return getNumberParameter(this.context, name, this.itemIndex, defaultValue);
   }
 
-  protected parseJsonParameter(rawValue: unknown, parameterLabel: string): JsonValue {
-    return parseJsonParameter(rawValue as JsonValue, parameterLabel, this.context, this.itemIndex);
+  protected parseJsonParameter(
+    rawValue: unknown,
+    parameterLabel: string,
+  ): JsonValue {
+    return parseJsonParameter(
+      rawValue as JsonValue,
+      parameterLabel,
+      this.context,
+      this.itemIndex,
+    );
   }
 
   protected getRequiredJsonData(name: string): JsonValue {
     return getRequiredJsonData(this.context, name, this.itemIndex);
   }
 
-  protected buildQueryParams(params: Record<string, unknown>): Record<string, string> {
+  protected buildQueryParams(
+    params: Record<string, unknown>,
+  ): Record<string, string> {
     return buildQueryParams(params);
   }
 
   protected validateRequestContext(authContext: AuthContext): void {
-    if (!authContext.host || !authContext.token || !authContext.clientInstanceId) {
-      throw new NodeOperationError(this.context.getNode(), "Authentication context is incomplete");
+    if (
+      !authContext.host ||
+      !authContext.token ||
+      !authContext.clientInstanceId
+    ) {
+      throw new NodeOperationError(
+        this.context.getNode(),
+        "Authentication context is incomplete",
+      );
     }
   }
 }

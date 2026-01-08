@@ -48,55 +48,66 @@ export class AccountingSequenceResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleCreate(requestContext: RequestContext): Promise<JsonValue> {
-    const accountingSequenceData = this.getRequiredString("accountingSequenceData");
-    const data = this.parseJsonParameter(accountingSequenceData, "accountingSequenceData");
-    
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+  private async handleCreate(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
+    const accountingSequenceData = this.getRequiredString(
+      "accountingSequenceData",
+    );
+    const data = this.parseJsonParameter(
+      accountingSequenceData,
+      "accountingSequenceData",
+    );
+
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
       throw new NodeOperationError(
         this.context.getNode(),
         "Accounting sequence data must be a valid JSON object",
-        { itemIndex: this.itemIndex }
+        { itemIndex: this.itemIndex },
       );
     }
-    
+
     const result = await datevConnectClient.accounting.createAccountingSequence(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       data,
     );
-    
+
     return result ?? null;
   }
 
-  private async handleGetAll(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const result = await datevConnectClient.accounting.getAccountingSequences(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
     );
-    
+
     return result ?? null;
   }
 
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
     const accountingSequenceId = this.getRequiredString("accountingSequenceId");
-    
+
     const result = await datevConnectClient.accounting.getAccountingSequence(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       accountingSequenceId,
     );
-    
+
     return result ?? null;
   }
 
-  private async handleGetAccountingRecords(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAccountingRecords(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const accountingSequenceId = this.getRequiredString("accountingSequenceId");
     const queryParams = this.buildQueryParams();
-    
+
     const result = await datevConnectClient.accounting.getAccountingRecords(
       this.context,
       requestContext.clientId!,
@@ -104,15 +115,17 @@ export class AccountingSequenceResourceHandler extends BaseResourceHandler {
       accountingSequenceId,
       queryParams,
     );
-    
+
     return result ?? null;
   }
 
-  private async handleGetAccountingRecord(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAccountingRecord(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const accountingSequenceId = this.getRequiredString("accountingSequenceId");
     const accountingRecordId = this.getRequiredString("accountingRecordId");
     const queryParams = this.buildQueryParams();
-    
+
     const result = await datevConnectClient.accounting.getAccountingRecord(
       this.context,
       requestContext.clientId!,
@@ -121,7 +134,7 @@ export class AccountingSequenceResourceHandler extends BaseResourceHandler {
       accountingRecordId,
       queryParams,
     );
-    
+
     return result ?? null;
   }
 }

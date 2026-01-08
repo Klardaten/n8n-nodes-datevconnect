@@ -1,5 +1,8 @@
 import type { IDataObject } from "n8n-workflow";
-import type { JsonValue, HttpRequestHelper } from "../../src/services/datevConnectClient";
+import type {
+  JsonValue,
+  HttpRequestHelper,
+} from "../../src/services/datevConnectClient";
 
 /**
  * Credentials interface for DATEVconnect API
@@ -105,22 +108,22 @@ export interface DispatcherInformationParams extends DocumentOperationParams {
 /**
  * Supported resources
  */
-export type Resource = 
-  | "document" 
-  | "documentFile" 
-  | "domain" 
-  | "documentState" 
-  | "secureArea" 
-  | "propertyTemplate" 
-  | "individualProperty" 
-  | "individualReference1" 
+export type Resource =
+  | "document"
+  | "documentFile"
+  | "domain"
+  | "documentState"
+  | "secureArea"
+  | "propertyTemplate"
+  | "individualProperty"
+  | "individualReference1"
   | "individualReference2"
   | "info";
 
 /**
  * Supported document operations
  */
-export type DocumentOperation = 
+export type DocumentOperation =
   | "getAll"
   | "get"
   | "create"
@@ -136,9 +139,7 @@ export type DocumentOperation =
 /**
  * Supported document file operations
  */
-export type DocumentFileOperation = 
-  | "get"
-  | "upload";
+export type DocumentFileOperation = "get" | "upload";
 
 /**
  * Supported domain operations
@@ -148,10 +149,7 @@ export type DomainOperation = "getAll";
 /**
  * Supported document state operations
  */
-export type DocumentStateOperation = 
-  | "getAll"
-  | "get"
-  | "create";
+export type DocumentStateOperation = "getAll" | "get" | "create";
 
 /**
  * Supported secure area operations
@@ -171,9 +169,7 @@ export type IndividualPropertyOperation = "getAll";
 /**
  * Supported individual reference operations
  */
-export type IndividualReferenceOperation = 
-  | "getAll"
-  | "create";
+export type IndividualReferenceOperation = "getAll" | "create";
 
 /**
  * Supported info operations
@@ -183,15 +179,15 @@ export type InfoOperation = "get";
 /**
  * All supported operations
  */
-export type Operation = 
-  | DocumentOperation 
-  | DocumentFileOperation 
-  | DomainOperation 
-  | DocumentStateOperation 
-  | SecureAreaOperation 
-  | PropertyTemplateOperation 
-  | IndividualPropertyOperation 
-  | IndividualReferenceOperation 
+export type Operation =
+  | DocumentOperation
+  | DocumentFileOperation
+  | DomainOperation
+  | DocumentStateOperation
+  | SecureAreaOperation
+  | PropertyTemplateOperation
+  | IndividualPropertyOperation
+  | IndividualReferenceOperation
   | InfoOperation;
 
 /**

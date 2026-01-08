@@ -16,11 +16,14 @@ describe("EmployeeResourceHandler", () => {
 
   beforeEach(() => {
     mockContext = {
-      getNodeParameter: mock((_name: string, _idx: number, defaultValue?: unknown) => defaultValue),
+      getNodeParameter: mock(
+        (_name: string, _idx: number, defaultValue?: unknown) => defaultValue,
+      ),
       continueOnFail: mock(() => false),
       getNode: mock(() => ({ type: "test-node" })),
       helpers: {
-        returnJsonArray: (data: Array<Record<string, unknown>>) => data.map((json) => ({ json })),
+        returnJsonArray: (data: Array<Record<string, unknown>>) =>
+          data.map((json) => ({ json })),
         constructExecutionMetaData: (
           data: Array<{ json: Record<string, unknown> }>,
           { itemData }: { itemData: { item: number } },
@@ -28,20 +31,30 @@ describe("EmployeeResourceHandler", () => {
       },
     };
     handler = new EmployeeResourceHandler(mockContext, 0);
-    spyOn(client, "fetchEmployeeCapacities").mockResolvedValue([{ employee_id: "e1" }]);
-    spyOn(client, "fetchEmployeesWithGroup").mockResolvedValue([{ employee_id: "e2" }]);
-    spyOn(client, "fetchEmployeeQualifications").mockResolvedValue([{ qualification_id: 1 }]);
-    spyOn(client, "fetchEmployeeCostRates").mockResolvedValue([{ cost_rate_number: 10 }]);
+    spyOn(client, "fetchEmployeeCapacities").mockResolvedValue([
+      { employee_id: "e1" },
+    ]);
+    spyOn(client, "fetchEmployeesWithGroup").mockResolvedValue([
+      { employee_id: "e2" },
+    ]);
+    spyOn(client, "fetchEmployeeQualifications").mockResolvedValue([
+      { qualification_id: 1 },
+    ]);
+    spyOn(client, "fetchEmployeeCostRates").mockResolvedValue([
+      { cost_rate_number: 10 },
+    ]);
     spyOn(client, "fetchChargeRates").mockResolvedValue([{ charge_rate: 120 }]);
   });
 
   test("getCapacities forwards params", async () => {
-    mockContext.getNodeParameter.mockImplementation((name: string, _idx: number, defaultValue?: unknown) => {
-      if (name === "filter") return "employee_id eq 1";
-      if (name === "top") return 5;
-      if (name === "skip") return 0;
-      return defaultValue;
-    });
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _idx: number, defaultValue?: unknown) => {
+        if (name === "filter") return "employee_id eq 1";
+        if (name === "top") return 5;
+        if (name === "skip") return 0;
+        return defaultValue;
+      },
+    );
 
     const returnData: any[] = [];
     await handler.execute("getCapacities", authContext, returnData);
@@ -57,10 +70,12 @@ describe("EmployeeResourceHandler", () => {
   });
 
   test("getWithGroup forwards params", async () => {
-    mockContext.getNodeParameter.mockImplementation((name: string, _idx: number, defaultValue?: unknown) => {
-      if (name === "filter") return "employee_number ge 1";
-      return defaultValue;
-    });
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _idx: number, defaultValue?: unknown) => {
+        if (name === "filter") return "employee_number ge 1";
+        return defaultValue;
+      },
+    );
     const returnData: any[] = [];
     await handler.execute("getWithGroup", authContext, returnData);
 

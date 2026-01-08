@@ -4,13 +4,17 @@ import { IdentityAndAccessManagementClient } from "../../src/services/identityAn
 
 const mockFetch = spyOn(global, "fetch");
 
-function jsonResponse(body: unknown, overrides: Partial<Response> = {}): Response {
+function jsonResponse(
+  body: unknown,
+  overrides: Partial<Response> = {},
+): Response {
   return {
     ok: true,
     status: 200,
     statusText: "OK",
     headers: {
-      get: (name: string) => (name.toLowerCase() === "content-type" ? "application/json" : null),
+      get: (name: string) =>
+        name.toLowerCase() === "content-type" ? "application/json" : null,
     },
     json: async () => body,
     text: async () => JSON.stringify(body),
@@ -27,15 +31,18 @@ describe("IdentityAndAccessManagementClient", () => {
     const payload = { documentationUri: "https://docs.example" };
     mockFetch.mockResolvedValueOnce(jsonResponse(payload));
 
-    const result = await IdentityAndAccessManagementClient.fetchServiceProviderConfig({
-      host: "https://localhost:58452",
-      token: "token-123",
-      clientInstanceId: "instance-abc",
-    });
+    const result =
+      await IdentityAndAccessManagementClient.fetchServiceProviderConfig({
+        host: "https://localhost:58452",
+        token: "token-123",
+        clientInstanceId: "instance-abc",
+      });
 
     const [urlArg, init] = mockFetch.mock.calls[0];
     const requestUrl = new URL(String(urlArg));
-    expect(requestUrl.pathname).toBe("/datevconnect/iam/v1/ServiceProviderConfig");
+    expect(requestUrl.pathname).toBe(
+      "/datevconnect/iam/v1/ServiceProviderConfig",
+    );
     expect(init).toEqual({
       method: "GET",
       headers: {
@@ -64,7 +71,9 @@ describe("IdentityAndAccessManagementClient", () => {
     const [urlArg] = mockFetch.mock.calls[0];
     const requestUrl = new URL(String(urlArg));
     expect(requestUrl.pathname).toBe("/datevconnect/iam/v1/Users");
-    expect(requestUrl.searchParams.get("filter")).toBe('userName eq "max.mustermann"');
+    expect(requestUrl.searchParams.get("filter")).toBe(
+      'userName eq "max.mustermann"',
+    );
     expect(requestUrl.searchParams.get("startIndex")).toBe("2");
     expect(requestUrl.searchParams.get("count")).toBe("50");
     expect(requestUrl.searchParams.get("attributes")).toBe("id,userName");
@@ -76,7 +85,8 @@ describe("IdentityAndAccessManagementClient", () => {
       jsonResponse(undefined, {
         status: 204,
         headers: {
-          get: (name: string) => (name === "Location" ? "/iam/v1/Users/123" : null),
+          get: (name: string) =>
+            name === "Location" ? "/iam/v1/Users/123" : null,
         },
         json: undefined,
         text: async () => "",
@@ -110,7 +120,8 @@ describe("IdentityAndAccessManagementClient", () => {
       jsonResponse(undefined, {
         status: 204,
         headers: {
-          get: (name: string) => (name === "Link" ? "</iam/v1/Groups/abc>; rel=\"self\"" : null),
+          get: (name: string) =>
+            name === "Link" ? '</iam/v1/Groups/abc>; rel="self"' : null,
         },
         json: undefined,
         text: async () => "",
@@ -125,7 +136,7 @@ describe("IdentityAndAccessManagementClient", () => {
     });
 
     expect(result).toEqual({
-      location: "</iam/v1/Groups/abc>; rel=\"self\"",
+      location: '</iam/v1/Groups/abc>; rel="self"',
     });
   });
 
@@ -147,6 +158,8 @@ describe("IdentityAndAccessManagementClient", () => {
         token: "token-123",
         clientInstanceId: "instance-abc",
       }),
-    ).rejects.toThrow("DATEV IAM request failed (500 Internal Server Error): Ups, server error");
+    ).rejects.toThrow(
+      "DATEV IAM request failed (500 Internal Server Error): Ups, server error",
+    );
   });
 });

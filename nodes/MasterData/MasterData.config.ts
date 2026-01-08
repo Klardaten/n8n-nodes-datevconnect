@@ -27,7 +27,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Resource",
       name: "resource",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       options: [
         {
           name: "Addressee",
@@ -84,7 +84,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["client"],
@@ -170,7 +170,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["taxAuthority"],
@@ -190,7 +190,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["relationship"],
@@ -217,7 +217,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["legalForm"],
@@ -237,7 +237,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["corporateStructure"],
@@ -269,7 +269,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["employee"],
@@ -307,7 +307,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["countryCode"],
@@ -327,7 +327,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["clientGroupType"],
@@ -365,7 +365,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["clientCategoryType"],
@@ -403,7 +403,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["bank"],
@@ -423,7 +423,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["areaOfResponsibility"],
@@ -443,7 +443,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       displayName: "Operation",
       name: "operation",
       type: "options",
-						noDataExpression: true,
+      noDataExpression: true,
       displayOptions: {
         show: {
           resource: ["addressee"],
@@ -521,7 +521,19 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "number",
       displayOptions: {
         show: {
-          resource: ["taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
+          resource: [
+            "taxAuthority",
+            "relationship",
+            "legalForm",
+            "corporateStructure",
+            "employee",
+            "countryCode",
+            "clientGroupType",
+            "clientCategoryType",
+            "bank",
+            "areaOfResponsibility",
+            "addressee",
+          ],
           operation: ["getAll", "getDeletionLog"],
         },
       },
@@ -537,7 +549,19 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "number",
       displayOptions: {
         show: {
-          resource: ["taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
+          resource: [
+            "taxAuthority",
+            "relationship",
+            "legalForm",
+            "corporateStructure",
+            "employee",
+            "countryCode",
+            "clientGroupType",
+            "clientCategoryType",
+            "bank",
+            "areaOfResponsibility",
+            "addressee",
+          ],
           operation: ["getAll", "getDeletionLog"],
         },
       },
@@ -553,7 +577,20 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "legalForm", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
+          resource: [
+            "client",
+            "taxAuthority",
+            "relationship",
+            "legalForm",
+            "corporateStructure",
+            "employee",
+            "countryCode",
+            "clientGroupType",
+            "clientCategoryType",
+            "bank",
+            "areaOfResponsibility",
+            "addressee",
+          ],
           operation: [
             "getAll",
             "get",
@@ -575,7 +612,19 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          resource: ["client", "taxAuthority", "relationship", "corporateStructure", "employee", "countryCode", "clientGroupType", "clientCategoryType", "bank", "areaOfResponsibility", "addressee"],
+          resource: [
+            "client",
+            "taxAuthority",
+            "relationship",
+            "corporateStructure",
+            "employee",
+            "countryCode",
+            "clientGroupType",
+            "clientCategoryType",
+            "bank",
+            "areaOfResponsibility",
+            "addressee",
+          ],
           operation: ["getAll", "getDeletionLog", "getTypes"],
         },
       },
@@ -631,7 +680,8 @@ export const masterDataNodeDescription: INodeTypeDescription = {
         minValue: 1,
       },
       default: 0,
-      description: "Optional max-number parameter when letting the API allocate a number",
+      description:
+        "Optional max-number parameter when letting the API allocate a number",
     },
     {
       displayName: "Responsibilities",
@@ -724,7 +774,7 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           value: "austrian",
         },
       ],
-      default: 'german',
+      default: "german",
       description: "Filter legal forms by national law (German or Austrian)",
     },
     {
@@ -829,8 +879,9 @@ export const masterDataNodeDescription: INodeTypeDescription = {
           operation: ["create"],
         },
       },
-      default: 'german',
-      description: "Parameter defines the national law that will be saved with the addressee",
+      default: "german",
+      description:
+        "Parameter defines the national law that will be saved with the addressee",
     },
     {
       displayName: "Expand",
@@ -843,7 +894,8 @@ export const masterDataNodeDescription: INodeTypeDescription = {
         },
       },
       default: "",
-      description: "Parameter to include subordinate objects (e.g., 'detail,addresses' or '*' for all)",
+      description:
+        "Parameter to include subordinate objects (e.g., 'detail,addresses' or '*' for all)",
     },
     {
       displayName: "Client Group Type ID",
@@ -904,7 +956,8 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       name: "clientInstanceId",
       type: "string",
       default: "",
-      description: "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
+      description:
+        "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
     },
   ],
 };

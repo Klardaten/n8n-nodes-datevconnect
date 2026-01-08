@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { describe, expect, test, mock } from "bun:test";
-import { NodeOperationError, type IExecuteFunctions, type INodeExecutionData } from "n8n-workflow";
+import {
+  NodeOperationError,
+  type IExecuteFunctions,
+  type INodeExecutionData,
+} from "n8n-workflow";
 import { BaseResourceHandler } from "../../../../nodes/MasterData/handlers/BaseResourceHandler";
-import type { AuthContext, MasterDataCredentials } from "../../../../nodes/MasterData/types";
+import type {
+  AuthContext,
+  MasterDataCredentials,
+} from "../../../../nodes/MasterData/types";
 
 // Create a concrete implementation for testing the abstract class
 class TestResourceHandler extends BaseResourceHandler {
@@ -18,44 +25,52 @@ class TestResourceHandler extends BaseResourceHandler {
 }
 
 // Mock IExecuteFunctions
-const createMockContext = (overrides: {
-  credentials?: Partial<MasterDataCredentials>;
-  parameters?: Record<string, unknown>;
-  context?: Partial<IExecuteFunctions>;
-} = {}) => ({
-  getCredentials: mock(async () => ({
-    host: "https://api.example.com",
-    email: "user@example.com", 
-    password: "secret",
-    clientInstanceId: "instance-1",
-    ...overrides.credentials,
-  })),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "testParam": "testValue",
-      "emptyParam": "",
-      "numberParam": 42,
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
-  getNode: mock(() => ({ name: "TestNode" })),
-  helpers: {
-    returnJsonArray: mock((data: INodeExecutionData[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: INodeExecutionData[], meta: { itemData: { item: number } }) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+const createMockContext = (
+  overrides: {
+    credentials?: Partial<MasterDataCredentials>;
+    parameters?: Record<string, unknown>;
+    context?: Partial<IExecuteFunctions>;
+  } = {},
+) =>
+  ({
+    getCredentials: mock(async () => ({
+      host: "https://api.example.com",
+      email: "user@example.com",
+      password: "secret",
+      clientInstanceId: "instance-1",
+      ...overrides.credentials,
+    })),
+    getNodeParameter: mock(
+      (name: string, itemIndex: number, defaultValue?: unknown) => {
+        const mockParams: Record<string, unknown> = {
+          testParam: "testValue",
+          emptyParam: "",
+          numberParam: 42,
+          ...overrides.parameters,
+        };
+        return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+      },
     ),
-  },
-  continueOnFail: mock(() => false),
-  ...overrides.context,
-} as unknown as IExecuteFunctions);
+    getNode: mock(() => ({ name: "TestNode" })),
+    helpers: {
+      returnJsonArray: mock((data: INodeExecutionData[]) =>
+        data.map((entry) => ({ json: entry })),
+      ),
+      constructExecutionMetaData: mock(
+        (data: INodeExecutionData[], meta: { itemData: { item: number } }) =>
+          data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
+      ),
+    },
+    continueOnFail: mock(() => false),
+    ...overrides.context,
+  }) as unknown as IExecuteFunctions;
 
 describe("BaseResourceHandler", () => {
   describe("constructor", () => {
     test("initializes with context and itemIndex", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 5);
-      
+
       expect(handler["context"]).toBe(context);
       expect(handler["itemIndex"]).toBe(5);
     });
@@ -65,9 +80,9 @@ describe("BaseResourceHandler", () => {
     test("returns valid credentials", async () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
-      
+
       const credentials = await handler["getCredentials"]();
-      
+
       expect(credentials).toEqual({
         host: "https://api.example.com",
         email: "user@example.com",
@@ -81,9 +96,13 @@ describe("BaseResourceHandler", () => {
       // Override the mock to return null
       context.getCredentials = mock().mockResolvedValue(null);
       const handler = new TestResourceHandler(context as any, 0);
-      
-      await expect(handler["getCredentials"]()).rejects.toThrow(NodeOperationError);
-      await expect(handler["getCredentials"]()).rejects.toThrow("DATEVconnect credentials are missing");
+
+      await expect(handler["getCredentials"]()).rejects.toThrow(
+        NodeOperationError,
+      );
+      await expect(handler["getCredentials"]()).rejects.toThrow(
+        "DATEVconnect credentials are missing",
+      );
     });
 
     test("throws NodeOperationError when credential fields are missing", async () => {
@@ -96,9 +115,13 @@ describe("BaseResourceHandler", () => {
         },
       });
       const handler = new TestResourceHandler(context as any, 0);
-      
-      await expect(handler["getCredentials"]()).rejects.toThrow(NodeOperationError);
-      await expect(handler["getCredentials"]()).rejects.toThrow("All DATEVconnect credential fields must be provided");
+
+      await expect(handler["getCredentials"]()).rejects.toThrow(
+        NodeOperationError,
+      );
+      await expect(handler["getCredentials"]()).rejects.toThrow(
+        "All DATEVconnect credential fields must be provided",
+      );
     });
   });
 
@@ -106,16 +129,19 @@ describe("BaseResourceHandler", () => {
     test("creates auth context from credentials and token", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
-      
+
       const credentials: MasterDataCredentials = {
         host: "https://api.example.com",
         email: "user@example.com",
         password: "secret",
         clientInstanceId: "instance-1",
       };
-      
-      const authContext = handler["createAuthContext"](credentials, "test-token");
-      
+
+      const authContext = handler["createAuthContext"](
+        credentials,
+        "test-token",
+      );
+
       expect(authContext).toEqual({
         host: "https://api.example.com",
         token: "test-token",
@@ -130,7 +156,7 @@ describe("BaseResourceHandler", () => {
         parameters: { testParam: "value", emptyParam: "" },
       });
       const handler = new TestResourceHandler(context as any, 0);
-      
+
       expect(handler["getOptionalString"]("testParam")).toBe("value");
       expect(handler["getOptionalString"]("emptyParam")).toBeUndefined();
       expect(handler["getOptionalString"]("nonexistent")).toBeUndefined();
@@ -141,10 +167,14 @@ describe("BaseResourceHandler", () => {
         parameters: { testParam: "value", emptyParam: "" },
       });
       const handler = new TestResourceHandler(context as any, 0);
-      
+
       expect(handler["getRequiredString"]("testParam")).toBe("value");
-      expect(() => handler["getRequiredString"]("emptyParam")).toThrow(NodeOperationError);
-      expect(() => handler["getRequiredString"]("nonexistent")).toThrow(NodeOperationError);
+      expect(() => handler["getRequiredString"]("emptyParam")).toThrow(
+        NodeOperationError,
+      );
+      expect(() => handler["getRequiredString"]("nonexistent")).toThrow(
+        NodeOperationError,
+      );
     });
 
     test("getNumberParameter returns number or default", () => {
@@ -152,7 +182,7 @@ describe("BaseResourceHandler", () => {
         parameters: { numberParam: 42 },
       });
       const handler = new TestResourceHandler(context as any, 0);
-      
+
       expect(handler["getNumberParameter"]("numberParam", 10)).toBe(42);
       expect(handler["getNumberParameter"]("nonexistent", 10)).toBe(10);
     });
@@ -160,11 +190,19 @@ describe("BaseResourceHandler", () => {
     test("parseJsonParameter parses JSON or returns value", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
-      
-      expect(handler["parseJsonParameter"]('{"key":"value"}', "Test")).toEqual({ key: "value" });
-      expect(handler["parseJsonParameter"]({ key: "value" }, "Test")).toEqual({ key: "value" });
-      expect(() => handler["parseJsonParameter"]('invalid json', "Test")).toThrow(NodeOperationError);
-      expect(() => handler["parseJsonParameter"](null, "Test")).toThrow(NodeOperationError);
+
+      expect(handler["parseJsonParameter"]('{"key":"value"}', "Test")).toEqual({
+        key: "value",
+      });
+      expect(handler["parseJsonParameter"]({ key: "value" }, "Test")).toEqual({
+        key: "value",
+      });
+      expect(() =>
+        handler["parseJsonParameter"]("invalid json", "Test"),
+      ).toThrow(NodeOperationError);
+      expect(() => handler["parseJsonParameter"](null, "Test")).toThrow(
+        NodeOperationError,
+      );
     });
   });
 
@@ -173,10 +211,10 @@ describe("BaseResourceHandler", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
       const returnData: any[] = [];
-      
+
       const sendSuccess = handler["createSendSuccess"](returnData);
       sendSuccess({ test: "data" });
-      
+
       expect(returnData).toHaveLength(1);
       expect(returnData[0]).toEqual({
         json: { test: "data" },
@@ -188,10 +226,10 @@ describe("BaseResourceHandler", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
       const returnData: any[] = [];
-      
+
       const sendSuccess = handler["createSendSuccess"](returnData);
       sendSuccess();
-      
+
       expect(returnData[0].json).toEqual({ success: true });
     });
   });
@@ -203,9 +241,9 @@ describe("BaseResourceHandler", () => {
       });
       const handler = new TestResourceHandler(context as any, 0);
       const returnData: any[] = [];
-      
+
       handler["handleError"](new Error("Test error"), returnData);
-      
+
       expect(returnData).toHaveLength(1);
       expect(returnData[0]).toEqual({
         json: { error: "Test error" },
@@ -217,7 +255,7 @@ describe("BaseResourceHandler", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
       const returnData: any[] = [];
-      
+
       expect(() => {
         handler["handleError"](new Error("Test error"), returnData);
       }).toThrow();
@@ -234,9 +272,9 @@ describe("BaseResourceHandler", () => {
         token: "test-token",
         clientInstanceId: "instance-1",
       };
-      
+
       await handler.execute("testOp", authContext, returnData);
-      
+
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
         operation: "testOp",

@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type AccountingSumsAndBalancesOperation = "getAll" | "get";
 
-
 /**
  * Handler for Accounting Sums and Balances operations
  * Manages operations related to accounting balance sheet and P&L data
@@ -19,7 +18,7 @@ export class AccountingSumsAndBalancesResourceHandler extends BaseResourceHandle
   async execute(
     operation: AccountingSumsAndBalancesOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -29,22 +28,30 @@ export class AccountingSumsAndBalancesResourceHandler extends BaseResourceHandle
         await this.handleGet(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const sumsAndBalances = await datevConnectClient.accounting.getAccountingSumsAndBalances(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const sumsAndBalances =
+        await datevConnectClient.accounting.getAccountingSumsAndBalances(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(sumsAndBalances);
     } catch (error) {
@@ -52,16 +59,22 @@ export class AccountingSumsAndBalancesResourceHandler extends BaseResourceHandle
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
-      const accountingSumsAndBalancesId = this.getRequiredString("accountingSumsAndBalancesId");
-      const sumsAndBalances = await datevConnectClient.accounting.getAccountingSumsAndBalance(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        accountingSumsAndBalancesId,
+      const accountingSumsAndBalancesId = this.getRequiredString(
+        "accountingSumsAndBalancesId",
       );
-      
+      const sumsAndBalances =
+        await datevConnectClient.accounting.getAccountingSumsAndBalance(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          accountingSumsAndBalancesId,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(sumsAndBalances);
     } catch (error) {

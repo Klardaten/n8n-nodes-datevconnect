@@ -51,7 +51,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
       default:
         throw new NodeOperationError(
           this.context.getNode(),
-          `The operation "${operation}" is not supported for documents`
+          `The operation "${operation}" is not supported for documents`,
         );
     }
   }
@@ -243,13 +243,15 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentId = this.getRequiredString("documentId");
     const dispatcherData = this.getRequiredJsonData("dispatcherData");
 
-    const response = await DocumentManagementClient.createDispatcherInformation({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
-      documentId,
-      dispatcherInformation: dispatcherData,
-    });
+    const response = await DocumentManagementClient.createDispatcherInformation(
+      {
+        host: authContext.host,
+        token: authContext.token,
+        clientInstanceId: authContext.clientInstanceId,
+        documentId,
+        dispatcherInformation: dispatcherData,
+      },
+    );
 
     sendSuccess(response);
   }

@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountingSequenceResourceHandler } from "../../../../nodes/Accounting/handlers/AccountingSequenceResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -17,14 +25,14 @@ const mockAccountingSequenceData = [
     id: "seq-123",
     name: "Test Sequence 1",
     status: "active",
-    created_date: "2023-01-01"
+    created_date: "2023-01-01",
   },
   {
     id: "seq-456",
-    name: "Test Sequence 2", 
+    name: "Test Sequence 2",
     status: "completed",
-    created_date: "2023-01-02"
-  }
+    created_date: "2023-01-02",
+  },
 ];
 
 const mockSingleAccountingSequence = {
@@ -32,37 +40,37 @@ const mockSingleAccountingSequence = {
   name: "Test Sequence",
   status: "active",
   created_date: "2023-01-01",
-  description: "Test accounting sequence"
+  description: "Test accounting sequence",
 };
 
 const mockAccountingRecordsData = [
   {
     id: "record-123",
     sequence_id: "seq-123",
-    amount: 1000.00,
-    account: "1200"
+    amount: 1000.0,
+    account: "1200",
   },
   {
     id: "record-456",
     sequence_id: "seq-123",
-    amount: 500.50,
-    account: "4000"
-  }
+    amount: 500.5,
+    account: "4000",
+  },
 ];
 
 const mockSingleAccountingRecord = {
   id: "record-123",
   sequence_id: "seq-123",
-  amount: 1000.00,
+  amount: 1000.0,
   account: "1200",
-  description: "Test accounting record"
+  description: "Test accounting record",
 };
 
 const mockCreatedSequence = {
   id: "seq-new",
   name: "New Sequence",
   status: "created",
-  created_date: "2023-01-15"
+  created_date: "2023-01-15",
 };
 
 // Mock IExecuteFunctions
@@ -74,25 +82,29 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "accountingSequenceId": "seq-123",
-      "accountingRecordId": "record-123",
-      "accountingSequenceData": '{"name": "Test Sequence", "status": "active"}',
-      "top": 50,
-      "skip": 10,
-      "select": "id,name,status",
-      "filter": "status eq active",
-      "expand": "relationships",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        accountingSequenceId: "seq-123",
+        accountingRecordId: "record-123",
+        accountingSequenceData: '{"name": "Test Sequence", "status": "active"}',
+        top: 50,
+        skip: 10,
+        select: "id,name,status",
+        filter: "status eq active",
+        expand: "relationships",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -104,16 +116,31 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountingSequenceResourceHandler", () => {
   beforeEach(() => {
-    createAccountingSequenceSpy = spyOn(datevConnectClient.accounting, "createAccountingSequence").mockResolvedValue(mockCreatedSequence);
-    getAccountingSequencesSpy = spyOn(datevConnectClient.accounting, "getAccountingSequences").mockResolvedValue(mockAccountingSequenceData);
-    getAccountingSequenceSpy = spyOn(datevConnectClient.accounting, "getAccountingSequence").mockResolvedValue(mockSingleAccountingSequence);
-    getAccountingRecordsSpy = spyOn(datevConnectClient.accounting, "getAccountingRecords").mockResolvedValue(mockAccountingRecordsData);
-    getAccountingRecordSpy = spyOn(datevConnectClient.accounting, "getAccountingRecord").mockResolvedValue(mockSingleAccountingRecord);
+    createAccountingSequenceSpy = spyOn(
+      datevConnectClient.accounting,
+      "createAccountingSequence",
+    ).mockResolvedValue(mockCreatedSequence);
+    getAccountingSequencesSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingSequences",
+    ).mockResolvedValue(mockAccountingSequenceData);
+    getAccountingSequenceSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingSequence",
+    ).mockResolvedValue(mockSingleAccountingSequence);
+    getAccountingRecordsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingRecords",
+    ).mockResolvedValue(mockAccountingRecordsData);
+    getAccountingRecordSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingRecord",
+    ).mockResolvedValue(mockSingleAccountingRecord);
   });
 
   afterEach(() => {
@@ -133,10 +160,10 @@ describe("AccountingSequenceResourceHandler", () => {
       await handler.execute("create", mockAuthContext, returnData);
 
       expect(createAccountingSequenceSpy).toHaveBeenCalledWith(
-        context, 
-        "client-123", 
+        context,
+        "client-123",
         "2023",
-        { name: "Test Sequence", status: "active" }
+        { name: "Test Sequence", status: "active" },
       );
 
       expect(returnData).toHaveLength(1);
@@ -157,25 +184,25 @@ describe("AccountingSequenceResourceHandler", () => {
 
     test("throws error for invalid JSON data", async () => {
       const context = createMockContext({
-        parameters: { accountingSequenceData: "invalid json" }
+        parameters: { accountingSequenceData: "invalid json" },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
     test("throws error for array data", async () => {
       const context = createMockContext({
-        parameters: { accountingSequenceData: '["array", "data"]' }
+        parameters: { accountingSequenceData: '["array", "data"]' },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Accounting sequence data must be a valid JSON object");
     });
   });
@@ -188,14 +215,18 @@ describe("AccountingSequenceResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingSequencesSpy).toHaveBeenCalledWith(context, "client-123", "2023");
+      expect(getAccountingSequencesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+      );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
         id: "seq-123",
         name: "Test Sequence 1",
         status: "active",
-        created_date: "2023-01-01"
+        created_date: "2023-01-01",
       });
     });
 
@@ -220,10 +251,10 @@ describe("AccountingSequenceResourceHandler", () => {
       await handler.execute("get", mockAuthContext, returnData);
 
       expect(getAccountingSequenceSpy).toHaveBeenCalledWith(
-        context, 
-        "client-123", 
-        "2023", 
-        "seq-123"
+        context,
+        "client-123",
+        "2023",
+        "seq-123",
       );
 
       expect(returnData).toHaveLength(1);
@@ -249,28 +280,32 @@ describe("AccountingSequenceResourceHandler", () => {
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await handler.execute("getAccountingRecords", mockAuthContext, returnData);
+      await handler.execute(
+        "getAccountingRecords",
+        mockAuthContext,
+        returnData,
+      );
 
       expect(getAccountingRecordsSpy).toHaveBeenCalledWith(
-        context, 
-        "client-123", 
-        "2023", 
+        context,
+        "client-123",
+        "2023",
         "seq-123",
         {
           top: 50,
           skip: 10,
           select: "id,name,status",
           filter: "status eq active",
-          expand: "relationships"
-        }
+          expand: "relationships",
+        },
       );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
         id: "record-123",
         sequence_id: "seq-123",
-        amount: 1000.00,
-        account: "1200"
+        amount: 1000.0,
+        account: "1200",
       });
     });
 
@@ -280,7 +315,11 @@ describe("AccountingSequenceResourceHandler", () => {
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await handler.execute("getAccountingRecords", mockAuthContext, returnData);
+      await handler.execute(
+        "getAccountingRecords",
+        mockAuthContext,
+        returnData,
+      );
 
       expect(returnData).toHaveLength(0);
     });
@@ -295,9 +334,9 @@ describe("AccountingSequenceResourceHandler", () => {
       await handler.execute("getAccountingRecord", mockAuthContext, returnData);
 
       expect(getAccountingRecordSpy).toHaveBeenCalledWith(
-        context, 
-        "client-123", 
-        "2023", 
+        context,
+        "client-123",
+        "2023",
         "seq-123",
         "record-123",
         {
@@ -305,8 +344,8 @@ describe("AccountingSequenceResourceHandler", () => {
           skip: 10,
           select: "id,name,status",
           filter: "status eq active",
-          expand: "relationships"
-        }
+          expand: "relationships",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -333,18 +372,24 @@ describe("AccountingSequenceResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "accountingSequence".');
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "accountingSequence".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getAccountingSequencesSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -361,7 +406,7 @@ describe("AccountingSequenceResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
   });
@@ -377,7 +422,7 @@ describe("AccountingSequenceResourceHandler", () => {
       expect(getAccountingSequencesSpy).toHaveBeenCalledWith(
         context,
         expect.any(String),
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -395,10 +440,10 @@ describe("AccountingSequenceResourceHandler", () => {
       getAccountingSequencesSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingSequenceResourceHandler(context, 5);
       const returnData: any[] = [];
 
@@ -411,7 +456,7 @@ describe("AccountingSequenceResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves accountingSequenceId parameter", async () => {
       const context = createMockContext({
-        parameters: { accountingSequenceId: "test-seq-id" }
+        parameters: { accountingSequenceId: "test-seq-id" },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -422,16 +467,16 @@ describe("AccountingSequenceResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        "test-seq-id"
+        "test-seq-id",
       );
     });
 
     test("correctly retrieves accountingRecordId parameter", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           accountingSequenceId: "test-seq-id",
-          accountingRecordId: "test-record-id"
-        }
+          accountingRecordId: "test-record-id",
+        },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -444,14 +489,18 @@ describe("AccountingSequenceResourceHandler", () => {
         "2023",
         "test-seq-id",
         "test-record-id",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly parses JSON accountingSequenceData parameter", async () => {
-      const testData = { name: "Custom Sequence", status: "pending", priority: 1 };
+      const testData = {
+        name: "Custom Sequence",
+        status: "pending",
+        priority: 1,
+      };
       const context = createMockContext({
-        parameters: { accountingSequenceData: JSON.stringify(testData) }
+        parameters: { accountingSequenceData: JSON.stringify(testData) },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -462,35 +511,39 @@ describe("AccountingSequenceResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        testData
+        testData,
       );
     });
 
     test("correctly retrieves query parameters for records operations", async () => {
       const context = createMockContext({
-        parameters: { 
-          top: 25, 
+        parameters: {
+          top: 25,
           skip: 5,
           select: "id,amount",
-          filter: "amount gt 1000"
-        }
+          filter: "amount gt 1000",
+        },
       });
       const handler = new AccountingSequenceResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await handler.execute("getAccountingRecords", mockAuthContext, returnData);
+      await handler.execute(
+        "getAccountingRecords",
+        mockAuthContext,
+        returnData,
+      );
 
       expect(getAccountingRecordsSpy).toHaveBeenCalledWith(
         context,
         "client-123",
         "2023",
         "seq-123",
-        expect.objectContaining({ 
-          top: 25, 
+        expect.objectContaining({
+          top: 25,
           skip: 5,
           select: "id,amount",
-          filter: "amount gt 1000"
-        })
+          filter: "amount gt 1000",
+        }),
       );
     });
   });

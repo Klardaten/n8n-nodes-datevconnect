@@ -76,9 +76,17 @@ export class EmployeeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleCreate(authContext: AuthContext): Promise<JsonValue | undefined> {
-    const rawEmployee = this.context.getNodeParameter("employeeData", this.itemIndex);
-    const employeePayload = this.parseJsonParameter(rawEmployee, "Employee Data");
+  private async handleCreate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
+    const rawEmployee = this.context.getNodeParameter(
+      "employeeData",
+      this.itemIndex,
+    );
+    const employeePayload = this.parseJsonParameter(
+      rawEmployee,
+      "Employee Data",
+    );
 
     return await createEmployee({
       ...authContext,
@@ -86,10 +94,18 @@ export class EmployeeResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleUpdate(authContext: AuthContext): Promise<JsonValue | undefined> {
+  private async handleUpdate(
+    authContext: AuthContext,
+  ): Promise<JsonValue | undefined> {
     const employeeId = this.getRequiredString("employeeId");
-    const rawEmployee = this.context.getNodeParameter("employeeData", this.itemIndex);
-    const employeePayload = this.parseJsonParameter(rawEmployee, "Employee Data");
+    const rawEmployee = this.context.getNodeParameter(
+      "employeeData",
+      this.itemIndex,
+    );
+    const employeePayload = this.parseJsonParameter(
+      rawEmployee,
+      "Employee Data",
+    );
 
     return await updateEmployee({
       ...authContext,

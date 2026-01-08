@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("IndividualReference1ResourceHandler", () => {
@@ -21,37 +21,54 @@ describe("IndividualReference1ResourceHandler", () => {
       getNode: mock(() => ({ type: "test-node" })),
       getCredentials: mock(() => null),
     };
-    individualReference1ResourceHandler = new IndividualReference1ResourceHandler(mockContext, 0);
+    individualReference1ResourceHandler =
+      new IndividualReference1ResourceHandler(mockContext, 0);
 
     // Mock the DocumentManagementClient methods
-    spyOn(DocumentManagementClient, "fetchIndividualReferences1").mockResolvedValue([
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualReferences1",
+    ).mockResolvedValue([
       { id: 1, name: "Reference 1", correspondence_partner_guid: null },
-      { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" }
+      { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" },
     ]);
 
-    spyOn(DocumentManagementClient, "createIndividualReference1").mockResolvedValue([
-      { id: 3, name: "Test Reference", correspondence_partner_guid: "guid-456" }
+    spyOn(
+      DocumentManagementClient,
+      "createIndividualReference1",
+    ).mockResolvedValue([
+      {
+        id: 3,
+        name: "Test Reference",
+        correspondence_partner_guid: "guid-456",
+      },
     ]);
   });
 
   test("getAll operation fetches individual references 1", async () => {
     const returnData: any[] = [];
-    await individualReference1ResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualReference1ResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(2);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 1,
       name: "Reference 1",
-      correspondence_partner_guid: null
+      correspondence_partner_guid: null,
     });
     expect(returnData[1].json).toEqual({
       success: true,
       id: 2,
       name: "Reference 2",
-      correspondence_partner_guid: "guid-123"
+      correspondence_partner_guid: "guid-123",
     });
-    expect(DocumentManagementClient.fetchIndividualReferences1).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.fetchIndividualReferences1,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -70,16 +87,22 @@ describe("IndividualReference1ResourceHandler", () => {
     });
 
     const returnData: any[] = [];
-    await individualReference1ResourceHandler.execute("create", mockAuthContext, returnData);
+    await individualReference1ResourceHandler.execute(
+      "create",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 3,
       name: "Test Reference",
-      correspondence_partner_guid: "guid-456"
+      correspondence_partner_guid: "guid-456",
     });
-    expect(DocumentManagementClient.createIndividualReference1).toHaveBeenCalledWith({
+    expect(
+      DocumentManagementClient.createIndividualReference1,
+    ).toHaveBeenCalledWith({
       host: "localhost",
       token: "test-token",
       clientInstanceId: "test-client-id",
@@ -89,10 +112,17 @@ describe("IndividualReference1ResourceHandler", () => {
 
   test("handles API errors gracefully when continueOnFail is true", async () => {
     mockContext.continueOnFail.mockReturnValue(true);
-    spyOn(DocumentManagementClient, "fetchIndividualReferences1").mockRejectedValue(new Error("API Error"));
+    spyOn(
+      DocumentManagementClient,
+      "fetchIndividualReferences1",
+    ).mockRejectedValue(new Error("API Error"));
 
     const returnData: any[] = [];
-    await individualReference1ResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await individualReference1ResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({

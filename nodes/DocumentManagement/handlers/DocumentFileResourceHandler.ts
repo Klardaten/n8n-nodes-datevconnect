@@ -1,4 +1,9 @@
-import { NodeOperationError, type IBinaryData, type INodeExecutionData, type IDataObject } from "n8n-workflow";
+import {
+  NodeOperationError,
+  type IBinaryData,
+  type INodeExecutionData,
+  type IDataObject,
+} from "n8n-workflow";
 import type { JsonValue } from "../../../src/services/datevConnectClient";
 import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
@@ -7,11 +12,11 @@ import { normaliseToObjects, toErrorMessage } from "../utils";
 
 /**
  * Handler for document file operations
- * 
+ *
  * IMPORTANT: This handler deals with binary file transfers that require special headers:
  * - GET /document-files/{file-id}: Returns application/octet-stream binary data
  * - POST /document-files: Accepts application/octet-stream binary data
- * 
+ *
  * The DATEV Document Management API uses octet-stream for all file operations
  * as specified in the document management-2.3.1.yaml specification.
  */
@@ -34,27 +39,26 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
         case "get":
           await this.getDocumentFileBinary(authContext, returnData);
           break;
-        case "upload":
-          {
-            // Use the standard base handler for upload operations
-            const sendSuccess: SendSuccessFunction = (payload?: JsonValue) => {
-              const data = payload ? normaliseToObjects(payload) : [{}];
-              data.forEach((item: IDataObject) => {
-                returnData.push({
-                  json: {
-                    success: true,
-                    ...item,
-                  },
-                });
+        case "upload": {
+          // Use the standard base handler for upload operations
+          const sendSuccess: SendSuccessFunction = (payload?: JsonValue) => {
+            const data = payload ? normaliseToObjects(payload) : [{}];
+            data.forEach((item: IDataObject) => {
+              returnData.push({
+                json: {
+                  success: true,
+                  ...item,
+                },
               });
-            };
-            await this.uploadDocumentFile(authContext, sendSuccess);
-            break;
-          }
+            });
+          };
+          await this.uploadDocumentFile(authContext, sendSuccess);
+          break;
+        }
         default:
           throw new NodeOperationError(
             this.context.getNode(),
-            `The operation "${operation}" is not supported for document files`
+            `The operation "${operation}" is not supported for document files`,
           );
       }
     } catch (error) {
@@ -94,11 +98,12 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
 
     // Handle binary response - return as actual binary data
     const binaryData = await response.arrayBuffer();
-    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    const contentType =
+      response.headers.get("content-type") || "application/octet-stream";
 
     // Create binary data object for n8n
     const binaryDataObject: IBinaryData = {
-      data: Buffer.from(binaryData).toString('base64'),
+      data: Buffer.from(binaryData).toString("base64"),
       mimeType: contentType,
       fileName: documentFileId, // Use the file ID as filename
       fileSize: binaryData.byteLength.toString(),
@@ -124,14 +129,14 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const bufferData = await this.context.helpers.getBinaryDataBuffer(
       this.itemIndex,
-      'data'
+      "data",
     );
 
     if (!bufferData || bufferData.length === 0) {
       throw new NodeOperationError(
         this.context.getNode(),
         "No binary data found. Please provide binary data through the 'data' binary property.",
-        { itemIndex: this.itemIndex }
+        { itemIndex: this.itemIndex },
       );
     }
 

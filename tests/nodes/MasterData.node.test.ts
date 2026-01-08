@@ -85,7 +85,10 @@ function createExecuteContext(options: ExecuteContextOptions = {}) {
 
 describe("MasterData node integration", () => {
   beforeEach(() => {
-    authenticateSpy = spyOn(datevConnectClientModule, "authenticate").mockResolvedValue({
+    authenticateSpy = spyOn(
+      datevConnectClientModule,
+      "authenticate",
+    ).mockResolvedValue({
       access_token: "test-token-123",
     });
   });
@@ -107,7 +110,7 @@ describe("MasterData node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeOperationError);
     });
 
@@ -118,7 +121,7 @@ describe("MasterData node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow("DATEVconnect credentials are missing");
     });
   });
@@ -135,9 +138,18 @@ describe("MasterData node integration", () => {
       });
 
       // Mock all the handler operations
-      const clientHandlerSpy = spyOn(ClientResourceHandler.prototype, "execute").mockResolvedValue();
-      const taxAuthorityHandlerSpy = spyOn(TaxAuthorityResourceHandler.prototype, "execute").mockResolvedValue();
-      const relationshipHandlerSpy = spyOn(RelationshipResourceHandler.prototype, "execute").mockResolvedValue();
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const taxAuthorityHandlerSpy = spyOn(
+        TaxAuthorityResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const relationshipHandlerSpy = spyOn(
+        RelationshipResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       await node.execute.call(context as unknown as IExecuteFunctions);
 
@@ -156,7 +168,7 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         },
-        expect.any(Array)
+        expect.any(Array),
       );
 
       clientHandlerSpy.mockRestore();
@@ -171,14 +183,17 @@ describe("MasterData node integration", () => {
       const context = createExecuteContext();
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeApiError);
     });
   });
 
   describe("resource handler orchestration", () => {
     test("creates correct handler for client resource", async () => {
-      const clientHandlerSpy = spyOn(ClientResourceHandler.prototype, "execute").mockResolvedValue();
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -197,14 +212,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       clientHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for taxAuthority resource", async () => {
-      const taxAuthorityHandlerSpy = spyOn(TaxAuthorityResourceHandler.prototype, "execute").mockResolvedValue();
+      const taxAuthorityHandlerSpy = spyOn(
+        TaxAuthorityResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -223,14 +241,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       taxAuthorityHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for relationship resource", async () => {
-      const relationshipHandlerSpy = spyOn(RelationshipResourceHandler.prototype, "execute").mockResolvedValue();
+      const relationshipHandlerSpy = spyOn(
+        RelationshipResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -249,14 +270,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       relationshipHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for employee resource", async () => {
-      const employeeHandlerSpy = spyOn(EmployeeResourceHandler.prototype, "execute").mockResolvedValue();
+      const employeeHandlerSpy = spyOn(
+        EmployeeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -275,14 +299,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       employeeHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for countryCode resource", async () => {
-      const countryCodeHandlerSpy = spyOn(CountryCodeResourceHandler.prototype, "execute").mockResolvedValue();
+      const countryCodeHandlerSpy = spyOn(
+        CountryCodeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -301,14 +328,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       countryCodeHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for clientGroupType resource", async () => {
-      const clientGroupTypeHandlerSpy = spyOn(ClientGroupTypeResourceHandler.prototype, "execute").mockResolvedValue();
+      const clientGroupTypeHandlerSpy = spyOn(
+        ClientGroupTypeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -327,7 +357,7 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       clientGroupTypeHandlerSpy.mockRestore();
@@ -343,15 +373,21 @@ describe("MasterData node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow('The resource "invalidResource" is not supported.');
     });
   });
 
   describe("multi-item processing", () => {
     test("processes each input item with its own parameters", async () => {
-      const clientHandlerSpy = spyOn(ClientResourceHandler.prototype, "execute").mockResolvedValue();
-      const taxAuthorityHandlerSpy = spyOn(TaxAuthorityResourceHandler.prototype, "execute").mockResolvedValue();
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const taxAuthorityHandlerSpy = spyOn(
+        TaxAuthorityResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -373,16 +409,18 @@ describe("MasterData node integration", () => {
 
     test("returns combined results from all handlers", async () => {
       // Mock handlers to add data to returnData array
-      const clientHandlerSpy = spyOn(ClientResourceHandler.prototype, "execute").mockImplementation(
-        async function(operation, authContext, returnData) {
-          returnData.push({ json: { resource: "client", operation } });
-        }
-      );
-      const taxAuthorityHandlerSpy = spyOn(TaxAuthorityResourceHandler.prototype, "execute").mockImplementation(
-        async function(operation, authContext, returnData) {
-          returnData.push({ json: { resource: "taxAuthority", operation } });
-        }
-      );
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockImplementation(async function (operation, authContext, returnData) {
+        returnData.push({ json: { resource: "client", operation } });
+      });
+      const taxAuthorityHandlerSpy = spyOn(
+        TaxAuthorityResourceHandler.prototype,
+        "execute",
+      ).mockImplementation(async function (operation, authContext, returnData) {
+        returnData.push({ json: { resource: "taxAuthority", operation } });
+      });
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -393,19 +431,30 @@ describe("MasterData node integration", () => {
         },
       });
 
-      const result = await node.execute.call(context as unknown as IExecuteFunctions);
+      const result = await node.execute.call(
+        context as unknown as IExecuteFunctions,
+      );
 
       expect(result).toHaveLength(1); // Returns array of arrays
       expect(result[0]).toHaveLength(2); // Two results
-      expect(result[0][0].json).toEqual({ resource: "client", operation: "getAll" });
-      expect(result[0][1].json).toEqual({ resource: "taxAuthority", operation: "getAll" });
+      expect(result[0][0].json).toEqual({
+        resource: "client",
+        operation: "getAll",
+      });
+      expect(result[0][1].json).toEqual({
+        resource: "taxAuthority",
+        operation: "getAll",
+      });
 
       clientHandlerSpy.mockRestore();
       taxAuthorityHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for clientCategoryType resource", async () => {
-      const clientCategoryTypeHandlerSpy = spyOn(ClientCategoryTypeResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+      const clientCategoryTypeHandlerSpy = spyOn(
+        ClientCategoryTypeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(undefined);
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -424,14 +473,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       clientCategoryTypeHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for bank resource", async () => {
-      const bankHandlerSpy = spyOn(BankResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+      const bankHandlerSpy = spyOn(
+        BankResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(undefined);
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -450,14 +502,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       bankHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for areaOfResponsibility resource", async () => {
-      const areaOfResponsibilityHandlerSpy = spyOn(AreaOfResponsibilityResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+      const areaOfResponsibilityHandlerSpy = spyOn(
+        AreaOfResponsibilityResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(undefined);
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -476,14 +531,17 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       areaOfResponsibilityHandlerSpy.mockRestore();
     });
 
     test("creates correct handler for addressee resource", async () => {
-      const addresseeHandlerSpy = spyOn(AddresseeResourceHandler.prototype, "execute").mockResolvedValue(undefined);
+      const addresseeHandlerSpy = spyOn(
+        AddresseeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(undefined);
 
       const node = new MasterData();
       const context = createExecuteContext({
@@ -502,7 +560,7 @@ describe("MasterData node integration", () => {
           token: "test-token-123",
           clientInstanceId: "instance-1",
         }),
-        expect.any(Array)
+        expect.any(Array),
       );
 
       addresseeHandlerSpy.mockRestore();
