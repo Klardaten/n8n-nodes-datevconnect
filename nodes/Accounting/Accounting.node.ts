@@ -113,12 +113,14 @@ export class Accounting implements INodeType {
         // Get resource and operation from node parameters
         const resource = this.getNodeParameter("resource", itemIndex) as string;
         const operation = this.getNodeParameter("operation", itemIndex) as string;
+        const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
+        const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
 
         // Create request context with auth data and operation parameters
-        const requestContext: RequestContext = { 
-          host, 
-          token, 
-          clientInstanceId,
+        const requestContext: RequestContext = {
+          host,
+          token,
+          clientInstanceId: effectiveClientInstanceId,
           httpHelper: this.helpers.httpRequest,
         };
 

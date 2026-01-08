@@ -1393,5 +1393,13 @@ export const accountingNodeDescription: INodeTypeDescription = {
       default: "{}",
       description: "Various address data to send to the API",
     },
+    {
+      displayName: "Client Instance ID",
+      name: "clientInstanceId",
+      type: "string",
+      default: "",
+      description:
+        "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
+    },
   ],
 };
