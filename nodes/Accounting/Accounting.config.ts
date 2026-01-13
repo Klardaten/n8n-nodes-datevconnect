@@ -1202,6 +1202,9 @@ export const accountingNodeDescription: INodeTypeDescription = {
             "getDebitors", "getCreditors", "getUtilized"
           ],
         },
+        hide: {
+          resource: ["accountPosting"],
+        },
       },
       typeOptions: {
         minValue: 1,
@@ -1220,6 +1223,9 @@ export const accountingNodeDescription: INodeTypeDescription = {
             "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
             "getDebitors", "getCreditors", "getUtilized"
           ],
+        },
+        hide: {
+          resource: ["accountPosting"],
         },
       },
       typeOptions: {
@@ -1267,8 +1273,8 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          operation: ["get", "getDebitor", "getCreditor", "getDebitors", "getCreditors"],
-          resource: ["client", "accountsReceivable", "accountsPayable", "variousAddresses", "businessPartners"],
+          operation: ["get", "getAll", "getDebitor", "getCreditor", "getDebitors", "getCreditors"],
+          resource: ["client", "accountsReceivable", "accountsPayable", "variousAddresses", "businessPartners", "accountPosting"],
         },
       },
       default: "",

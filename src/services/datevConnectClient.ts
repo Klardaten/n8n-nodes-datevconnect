@@ -1114,8 +1114,7 @@ export interface FetchAccountPostingsOptions extends BaseRequestOptions {
   fiscalYearId: string;
   select?: string;
   filter?: string;
-  top?: number;
-  skip?: number;
+  expand?: string;
 }
 
 export interface FetchAccountPostingOptions extends BaseRequestOptions {
@@ -1123,6 +1122,7 @@ export interface FetchAccountPostingOptions extends BaseRequestOptions {
   fiscalYearId: string;
   accountPostingId: string;
   select?: string;
+  expand?: string;
 }
 
 export interface FetchAccountingSequencesOptions extends BaseRequestOptions {
@@ -1795,18 +1795,18 @@ export async function fetchAccountPayable(options: FetchAccountPayableOptions): 
 }
 
 export async function fetchAccountPostings(options: FetchAccountPostingsOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select, filter, top, skip } = options;
+  const { clientId, fiscalYearId, select, filter, expand } = options;
+
+  const query: Record<string, string> = {};
+  if (select) query.select = select;
+  if (filter) query.filter = filter;
+  if (expand) query.expand = expand;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/account-postings`,
     method: "GET",
-    query: {
-      select: select,
-      filter: filter,
-      top: top,
-      skip: skip,
-    },
+    query,
   });
 
   if (body === undefined) {
@@ -1817,15 +1817,17 @@ export async function fetchAccountPostings(options: FetchAccountPostingsOptions)
 }
 
 export async function fetchAccountPosting(options: FetchAccountPostingOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, accountPostingId, select } = options;
+  const { clientId, fiscalYearId, accountPostingId, select, expand } = options;
+
+  const query: Record<string, string> = {};
+  if (select) query.select = select;
+  if (expand) query.expand = expand;
 
   const body = await sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/account-postings/${encodeURIComponent(accountPostingId)}`,
     method: "GET",
-    query: {
-      select: select,
-    },
+    query,
   });
 
   if (body === undefined) {

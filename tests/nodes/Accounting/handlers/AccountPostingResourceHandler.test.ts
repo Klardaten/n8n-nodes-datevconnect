@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountPostingResourceHandler } from "../../../../nodes/Accounting/handlers/AccountPostingResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -17,7 +25,7 @@ const mockAccountPostingData = [
     currency_code: "EUR",
     date: "2024-02-29T00:00:00+01:00",
     document_field1: "G-1295",
-    document_field2: "020224"
+    document_field2: "020224",
   },
   {
     id: "5318112",
@@ -25,14 +33,14 @@ const mockAccountPostingData = [
     accounting_reason: "independent_from_accounting_reason",
     accounting_sequence_id: "02-2024/0002",
     accounting_transaction_key: 19,
-    amount_credit: 500.50,
+    amount_credit: 500.5,
     amount_debit: 0,
-    amount_entered: 500.50,
+    amount_entered: 500.5,
     currency_code: "EUR",
     date: "2024-03-01T00:00:00+01:00",
     document_field1: "R-4567",
-    document_field2: "010324"
-  }
+    document_field2: "010324",
+  },
 ];
 
 const mockSingleAccountPosting = {
@@ -48,7 +56,7 @@ const mockSingleAccountPosting = {
   date: "2024-02-29T00:00:00+01:00",
   document_field1: "G-1295",
   document_field2: "020224",
-  contra_account_number: 44010000
+  contra_account_number: 44010000,
 };
 
 // Mock IExecuteFunctions
@@ -60,23 +68,25 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "accountPostingId": "5318111",
-      "top": 50,
-      "skip": 10,
-      "select": "id,account_number,amount_debit,amount_credit",
-      "filter": "amount_debit gt 100",
-      "expand": "additional_information",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        accountPostingId: "5318111",
+        select: "id,account_number,amount_debit,amount_credit",
+        filter: "amount_debit gt 100",
+        expand: "all",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    }
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry }))
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData }))
     ),
   },
   continueOnFail: mock(() => false),
@@ -88,7 +98,7 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "test-instance",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountPostingResourceHandler", () => {
@@ -96,8 +106,14 @@ describe("AccountPostingResourceHandler", () => {
   let getAccountPostingSpy: any;
 
   beforeEach(() => {
-    getAccountPostingsSpy = spyOn(datevConnectClient.accounting, "getAccountPostings").mockResolvedValue(mockAccountPostingData);
-    getAccountPostingSpy = spyOn(datevConnectClient.accounting, "getAccountPosting").mockResolvedValue(mockSingleAccountPosting);
+    getAccountPostingsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountPostings"
+    ).mockResolvedValue(mockAccountPostingData);
+    getAccountPostingSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountPosting"
+    ).mockResolvedValue(mockSingleAccountPosting);
   });
 
   afterEach(() => {
@@ -113,13 +129,16 @@ describe("AccountPostingResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountPostingsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        select: "id,account_number,amount_debit,amount_credit",
-        filter: "amount_debit gt 100",
-        expand: "additional_information",
-        top: 50,
-        skip: 10
-      });
+      expect(getAccountPostingsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          select: "id,account_number,amount_debit,amount_credit",
+          filter: "amount_debit gt 100",
+          expand: "*",
+        }
+      );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
@@ -134,7 +153,7 @@ describe("AccountPostingResourceHandler", () => {
         currency_code: "EUR",
         date: "2024-02-29T00:00:00+01:00",
         document_field1: "G-1295",
-        document_field2: "020224"
+        document_field2: "020224",
       });
     });
 
@@ -152,21 +171,23 @@ describe("AccountPostingResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-        }
+          select: undefined,
+          filter: undefined,
+        },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountPostingsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        expand: "additional_information",
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountPostingsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          expand: "*",
+        }
+      );
     });
   });
 
@@ -178,13 +199,16 @@ describe("AccountPostingResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountPostingSpy).toHaveBeenCalledWith(context, "client-123", "2023", "5318111", {
-        top: 50,
-        skip: 10,
-        select: "id,account_number,amount_debit,amount_credit",
-        filter: "amount_debit gt 100",
-        expand: "additional_information"
-      });
+      expect(getAccountPostingSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "5318111",
+        {
+          select: "id,account_number,amount_debit,amount_credit",
+          expand: "*",
+        }
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual(mockSingleAccountPosting);
@@ -193,22 +217,25 @@ describe("AccountPostingResourceHandler", () => {
     test("handles parameters with default values for get", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "accountPostingId": "test-account-posting-id"
-        }
+          select: undefined,
+          filter: undefined,
+          accountPostingId: "test-account-posting-id",
+        },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountPostingSpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-account-posting-id", {
-        top: 100,  // Default value when top is undefined
-        expand: "additional_information"
-      });
+      expect(getAccountPostingSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "test-account-posting-id",
+        {
+          expand: "*",
+        }
+      );
     });
   });
 
@@ -219,18 +246,24 @@ describe("AccountPostingResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "accountPosting".');
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData
+        )
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "accountPosting".'
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getAccountPostingsSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -282,10 +315,10 @@ describe("AccountPostingResourceHandler", () => {
       getAccountPostingsSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountPostingResourceHandler(context, 5);
       const returnData: any[] = [];
 
@@ -298,7 +331,7 @@ describe("AccountPostingResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "id,account,description" }
+        parameters: { select: "id,account,description" },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -315,7 +348,7 @@ describe("AccountPostingResourceHandler", () => {
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "amount gt 500" }
+        parameters: { filter: "amount gt 500" },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -324,7 +357,7 @@ describe("AccountPostingResourceHandler", () => {
 
       expect(getAccountPostingsSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
         expect.objectContaining({ filter: "amount gt 500" })
       );
@@ -332,7 +365,7 @@ describe("AccountPostingResourceHandler", () => {
 
     test("correctly retrieves accountPostingId parameter", async () => {
       const context = createMockContext({
-        parameters: { accountPostingId: "test-account-posting-id" }
+        parameters: { accountPostingId: "test-account-posting-id" },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -342,15 +375,15 @@ describe("AccountPostingResourceHandler", () => {
       expect(getAccountPostingSpy).toHaveBeenCalledWith(
         context,
         "client-123",
-        "2023", 
+        "2023",
         "test-account-posting-id",
         expect.any(Object)
       );
     });
 
-    test("correctly retrieves top and skip parameters", async () => {
+    test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { expand: "all" },
       });
       const handler = new AccountPostingResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -361,7 +394,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ expand: "*" })
       );
     });
   });
