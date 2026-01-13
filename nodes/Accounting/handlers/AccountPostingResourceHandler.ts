@@ -38,11 +38,12 @@ export class AccountPostingResourceHandler extends BaseResourceHandler {
 
   private async handleGetAll(requestContext: RequestContext): Promise<JsonValue> {
     const queryParams = this.buildQueryParams();
+    const { top, skip, ...filteredParams } = queryParams;
     const result = await datevConnectClient.accounting.getAccountPostings(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      queryParams
+      filteredParams
     );
     return result ?? null;
   }
@@ -50,12 +51,13 @@ export class AccountPostingResourceHandler extends BaseResourceHandler {
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
     const accountPostingId = this.getRequiredString("accountPostingId");
     const queryParams = this.buildQueryParams();
+    const { top, skip, filter, ...filteredParams } = queryParams;
     const result = await datevConnectClient.accounting.getAccountPosting(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       accountPostingId,
-      queryParams
+      filteredParams
     );
     return result ?? null;
   }
