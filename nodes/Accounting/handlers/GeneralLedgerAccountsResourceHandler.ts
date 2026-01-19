@@ -6,7 +6,6 @@ import { datevConnectClient } from "../../../src/services/accountingClient";
 
 type GeneralLedgerAccountsOperation = "getAll" | "get" | "getUtilized";
 
-
 /**
  * Handler for General Ledger Accounts operations
  * Manages operations related to chart of accounts
@@ -19,7 +18,7 @@ export class GeneralLedgerAccountsResourceHandler extends BaseResourceHandler {
   async execute(
     operation: GeneralLedgerAccountsOperation,
     requestContext: RequestContext,
-    returnData: INodeExecutionData[]
+    returnData: INodeExecutionData[],
   ): Promise<void> {
     switch (operation) {
       case "getAll":
@@ -32,22 +31,30 @@ export class GeneralLedgerAccountsResourceHandler extends BaseResourceHandler {
         await this.handleGetUtilized(requestContext, returnData);
         break;
       default:
-        throw new NodeOperationError(this.context.getNode(), `Unknown operation: ${operation}`, {
-          itemIndex: this.itemIndex,
-        });
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `Unknown operation: ${operation}`,
+          {
+            itemIndex: this.itemIndex,
+          },
+        );
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const accounts = await datevConnectClient.accounting.getGeneralLedgerAccounts(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const accounts =
+        await datevConnectClient.accounting.getGeneralLedgerAccounts(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accounts);
     } catch (error) {
@@ -55,18 +62,24 @@ export class GeneralLedgerAccountsResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGet(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGet(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
-      const generalLedgerAccountId = this.getRequiredString("generalLedgerAccountId");
-      const queryParams = this.buildQueryParams();
-      const account = await datevConnectClient.accounting.getGeneralLedgerAccount(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        generalLedgerAccountId,
-        queryParams
+      const generalLedgerAccountId = this.getRequiredString(
+        "generalLedgerAccountId",
       );
-      
+      const queryParams = this.buildQueryParams();
+      const account =
+        await datevConnectClient.accounting.getGeneralLedgerAccount(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          generalLedgerAccountId,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(account);
     } catch (error) {
@@ -74,16 +87,20 @@ export class GeneralLedgerAccountsResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetUtilized(requestContext: RequestContext, returnData: INodeExecutionData[]): Promise<void> {
+  private async handleGetUtilized(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
     try {
       const queryParams = this.buildQueryParams();
-      const accounts = await datevConnectClient.accounting.getUtilizedGeneralLedgerAccounts(
-        this.context,
-        requestContext.clientId!,
-        requestContext.fiscalYearId!,
-        queryParams
-      );
-      
+      const accounts =
+        await datevConnectClient.accounting.getUtilizedGeneralLedgerAccounts(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          queryParams,
+        );
+
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(accounts);
     } catch (error) {

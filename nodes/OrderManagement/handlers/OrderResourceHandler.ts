@@ -16,7 +16,11 @@ import {
   updateOrder,
   updateSuborder,
 } from "../../../src/services/orderManagementClient";
-import type { AuthContext, OrderOperation, SendSuccessFunction } from "../types";
+import type {
+  AuthContext,
+  OrderOperation,
+  SendSuccessFunction,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class OrderResourceHandler extends BaseResourceHandler {
@@ -60,7 +64,10 @@ export class OrderResourceHandler extends BaseResourceHandler {
           await this.handleGetSubordersStateBilling(authContext, sendSuccess);
           break;
         case "getSubordersStateBillingAll":
-          await this.handleGetSubordersStateBillingAll(authContext, sendSuccess);
+          await this.handleGetSubordersStateBillingAll(
+            authContext,
+            sendSuccess,
+          );
           break;
         case "getExpensePostingsForOrder":
           await this.handleGetExpensePostingsForOrder(authContext, sendSuccess);
@@ -341,7 +348,10 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const orderId = this.getRequiredNumber("orderId");
     const suborderId = this.getRequiredNumber("suborderId");
-    const rawSuborder = this.context.getNodeParameter("suborderData", this.itemIndex);
+    const rawSuborder = this.context.getNodeParameter(
+      "suborderData",
+      this.itemIndex,
+    );
     const suborder = this.parseJsonParameter(rawSuborder, "Suborder Data");
 
     const response = await updateSuborder({
@@ -360,10 +370,24 @@ export class OrderResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     const orderId = this.getRequiredNumber("orderId");
     const suborderId = this.getRequiredNumber("suborderId");
-    const automaticIntegration = this.context.getNodeParameter("automaticIntegration", this.itemIndex, false) as boolean;
-    const deleteMassdataOnFailure = this.context.getNodeParameter("deleteMassdataOnFailure", this.itemIndex, false) as boolean;
-    const rawPosting = this.context.getNodeParameter("expensePostingData", this.itemIndex);
-    const expensePosting = this.parseJsonParameter(rawPosting, "Expense Posting Data");
+    const automaticIntegration = this.context.getNodeParameter(
+      "automaticIntegration",
+      this.itemIndex,
+      false,
+    ) as boolean;
+    const deleteMassdataOnFailure = this.context.getNodeParameter(
+      "deleteMassdataOnFailure",
+      this.itemIndex,
+      false,
+    ) as boolean;
+    const rawPosting = this.context.getNodeParameter(
+      "expensePostingData",
+      this.itemIndex,
+    );
+    const expensePosting = this.parseJsonParameter(
+      rawPosting,
+      "Expense Posting Data",
+    );
 
     const response = await createExpensePosting({
       ...authContext,
@@ -378,21 +402,28 @@ export class OrderResourceHandler extends BaseResourceHandler {
   }
 
   private getOptionalCostRate(): number | undefined {
-    const value = this.context.getNodeParameter("costRate", this.itemIndex, undefined) as number | undefined;
+    const value = this.context.getNodeParameter(
+      "costRate",
+      this.itemIndex,
+      undefined,
+    ) as number | undefined;
     if (typeof value !== "number" || Number.isNaN(value) || value === 0) {
       return undefined;
     }
     if (value < 1 || value > 9) {
       throw new NodeOperationError(
         this.context.getNode(),
-        'Cost Rate must be between 1 and 9 when provided.',
+        "Cost Rate must be between 1 and 9 when provided.",
         { itemIndex: this.itemIndex },
       );
     }
     return value;
   }
 
-  private ensureOrdersCostRateIsValid(costRate?: number, expand?: string): void {
+  private ensureOrdersCostRateIsValid(
+    costRate?: number,
+    expand?: string,
+  ): void {
     if (costRate === undefined || costRate === null) {
       return;
     }

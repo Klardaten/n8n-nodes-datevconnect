@@ -2,7 +2,7 @@
 import { describe, expect, test, beforeEach, spyOn } from "bun:test";
 import { DocumentManagementClient } from "../../src/services/documentManagementClient";
 
-describe('DocumentManagementClient - All Endpoints', () => {
+describe("DocumentManagementClient - All Endpoints", () => {
   const mockFetch = spyOn(global, "fetch");
 
   beforeEach(() => {
@@ -12,7 +12,7 @@ describe('DocumentManagementClient - All Endpoints', () => {
   test("1. GET /documents - fetchDocuments", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [{ id: "doc-123", description: "Test document" }]
+      json: async () => [{ id: "doc-123", description: "Test document" }],
     } as Response);
 
     const result = await DocumentManagementClient.fetchDocuments({
@@ -29,11 +29,11 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([{ id: "doc-123", description: "Test document" }]);
@@ -44,9 +44,10 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       status: 201,
       headers: {
-        get: (name: string) => name === "Location" ? "/documents/new-doc-123" : null
+        get: (name: string) =>
+          name === "Location" ? "/documents/new-doc-123" : null,
       },
-      json: async () => ({ success: true })
+      json: async () => ({ success: true }),
     } as any);
 
     const documentData = {
@@ -67,25 +68,29 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/json;charset=utf-8",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: JSON.stringify(documentData),
-      }
+      },
     );
 
-    expect(result).toEqual({ success: true, location: "/documents/new-doc-123" });
+    expect(result).toEqual({
+      success: true,
+      location: "/documents/new-doc-123",
+    });
   });
 
   test("3. GET /document-files/{file-id} - fetchDocumentFile", async () => {
     const mockResponse = {
       ok: true,
       headers: {
-        get: (name: string) => name === "content-type" ? "application/pdf" : null
+        get: (name: string) =>
+          name === "content-type" ? "application/pdf" : null,
       },
-      arrayBuffer: async () => new ArrayBuffer(1024)
+      arrayBuffer: async () => new ArrayBuffer(1024),
     } as any;
 
     mockFetch.mockResolvedValueOnce(mockResponse);
@@ -102,11 +107,11 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/octet-stream",
+          Accept: "application/octet-stream",
         },
-      }
+      },
     );
 
     expect(result).toBe(mockResponse);
@@ -131,14 +136,18 @@ describe('DocumentManagementClient - All Endpoints', () => {
 
     expect(mockFetch).not.toHaveBeenCalled();
     expect(response.ok).toBe(true);
-    expect(response.headers.get("content-type")).toBe("application/octet-stream");
-    expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual([1, 2, 3]);
+    expect(response.headers.get("content-type")).toBe(
+      "application/octet-stream",
+    );
+    expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual([
+      1, 2, 3,
+    ]);
   });
 
   test("4. POST /document-files - uploadDocumentFile", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "uploaded-file-123", success: true })
+      json: async () => ({ id: "uploaded-file-123", success: true }),
     } as Response);
 
     const binaryData = "test binary data";
@@ -155,13 +164,13 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/octet-stream",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: binaryData,
-      }
+      },
     );
 
     expect(result).toEqual({ id: "uploaded-file-123", success: true });
@@ -170,7 +179,11 @@ describe('DocumentManagementClient - All Endpoints', () => {
   test("17. GET /documents/{id} - fetchDocument", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "doc-123", description: "Test document", domain: { id: 1 } })
+      json: async () => ({
+        id: "doc-123",
+        description: "Test document",
+        domain: { id: 1 },
+      }),
     } as Response);
 
     const result = await DocumentManagementClient.fetchDocument({
@@ -185,14 +198,18 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
-    expect(result).toEqual({ id: "doc-123", description: "Test document", domain: { id: 1 } });
+    expect(result).toEqual({
+      id: "doc-123",
+      description: "Test document",
+      domain: { id: 1 },
+    });
   });
 
   test("18. PUT /documents/{id} - updateDocument", async () => {
@@ -219,13 +236,13 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/json;charset=utf-8",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: JSON.stringify(documentData),
-      }
+      },
     );
 
     expect(result).toEqual({ success: true, documentId: "doc-123" });
@@ -236,8 +253,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: "item-123", name: "document.pdf", type: 1, counter: 1 },
-        { id: "item-456", name: "attachment.docx", type: 2, counter: 2 }
-      ]
+        { id: "item-456", name: "attachment.docx", type: 2, counter: 2 },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchStructureItems({
@@ -254,23 +271,28 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: "item-123", name: "document.pdf", type: 1, counter: 1 },
-      { id: "item-456", name: "attachment.docx", type: 2, counter: 2 }
+      { id: "item-456", name: "attachment.docx", type: 2, counter: 2 },
     ]);
   });
 
   test("20. GET /documents/{id}/structure-items/{itemId} - fetchStructureItem", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "item-123", name: "document.pdf", type: 1, counter: 1 })
+      json: async () => ({
+        id: "item-123",
+        name: "document.pdf",
+        type: 1,
+        counter: 1,
+      }),
     } as Response);
 
     const result = await DocumentManagementClient.fetchStructureItem({
@@ -286,14 +308,19 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
-    expect(result).toEqual({ id: "item-123", name: "document.pdf", type: 1, counter: 1 });
+    expect(result).toEqual({
+      id: "item-123",
+      name: "document.pdf",
+      type: 1,
+      counter: 1,
+    });
   });
 
   test("21. POST /documents/{id}/structure-items - addStructureItem", async () => {
@@ -301,7 +328,10 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       status: 201,
       headers: {
-        get: (name: string) => name === "Location" ? "/documents/doc-123/structure-items/new-item-456" : null
+        get: (name: string) =>
+          name === "Location"
+            ? "/documents/doc-123/structure-items/new-item-456"
+            : null,
       },
     } as any);
 
@@ -324,16 +354,19 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/json;charset=utf-8",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: JSON.stringify(structureItemData),
-      }
+      },
     );
 
-    expect(result).toEqual({ success: true, location: "/documents/doc-123/structure-items/new-item-456" });
+    expect(result).toEqual({
+      success: true,
+      location: "/documents/doc-123/structure-items/new-item-456",
+    });
   });
 
   test("22. PUT /documents/{id}/structure-items/{itemId} - updateStructureItem", async () => {
@@ -361,16 +394,20 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "PUT",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/json;charset=utf-8",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: JSON.stringify(structureItemData),
-      }
+      },
     );
 
-    expect(result).toEqual({ success: true, documentId: "doc-123", structureItemId: "item-123" });
+    expect(result).toEqual({
+      success: true,
+      documentId: "doc-123",
+      structureItemId: "item-123",
+    });
   });
 
   test("23. POST /documents/{id}/dispatcher-information - createDispatcherInformation", async () => {
@@ -378,7 +415,10 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       status: 201,
       headers: {
-        get: (name: string) => name === "Location" ? "/documents/doc-123/dispatcher-information/new-info-789" : null
+        get: (name: string) =>
+          name === "Location"
+            ? "/documents/doc-123/dispatcher-information/new-info-789"
+            : null,
       },
     } as any);
 
@@ -401,16 +441,19 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
           "Content-Type": "application/json;charset=utf-8",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
         body: JSON.stringify(dispatcherData),
-      }
+      },
     );
 
-    expect(result).toEqual({ success: true, location: "/documents/doc-123/dispatcher-information/new-info-789" });
+    expect(result).toEqual({
+      success: true,
+      location: "/documents/doc-123/dispatcher-information/new-info-789",
+    });
   });
 
   test("5. GET /domains - fetchDomains", async () => {
@@ -418,8 +461,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: 1, name: "Client Documents", is_selected: true },
-        { id: 4, name: "Correspondence", is_selected: false }
-      ]
+        { id: 4, name: "Correspondence", is_selected: false },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchDomains({
@@ -434,16 +477,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: 1, name: "Client Documents", is_selected: true },
-      { id: 4, name: "Correspondence", is_selected: false }
+      { id: 4, name: "Correspondence", is_selected: false },
     ]);
   });
 
@@ -452,8 +495,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: "active", name: "Active", valid_document_classes: [1, 3] },
-        { id: "archived", name: "Archived", valid_document_classes: [1, 3] }
-      ]
+        { id: "archived", name: "Archived", valid_document_classes: [1, 3] },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchDocumentStates({
@@ -467,16 +510,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: "active", name: "Active", valid_document_classes: [1, 3] },
-      { id: "archived", name: "Archived", valid_document_classes: [1, 3] }
+      { id: "archived", name: "Archived", valid_document_classes: [1, 3] },
     ]);
   });
 
@@ -486,8 +529,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       json: async () => ({
         environment: "DATEV DMS",
         version: { name: "2.3.1", number: "2.3.1" },
-        application: "DATEV Document Management"
-      })
+        application: "DATEV Document Management",
+      }),
     } as Response);
 
     const result = await DocumentManagementClient.fetchInfo({
@@ -501,17 +544,17 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual({
       environment: "DATEV DMS",
       version: { name: "2.3.1", number: "2.3.1" },
-      application: "DATEV Document Management"
+      application: "DATEV Document Management",
     });
   });
 
@@ -532,10 +575,10 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "DELETE",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
         },
-      }
+      },
     );
   });
 
@@ -556,10 +599,10 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "DELETE",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
         },
-      }
+      },
     );
   });
 
@@ -568,8 +611,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: 1, name: "Confidential", description: "Confidential documents" },
-        { id: 2, name: "Public", description: "Public documents" }
-      ]
+        { id: 2, name: "Public", description: "Public documents" },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchSecureAreas({
@@ -583,16 +626,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: 1, name: "Confidential", description: "Confidential documents" },
-      { id: 2, name: "Public", description: "Public documents" }
+      { id: 2, name: "Public", description: "Public documents" },
     ]);
   });
 
@@ -601,8 +644,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: 1, name: "Invoice Template", document_class: 1 },
-        { id: 2, name: "Contract Template", document_class: 2 }
-      ]
+        { id: 2, name: "Contract Template", document_class: 2 },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchPropertyTemplates({
@@ -617,16 +660,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: 1, name: "Invoice Template", document_class: 1 },
-      { id: 2, name: "Contract Template", document_class: 2 }
+      { id: 2, name: "Contract Template", document_class: 2 },
     ]);
   });
 
@@ -635,8 +678,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: 1, name: "Custom Property 1", data_type: "string" },
-        { id: 2, name: "Custom Property 2", data_type: "number" }
-      ]
+        { id: 2, name: "Custom Property 2", data_type: "number" },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchIndividualProperties({
@@ -650,16 +693,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: 1, name: "Custom Property 1", data_type: "string" },
-      { id: 2, name: "Custom Property 2", data_type: "number" }
+      { id: 2, name: "Custom Property 2", data_type: "number" },
     ]);
   });
 
@@ -668,8 +711,8 @@ describe('DocumentManagementClient - All Endpoints', () => {
       ok: true,
       json: async () => [
         { id: 1, name: "Reference 1", correspondence_partner_guid: null },
-        { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" }
-      ]
+        { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchIndividualReferences1({
@@ -685,16 +728,16 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
       { id: 1, name: "Reference 1", correspondence_partner_guid: null },
-      { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" }
+      { id: 2, name: "Reference 2", correspondence_partner_guid: "guid-123" },
     ]);
   });
 
@@ -707,8 +750,12 @@ describe('DocumentManagementClient - All Endpoints', () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
-        { id: 3, name: "New Reference 1", correspondence_partner_guid: "guid-456" }
-      ]
+        {
+          id: 3,
+          name: "New Reference 1",
+          correspondence_partner_guid: "guid-456",
+        },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.createIndividualReference1({
@@ -723,17 +770,21 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
           "Content-Type": "application/json;charset=utf-8",
         },
         body: JSON.stringify(newIndividualReference),
-      }
+      },
     );
 
     expect(result).toEqual([
-      { id: 3, name: "New Reference 1", correspondence_partner_guid: "guid-456" }
+      {
+        id: 3,
+        name: "New Reference 1",
+        correspondence_partner_guid: "guid-456",
+      },
     ]);
   });
 
@@ -741,9 +792,17 @@ describe('DocumentManagementClient - All Endpoints', () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
-        { id: 1, name: "Reference 2-1", correspondence_partner_domain: "clients" },
-        { id: 2, name: "Reference 2-2", correspondence_partner_domain: "employees" }
-      ]
+        {
+          id: 1,
+          name: "Reference 2-1",
+          correspondence_partner_domain: "clients",
+        },
+        {
+          id: 2,
+          name: "Reference 2-2",
+          correspondence_partner_domain: "employees",
+        },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.fetchIndividualReferences2({
@@ -759,16 +818,24 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "GET",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
         },
-      }
+      },
     );
 
     expect(result).toEqual([
-      { id: 1, name: "Reference 2-1", correspondence_partner_domain: "clients" },
-      { id: 2, name: "Reference 2-2", correspondence_partner_domain: "employees" }
+      {
+        id: 1,
+        name: "Reference 2-1",
+        correspondence_partner_domain: "clients",
+      },
+      {
+        id: 2,
+        name: "Reference 2-2",
+        correspondence_partner_domain: "employees",
+      },
     ]);
   });
 
@@ -782,13 +849,13 @@ describe('DocumentManagementClient - All Endpoints', () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
-        { 
-          id: 4, 
-          name: "New Reference 2", 
+        {
+          id: 4,
+          name: "New Reference 2",
           correspondence_partner_domain: "legal",
-          correspondence_partner_guid: "guid-789"
-        }
-      ]
+          correspondence_partner_guid: "guid-789",
+        },
+      ],
     } as Response);
 
     const result = await DocumentManagementClient.createIndividualReference2({
@@ -803,22 +870,22 @@ describe('DocumentManagementClient - All Endpoints', () => {
       {
         method: "POST",
         headers: {
-          "Authorization": "Bearer test-token",
+          Authorization: "Bearer test-token",
           "x-client-instance-id": "test-client-id",
-          "Accept": "application/json;charset=utf-8",
+          Accept: "application/json;charset=utf-8",
           "Content-Type": "application/json;charset=utf-8",
         },
         body: JSON.stringify(newIndividualReference),
-      }
+      },
     );
 
     expect(result).toEqual([
-      { 
-        id: 4, 
-        name: "New Reference 2", 
+      {
+        id: 4,
+        name: "New Reference 2",
         correspondence_partner_domain: "legal",
-        correspondence_partner_guid: "guid-789"
-      }
+        correspondence_partner_guid: "guid-789",
+      },
     ]);
   });
 });

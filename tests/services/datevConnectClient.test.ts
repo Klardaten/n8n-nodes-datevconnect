@@ -99,7 +99,10 @@ function createJsonResponse(body: unknown, init?: ResponseInit): Response {
 }
 
 function createFetchMock(
-  implementation: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>,
+  implementation: (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) => Promise<Response>,
 ): typeof fetch {
   const fn = implementation as typeof fetch;
   fn.preconnect = async () => {
@@ -220,7 +223,9 @@ describe("fetchClients", () => {
         clientInstanceId: "instance-1",
         fetchImpl: fetchMock,
       }),
-    ).rejects.toThrowError("DATEVconnect request failed (401 Unauthorized): Something went wrong");
+    ).rejects.toThrowError(
+      "DATEVconnect request failed (401 Unauthorized): Something went wrong",
+    );
   });
 });
 
@@ -519,9 +524,13 @@ describe("fetchClientDeletionLog", () => {
     expect(response).toEqual([{ id: "client-1" }]);
     expect(calls).toHaveLength(1);
     const [{ url }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/clients/deletion-log");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/clients/deletion-log",
+    );
     expect(url.searchParams.get("select")).toBe("id");
-    expect(url.searchParams.get("filter")).toBe("timestamp gt 2020-01-01T00:00:00.000");
+    expect(url.searchParams.get("filter")).toBe(
+      "timestamp gt 2020-01-01T00:00:00.000",
+    );
   });
 });
 
@@ -622,15 +631,18 @@ describe("fetchRelationshipTypes", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        { 
-          id: "S00051", 
-          abbreviation: "GV", 
-          name: "Gesetzlicher Vertreter des Unternehmens",
-          standard: true,
-          type: 2
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "S00051",
+            abbreviation: "GV",
+            name: "Gesetzlicher Vertreter des Unternehmens",
+            standard: true,
+            type: 2,
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchRelationshipTypesOptions = {
@@ -645,18 +657,20 @@ describe("fetchRelationshipTypes", () => {
     const response = await fetchRelationshipTypes(options);
 
     expect(response).toEqual([
-      { 
-        id: "S00051", 
-        abbreviation: "GV", 
+      {
+        id: "S00051",
+        abbreviation: "GV",
         name: "Gesetzlicher Vertreter des Unternehmens",
         standard: true,
-        type: 2
-      }
+        type: 2,
+      },
     ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/relationship-types");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/relationship-types",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,abbreviation");
     expect(url.searchParams.get("filter")).toBe("standard eq true");
     expect(init?.method).toBe("GET");
@@ -669,16 +683,19 @@ describe("fetchLegalForms", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        { 
-          id: "000001", 
-          display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
-          short_name: "GmbH",
-          long_name: "Gesellschaft mit beschränkter Haftung",
-          nation: "DE",
-          type: 3
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "000001",
+            display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
+            short_name: "GmbH",
+            long_name: "Gesellschaft mit beschränkter Haftung",
+            nation: "DE",
+            type: 3,
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchLegalFormsOptions = {
@@ -693,14 +710,14 @@ describe("fetchLegalForms", () => {
     const response = await fetchLegalForms(options);
 
     expect(response).toEqual([
-      { 
-        id: "000001", 
+      {
+        id: "000001",
         display_name: "GmbH - Gesellschaft mit beschränkter Haftung",
         short_name: "GmbH",
         long_name: "Gesellschaft mit beschränkter Haftung",
         nation: "DE",
-        type: 3
-      }
+        type: 3,
+      },
     ]);
     expect(calls).toHaveLength(1);
 
@@ -718,16 +735,19 @@ describe("fetchCorporateStructures", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        { 
-          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-          name: "Musterkanzlei",
-          number: 1,
-          status: "active",
-          establishments: [],
-          functional_areas: []
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+            name: "Musterkanzlei",
+            number: 1,
+            status: "active",
+            establishments: [],
+            functional_areas: [],
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchCorporateStructuresOptions = {
@@ -742,19 +762,21 @@ describe("fetchCorporateStructures", () => {
     const response = await fetchCorporateStructures(options);
 
     expect(response).toEqual([
-      { 
+      {
         id: "f43f9c3g-380c-494e-97c8-d12fff738180",
         name: "Musterkanzlei",
         number: 1,
         status: "active",
         establishments: [],
-        functional_areas: []
-      }
+        functional_areas: [],
+      },
     ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/corporate-structures",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,number");
     expect(url.searchParams.get("filter")).toBe("status eq active");
     expect(init?.method).toBe("GET");
@@ -767,14 +789,17 @@ describe("fetchCorporateStructure", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({ 
-        id: "f43f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei",
-        number: 1,
-        status: "active",
-        establishments: [],
-        functional_areas: []
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "f43f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei",
+          number: 1,
+          status: "active",
+          establishments: [],
+          functional_areas: [],
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchCorporateStructureOptions = {
@@ -788,18 +813,20 @@ describe("fetchCorporateStructure", () => {
 
     const response = await fetchCorporateStructure(options);
 
-    expect(response).toEqual({ 
+    expect(response).toEqual({
       id: "f43f9c3g-380c-494e-97c8-d12fff738180",
       name: "Musterkanzlei",
       number: 1,
       status: "active",
       establishments: [],
-      functional_areas: []
+      functional_areas: [],
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,establishments");
     expect(init?.method).toBe("GET");
   });
@@ -811,13 +838,16 @@ describe("fetchEstablishment", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({ 
-        id: "h63f9c3g-380c-494e-97c8-d12fff738180",
-        name: "Musterkanzlei - Hauptsitz",
-        number: 1,
-        short_name: "Hauptsitz",
-        status: "active"
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "h63f9c3g-380c-494e-97c8-d12fff738180",
+          name: "Musterkanzlei - Hauptsitz",
+          number: 1,
+          short_name: "Hauptsitz",
+          status: "active",
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchEstablishmentOptions = {
@@ -832,17 +862,19 @@ describe("fetchEstablishment", () => {
 
     const response = await fetchEstablishment(options);
 
-    expect(response).toEqual({ 
+    expect(response).toEqual({
       id: "h63f9c3g-380c-494e-97c8-d12fff738180",
       name: "Musterkanzlei - Hauptsitz",
       number: 1,
       short_name: "Hauptsitz",
-      status: "active"
+      status: "active",
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180/establishments/h63f9c3g-380c-494e-97c8-d12fff738180");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/corporate-structures/f43f9c3g-380c-494e-97c8-d12fff738180/establishments/h63f9c3g-380c-494e-97c8-d12fff738180",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(init?.method).toBe("GET");
   });
@@ -854,15 +886,18 @@ describe("fetchEmployees", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "e23f9c3c-380c-494e-97c8-d12fff738189",
-          display_name: "Mustermeier, Sonja",
-          email: "sonja.mustermeier@musterkanzlei.de",
-          number: 10000,
-          status: "active"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+            display_name: "Mustermeier, Sonja",
+            email: "sonja.mustermeier@musterkanzlei.de",
+            number: 10000,
+            status: "active",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchEmployeesOptions = {
@@ -882,8 +917,8 @@ describe("fetchEmployees", () => {
         display_name: "Mustermeier, Sonja",
         email: "sonja.mustermeier@musterkanzlei.de",
         number: 10000,
-        status: "active"
-      }
+        status: "active",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
@@ -901,13 +936,16 @@ describe("fetchEmployee", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({
-        id: "e23f9c3c-380c-494e-97c8-d12fff738189",
-        display_name: "Mustermeier, Sonja",
-        email: "sonja.mustermeier@musterkanzlei.de",
-        number: 10000,
-        status: "active"
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "e23f9c3c-380c-494e-97c8-d12fff738189",
+          display_name: "Mustermeier, Sonja",
+          email: "sonja.mustermeier@musterkanzlei.de",
+          number: 10000,
+          status: "active",
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchEmployeeOptions = {
@@ -926,12 +964,14 @@ describe("fetchEmployee", () => {
       display_name: "Mustermeier, Sonja",
       email: "sonja.mustermeier@musterkanzlei.de",
       number: 10000,
-      status: "active"
+      status: "active",
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189",
+    );
     expect(url.searchParams.get("select")).toBe("id,display_name,email");
     expect(init?.method).toBe("GET");
   });
@@ -943,11 +983,11 @@ describe("createEmployee", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse(undefined, { 
+      return createJsonResponse(undefined, {
         status: 204,
         headers: {
-          "Link": "</datevconnect/master-data/v1/employees/new-employee-id>; rel=self"
-        }
+          Link: "</datevconnect/master-data/v1/employees/new-employee-id>; rel=self",
+        },
       });
     });
 
@@ -958,7 +998,7 @@ describe("createEmployee", () => {
       employee: {
         display_name: "New Employee",
         email: "new.employee@example.com",
-        natural_person_id: "person-guid-123"
+        natural_person_id: "person-guid-123",
       },
       fetchImpl: fetchMock,
     };
@@ -973,7 +1013,7 @@ describe("createEmployee", () => {
     expect(init?.method).toBe("POST");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
@@ -981,7 +1021,7 @@ describe("createEmployee", () => {
     expect(parsedBody).toEqual({
       display_name: "New Employee",
       email: "new.employee@example.com",
-      natural_person_id: "person-guid-123"
+      natural_person_id: "person-guid-123",
     });
   });
 });
@@ -992,11 +1032,11 @@ describe("updateEmployee", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse(undefined, { 
+      return createJsonResponse(undefined, {
         status: 204,
         headers: {
-          "Link": "</datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189>; rel=self"
-        }
+          Link: "</datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189>; rel=self",
+        },
       });
     });
 
@@ -1007,7 +1047,7 @@ describe("updateEmployee", () => {
       employeeId: "e23f9c3c-380c-494e-97c8-d12fff738189",
       employee: {
         display_name: "Updated Employee Name",
-        email: "updated.email@example.com"
+        email: "updated.email@example.com",
       },
       fetchImpl: fetchMock,
     };
@@ -1018,18 +1058,20 @@ describe("updateEmployee", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/employees/e23f9c3c-380c-494e-97c8-d12fff738189",
+    );
     expect(init?.method).toBe("PUT");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
     const parsedBody = JSON.parse(String(init?.body));
     expect(parsedBody).toEqual({
       display_name: "Updated Employee Name",
-      email: "updated.email@example.com"
+      email: "updated.email@example.com",
     });
   });
 });
@@ -1040,16 +1082,19 @@ describe("fetchCountryCodes", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "DE",
-          name: "Deutschland"
-        },
-        {
-          id: "AT",
-          name: "Österreich"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "DE",
+            name: "Deutschland",
+          },
+          {
+            id: "AT",
+            name: "Österreich",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchCountryCodesOptions = {
@@ -1066,12 +1111,12 @@ describe("fetchCountryCodes", () => {
     expect(response).toEqual([
       {
         id: "DE",
-        name: "Deutschland"
+        name: "Deutschland",
       },
       {
         id: "AT",
-        name: "Österreich"
-      }
+        name: "Österreich",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
@@ -1089,19 +1134,22 @@ describe("fetchClientGroupTypes", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "k93f9chg-380c-494e-47c8-d12fff738192",
-          name: "Test Group Type",
-          short_name: "TGT",
-          note: "Test group type for unit tests"
-        },
-        {
-          id: "m85d7ahf-290b-384d-36b7-c01eee627081",
-          name: "Another Group Type",
-          short_name: "AGT"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "k93f9chg-380c-494e-47c8-d12fff738192",
+            name: "Test Group Type",
+            short_name: "TGT",
+            note: "Test group type for unit tests",
+          },
+          {
+            id: "m85d7ahf-290b-384d-36b7-c01eee627081",
+            name: "Another Group Type",
+            short_name: "AGT",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchClientGroupTypesOptions = {
@@ -1120,18 +1168,20 @@ describe("fetchClientGroupTypes", () => {
         id: "k93f9chg-380c-494e-47c8-d12fff738192",
         name: "Test Group Type",
         short_name: "TGT",
-        note: "Test group type for unit tests"
+        note: "Test group type for unit tests",
       },
       {
         id: "m85d7ahf-290b-384d-36b7-c01eee627081",
         name: "Another Group Type",
-        short_name: "AGT"
-      }
+        short_name: "AGT",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-group-types",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(url.searchParams.get("filter")).toBe("startswith(name, 'Test')");
     expect(init?.method).toBe("GET");
@@ -1144,12 +1194,15 @@ describe("fetchClientGroupType", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({
-        id: "k93f9chg-380c-494e-47c8-d12fff738192",
-        name: "Test Group Type",
-        short_name: "TGT",
-        note: "Test group type for unit tests"
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "k93f9chg-380c-494e-47c8-d12fff738192",
+          name: "Test Group Type",
+          short_name: "TGT",
+          note: "Test group type for unit tests",
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchClientGroupTypeOptions = {
@@ -1167,12 +1220,14 @@ describe("fetchClientGroupType", () => {
       id: "k93f9chg-380c-494e-47c8-d12fff738192",
       name: "Test Group Type",
       short_name: "TGT",
-      note: "Test group type for unit tests"
+      note: "Test group type for unit tests",
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(init?.method).toBe("GET");
   });
@@ -1194,7 +1249,7 @@ describe("createClientGroupType", () => {
       clientGroupType: {
         short_name: "TGT",
         name: "Test Group Type",
-        note: "Test group type for unit tests"
+        note: "Test group type for unit tests",
       },
       fetchImpl: fetchMock,
     };
@@ -1205,11 +1260,13 @@ describe("createClientGroupType", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-group-types",
+    );
     expect(init?.method).toBe("POST");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
@@ -1217,7 +1274,7 @@ describe("createClientGroupType", () => {
     expect(parsedBody).toEqual({
       short_name: "TGT",
       name: "Test Group Type",
-      note: "Test group type for unit tests"
+      note: "Test group type for unit tests",
     });
   });
 });
@@ -1240,7 +1297,7 @@ describe("updateClientGroupType", () => {
         id: "k93f9chg-380c-494e-47c8-d12fff738192",
         short_name: "TGT-UPD",
         name: "Updated Test Group Type",
-        note: "Updated test group type for unit tests"
+        note: "Updated test group type for unit tests",
       },
       fetchImpl: fetchMock,
     };
@@ -1251,11 +1308,13 @@ describe("updateClientGroupType", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-group-types/k93f9chg-380c-494e-47c8-d12fff738192",
+    );
     expect(init?.method).toBe("PUT");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
@@ -1264,7 +1323,7 @@ describe("updateClientGroupType", () => {
       id: "k93f9chg-380c-494e-47c8-d12fff738192",
       short_name: "TGT-UPD",
       name: "Updated Test Group Type",
-      note: "Updated test group type for unit tests"
+      note: "Updated test group type for unit tests",
     });
   });
 });
@@ -1275,19 +1334,22 @@ describe("fetchClientCategoryTypes", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
-          name: "Test Category Type",
-          short_name: "TCT",
-          note: "Test category type for unit tests"
-        },
-        {
-          id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
-          name: "Another Category Type",
-          short_name: "ACT"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+            name: "Test Category Type",
+            short_name: "TCT",
+            note: "Test category type for unit tests",
+          },
+          {
+            id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
+            name: "Another Category Type",
+            short_name: "ACT",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchClientCategoryTypesOptions = {
@@ -1306,18 +1368,20 @@ describe("fetchClientCategoryTypes", () => {
         id: "c43f9c3g-380c-494e-47c8-d12fff738188",
         name: "Test Category Type",
         short_name: "TCT",
-        note: "Test category type for unit tests"
+        note: "Test category type for unit tests",
       },
       {
         id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
         name: "Another Category Type",
-        short_name: "ACT"
-      }
+        short_name: "ACT",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-category-types",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(url.searchParams.get("filter")).toBe("startswith(name, 'Test')");
     expect(init?.method).toBe("GET");
@@ -1330,12 +1394,15 @@ describe("fetchClientCategoryType", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({
-        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
-        name: "Test Category Type",
-        short_name: "TCT",
-        note: "Test category type for unit tests"
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+          short_name: "TCT",
+          note: "Test category type for unit tests",
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchClientCategoryTypeOptions = {
@@ -1353,12 +1420,14 @@ describe("fetchClientCategoryType", () => {
       id: "c43f9c3g-380c-494e-47c8-d12fff738188",
       name: "Test Category Type",
       short_name: "TCT",
-      note: "Test category type for unit tests"
+      note: "Test category type for unit tests",
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,short_name");
     expect(init?.method).toBe("GET");
   });
@@ -1380,7 +1449,7 @@ describe("createClientCategoryType", () => {
       clientCategoryType: {
         short_name: "TCT",
         name: "Test Category Type",
-        note: "Test category type for unit tests"
+        note: "Test category type for unit tests",
       },
       fetchImpl: fetchMock,
     };
@@ -1391,11 +1460,13 @@ describe("createClientCategoryType", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-category-types",
+    );
     expect(init?.method).toBe("POST");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
@@ -1403,7 +1474,7 @@ describe("createClientCategoryType", () => {
     expect(parsedBody).toEqual({
       short_name: "TCT",
       name: "Test Category Type",
-      note: "Test category type for unit tests"
+      note: "Test category type for unit tests",
     });
   });
 });
@@ -1426,7 +1497,7 @@ describe("updateClientCategoryType", () => {
         id: "c43f9c3g-380c-494e-47c8-d12fff738188",
         short_name: "TCT-UPD",
         name: "Updated Test Category Type",
-        note: "Updated test category type for unit tests"
+        note: "Updated test category type for unit tests",
       },
       fetchImpl: fetchMock,
     };
@@ -1437,11 +1508,13 @@ describe("updateClientCategoryType", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/client-category-types/c43f9c3g-380c-494e-47c8-d12fff738188",
+    );
     expect(init?.method).toBe("PUT");
     expect(init?.headers).toMatchObject({
       "content-type": "application/json",
-      "authorization": "Bearer token-123",
+      authorization: "Bearer token-123",
       "x-client-instance-id": "instance-1",
     });
 
@@ -1450,7 +1523,7 @@ describe("updateClientCategoryType", () => {
       id: "c43f9c3g-380c-494e-47c8-d12fff738188",
       short_name: "TCT-UPD",
       name: "Updated Test Category Type",
-      note: "Updated test category type for unit tests"
+      note: "Updated test category type for unit tests",
     });
   });
 });
@@ -1461,28 +1534,31 @@ describe("fetchBanks", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "007130",
-          bank_code: "76050101",
-          bic: "SSKNDE77XXX",
-          city: "Nürnberg",
-          country_code: "DE",
-          name: "Sparkasse Nürnberg",
-          standard: true,
-          timestamp: "2019-03-31T20:06:51.670"
-        },
-        {
-          id: "007129",
-          bank_code: "76050000",
-          bic: "BYLADEMMXXX",
-          city: "Nürnberg",
-          country_code: "DE",
-          name: "BayernLB Nürnberg",
-          standard: true,
-          timestamp: "2020-01-31T09:21:55.883"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "007130",
+            bank_code: "76050101",
+            bic: "SSKNDE77XXX",
+            city: "Nürnberg",
+            country_code: "DE",
+            name: "Sparkasse Nürnberg",
+            standard: true,
+            timestamp: "2019-03-31T20:06:51.670",
+          },
+          {
+            id: "007129",
+            bank_code: "76050000",
+            bic: "BYLADEMMXXX",
+            city: "Nürnberg",
+            country_code: "DE",
+            name: "BayernLB Nürnberg",
+            standard: true,
+            timestamp: "2020-01-31T09:21:55.883",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchBanksOptions = {
@@ -1505,7 +1581,7 @@ describe("fetchBanks", () => {
         country_code: "DE",
         name: "Sparkasse Nürnberg",
         standard: true,
-        timestamp: "2019-03-31T20:06:51.670"
+        timestamp: "2019-03-31T20:06:51.670",
       },
       {
         id: "007129",
@@ -1515,8 +1591,8 @@ describe("fetchBanks", () => {
         country_code: "DE",
         name: "BayernLB Nürnberg",
         standard: true,
-        timestamp: "2020-01-31T09:21:55.883"
-      }
+        timestamp: "2020-01-31T09:21:55.883",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
@@ -1534,26 +1610,29 @@ describe("fetchAreaOfResponsibilities", () => {
 
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "AB",
-          name: "Anlagenbuchführung",
-          standard: true,
-          status: "active"
-        },
-        {
-          id: "BP",
-          name: "Bescheidprüfung",
-          standard: true,
-          status: "active"
-        },
-        {
-          id: "MV",
-          name: "Mandatsverantwortung",
-          standard: true,
-          status: "active"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "AB",
+            name: "Anlagenbuchführung",
+            standard: true,
+            status: "active",
+          },
+          {
+            id: "BP",
+            name: "Bescheidprüfung",
+            standard: true,
+            status: "active",
+          },
+          {
+            id: "MV",
+            name: "Mandatsverantwortung",
+            standard: true,
+            status: "active",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchAreaOfResponsibilitiesOptions = {
@@ -1572,25 +1651,27 @@ describe("fetchAreaOfResponsibilities", () => {
         id: "AB",
         name: "Anlagenbuchführung",
         standard: true,
-        status: "active"
+        status: "active",
       },
       {
         id: "BP",
         name: "Bescheidprüfung",
         standard: true,
-        status: "active"
+        status: "active",
       },
       {
         id: "MV",
         name: "Mandatsverantwortung",
         standard: true,
-        status: "active"
-      }
+        status: "active",
+      },
     ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/area-of-responsibilities");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/area-of-responsibilities",
+    );
     expect(url.searchParams.get("select")).toBe("id,name,status");
     expect(url.searchParams.get("filter")).toBe("status eq active");
     expect(init?.method).toBe("GET");
@@ -1602,17 +1683,20 @@ describe("fetchAddressees", () => {
     const calls: FetchCall[] = [];
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
-          type: "natural_person",
-          status: "active",
-          current_short_name: "Mustermann",
-          current_surname: "Max Mustermann",
-          firstname: "Max",
-          timestamp: "2019-03-31T20:06:51.670"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+            type: "natural_person",
+            status: "active",
+            current_short_name: "Mustermann",
+            current_surname: "Max Mustermann",
+            firstname: "Max",
+            timestamp: "2019-03-31T20:06:51.670",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchAddresseesOptions = {
@@ -1626,20 +1710,24 @@ describe("fetchAddressees", () => {
 
     const response = await fetchAddressees(options);
 
-    expect(response).toEqual([{
-      id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
-      type: "natural_person",
-      status: "active",
-      current_short_name: "Mustermann",
-      current_surname: "Max Mustermann",
-      firstname: "Max",
-      timestamp: "2019-03-31T20:06:51.670"
-    }]);
+    expect(response).toEqual([
+      {
+        id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+        type: "natural_person",
+        status: "active",
+        current_short_name: "Mustermann",
+        current_surname: "Max Mustermann",
+        firstname: "Max",
+        timestamp: "2019-03-31T20:06:51.670",
+      },
+    ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
     expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees");
-    expect(url.searchParams.get("select")).toBe("id,type,status,current_short_name");
+    expect(url.searchParams.get("select")).toBe(
+      "id,type,status,current_short_name",
+    );
     expect(url.searchParams.get("filter")).toBe("status eq active");
     expect(init?.method).toBe("GET");
   });
@@ -1650,20 +1738,23 @@ describe("fetchAddressee", () => {
     const calls: FetchCall[] = [];
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse({
-        id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
-        type: "natural_person",
-        status: "active",
-        current_short_name: "Mustermann",
-        detail: {
-          job_titles: [
-            {
-              value: "Software Engineer",
-              valid_from: "2020-01-01T00:00:00.000"
-            }
-          ]
-        }
-      }, { status: 200 });
+      return createJsonResponse(
+        {
+          id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+          type: "natural_person",
+          status: "active",
+          current_short_name: "Mustermann",
+          detail: {
+            job_titles: [
+              {
+                value: "Software Engineer",
+                valid_from: "2020-01-01T00:00:00.000",
+              },
+            ],
+          },
+        },
+        { status: 200 },
+      );
     });
 
     const options: FetchAddresseeOptions = {
@@ -1687,15 +1778,17 @@ describe("fetchAddressee", () => {
         job_titles: [
           {
             value: "Software Engineer",
-            valid_from: "2020-01-01T00:00:00.000"
-          }
-        ]
-      }
+            valid_from: "2020-01-01T00:00:00.000",
+          },
+        ],
+      },
     });
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+    );
     expect(url.searchParams.get("select")).toBe("id,type,current_short_name");
     expect(url.searchParams.get("expand")).toBe("detail");
     expect(init?.method).toBe("GET");
@@ -1714,7 +1807,7 @@ describe("createAddressee", () => {
       type: "natural_person",
       current_short_name: "Mustermann",
       firstname: "Max",
-      status: "active"
+      status: "active",
     };
 
     const options: CreateAddresseeOptions = {
@@ -1751,7 +1844,7 @@ describe("updateAddressee", () => {
       type: "natural_person",
       current_short_name: "Mustermann Updated",
       firstname: "Max",
-      status: "active"
+      status: "active",
     };
 
     const options: UpdateAddresseeOptions = {
@@ -1769,7 +1862,9 @@ describe("updateAddressee", () => {
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/addressees/16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+    );
     expect(init?.method).toBe("PUT");
     expect(JSON.parse(init?.body as string)).toEqual(addresseeData);
   });
@@ -1780,12 +1875,15 @@ describe("fetchAddresseesDeletionLog", () => {
     const calls: FetchCall[] = [];
     const fetchMock = createFetchMock(async (input, init) => {
       calls.push({ url: new URL(String(input)), init });
-      return createJsonResponse([
-        {
-          id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
-          timestamp: "2019-03-31T20:06:51.670"
-        }
-      ], { status: 200 });
+      return createJsonResponse(
+        [
+          {
+            id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+            timestamp: "2019-03-31T20:06:51.670",
+          },
+        ],
+        { status: 200 },
+      );
     });
 
     const options: FetchAddresseesDeletionLogOptions = {
@@ -1799,16 +1897,22 @@ describe("fetchAddresseesDeletionLog", () => {
 
     const response = await fetchAddresseesDeletionLog(options);
 
-    expect(response).toEqual([{
-      id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
-      timestamp: "2019-03-31T20:06:51.670"
-    }]);
+    expect(response).toEqual([
+      {
+        id: "16b9d6d3-117b-4553-b0b0-3659eb0279d7",
+        timestamp: "2019-03-31T20:06:51.670",
+      },
+    ]);
     expect(calls).toHaveLength(1);
 
     const [{ url, init }] = calls;
-    expect(url.pathname).toBe("/datevconnect/master-data/v1/addressees/deletion-log");
+    expect(url.pathname).toBe(
+      "/datevconnect/master-data/v1/addressees/deletion-log",
+    );
     expect(url.searchParams.get("select")).toBe("id,timestamp");
-    expect(url.searchParams.get("filter")).toBe("timestamp gt 2019-01-01T00:00:00.000");
+    expect(url.searchParams.get("filter")).toBe(
+      "timestamp gt 2019-01-01T00:00:00.000",
+    );
     expect(init?.method).toBe("GET");
   });
 });

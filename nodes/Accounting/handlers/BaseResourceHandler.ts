@@ -35,7 +35,11 @@ export abstract class BaseResourceHandler {
    * Gets an optional string parameter
    */
   protected getOptionalString(name: string): string | undefined {
-    const value = this.context.getNodeParameter(name, this.itemIndex, "") as string;
+    const value = this.context.getNodeParameter(
+      name,
+      this.itemIndex,
+      "",
+    ) as string;
     return value || undefined;
   }
 
@@ -48,7 +52,7 @@ export abstract class BaseResourceHandler {
       throw new NodeOperationError(
         this.context.getNode(),
         `Parameter "${name}" is required`,
-        { itemIndex: this.itemIndex }
+        { itemIndex: this.itemIndex },
       );
     }
     return value;
@@ -58,22 +62,29 @@ export abstract class BaseResourceHandler {
    * Gets a number parameter with default value
    */
   protected getNumberParameter(name: string, defaultValue: number): number {
-    const value = this.context.getNodeParameter(name, this.itemIndex, defaultValue) as number;
-    return typeof value === 'number' ? value : defaultValue;
+    const value = this.context.getNodeParameter(
+      name,
+      this.itemIndex,
+      defaultValue,
+    ) as number;
+    return typeof value === "number" ? value : defaultValue;
   }
 
   /**
    * Parses a JSON parameter
    */
-  protected parseJsonParameter(rawValue: unknown, parameterLabel: string): JsonValue {
-    if (typeof rawValue === 'string') {
+  protected parseJsonParameter(
+    rawValue: unknown,
+    parameterLabel: string,
+  ): JsonValue {
+    if (typeof rawValue === "string") {
       try {
         return JSON.parse(rawValue);
       } catch {
         throw new NodeOperationError(
           this.context.getNode(),
           `Invalid JSON in parameter "${parameterLabel}"`,
-          { itemIndex: this.itemIndex }
+          { itemIndex: this.itemIndex },
         );
       }
     }
@@ -115,9 +126,13 @@ export abstract class BaseResourceHandler {
   /**
    * Creates a success response function that formats and adds data to returnData
    */
-  protected createSendSuccess(returnData: INodeExecutionData[]): (payload?: JsonValue) => void {
+  protected createSendSuccess(
+    returnData: INodeExecutionData[],
+  ): (payload?: JsonValue) => void {
     return (payload?: JsonValue): void => {
-      const formattedData = this.normalizeToObjects(payload ?? { success: true });
+      const formattedData = this.normalizeToObjects(
+        payload ?? { success: true },
+      );
       const executionData = this.context.helpers.constructExecutionMetaData(
         this.context.helpers.returnJsonArray(formattedData),
         { itemData: { item: this.itemIndex } },
@@ -134,9 +149,9 @@ export abstract class BaseResourceHandler {
       return [{}];
     }
     if (Array.isArray(value)) {
-      return value.map(item => this.normalizeToObjects(item)[0]);
+      return value.map((item) => this.normalizeToObjects(item)[0]);
     }
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       return [value as IDataObject];
     }
     return [{ value }];
@@ -149,11 +164,11 @@ export abstract class BaseResourceHandler {
     if (error instanceof Error) {
       return error.message;
     }
-    if (typeof error === 'string') {
+    if (typeof error === "string") {
       return error;
     }
     if (error === null || error === undefined) {
-      return 'Unknown error';
+      return "Unknown error";
     }
     return JSON.stringify(error);
   }
@@ -166,14 +181,18 @@ export abstract class BaseResourceHandler {
       return error as JsonObject;
     }
 
-    const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
+    const message =
+      error instanceof Error ? error.message : String(error ?? "Unknown error");
     return { message } satisfies JsonObject;
   }
 
   /**
    * Handles errors according to continueOnFail setting
    */
-  protected handleError(error: unknown, returnData: INodeExecutionData[]): void {
+  protected handleError(
+    error: unknown,
+    returnData: INodeExecutionData[],
+  ): void {
     if (this.context.continueOnFail()) {
       returnData.push({
         json: {

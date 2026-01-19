@@ -2,7 +2,10 @@
  * Shared utilities for DATEV API clients
  */
 
-import { createFetchFromHttpHelper, type HttpRequestHelper } from './httpHelpers';
+import {
+  createFetchFromHttpHelper,
+  type HttpRequestHelper,
+} from "./httpHelpers";
 
 export type JsonValue =
   | null
@@ -12,7 +15,7 @@ export type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
-export { type HttpRequestHelper } from './httpHelpers';
+export { type HttpRequestHelper } from "./httpHelpers";
 
 export interface AuthenticateOptions {
   host: string;
@@ -45,16 +48,23 @@ export function normaliseBaseUrl(host: string): string {
   return host.endsWith("/") ? host : `${host}/`;
 }
 
-export function buildHeaders(headers: Record<string, string | undefined>): HeadersInit {
-  return Object.entries(headers).reduce<Record<string, string>>((acc, [key, value]) => {
-    if (value) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
+export function buildHeaders(
+  headers: Record<string, string | undefined>,
+): HeadersInit {
+  return Object.entries(headers).reduce<Record<string, string>>(
+    (acc, [key, value]) => {
+      if (value) {
+        acc[key] = value;
+      }
+      return acc;
+    },
+    {},
+  );
 }
 
-export async function readResponseBody(response: Response): Promise<JsonValue | string | undefined> {
+export async function readResponseBody(
+  response: Response,
+): Promise<JsonValue | string | undefined> {
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.toLowerCase().includes(JSON_CONTENT_TYPE)) {
@@ -77,7 +87,8 @@ export function extractErrorMessage(
   response: Response,
   body: JsonValue | string | undefined,
 ): string {
-  const statusPart = `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
+  const statusPart =
+    `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
   const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
 
   if (typeof body === "string" && body.trim().length > 0) {
@@ -85,15 +96,18 @@ export function extractErrorMessage(
   }
 
   if (body && typeof body === "object") {
-    const errorDescription = "error_description" in body && typeof body.error_description === "string"
-      ? body.error_description
-      : undefined;
+    const errorDescription =
+      "error_description" in body && typeof body.error_description === "string"
+        ? body.error_description
+        : undefined;
 
     const message =
       ("message" in body && typeof body.message === "string"
         ? body.message
         : undefined) ||
-      ("error" in body && typeof body.error === "string" ? body.error : undefined);
+      ("error" in body && typeof body.error === "string"
+        ? body.error
+        : undefined);
     if (message) {
       return `${prefix}: ${message}${errorDescription ? `: ${errorDescription}` : ""}`;
     }
@@ -102,7 +116,9 @@ export function extractErrorMessage(
   return prefix;
 }
 
-export async function ensureSuccess(response: Response): Promise<JsonValue | undefined> {
+export async function ensureSuccess(
+  response: Response,
+): Promise<JsonValue | undefined> {
   const body = await readResponseBody(response);
 
   if (!response.ok) {
@@ -130,14 +146,24 @@ export function buildApiUrl(host: string, path: string): URL {
  * Authenticate with DATEV API
  * Uses httpHelper (n8n's httpRequest) when available, falls back to fetchImpl for tests, or global fetch
  */
-export async function authenticate(options: AuthenticateOptions): Promise<AuthenticateResponse> {
-  const { host, email, password, httpHelper, fetchImpl: providedFetchImpl } = options;
+export async function authenticate(
+  options: AuthenticateOptions,
+): Promise<AuthenticateResponse> {
+  const {
+    host,
+    email,
+    password,
+    httpHelper,
+    fetchImpl: providedFetchImpl,
+  } = options;
   const baseUrl = normaliseBaseUrl(host);
   const url = new URL("api/auth/login", baseUrl);
 
   // Use httpHelper if provided (n8n runtime), else fetchImpl (tests), else global fetch (fallback)
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
-  
+  const fetchImpl = httpHelper
+    ? createFetchFromHttpHelper(httpHelper)
+    : providedFetchImpl || fetch;
+
   const response = await fetchImpl(url, {
     method: "POST",
     headers: buildHeaders({
@@ -148,8 +174,15 @@ export async function authenticate(options: AuthenticateOptions): Promise<Authen
 
   const body = await ensureSuccess(response);
 
-  if (!body || typeof body !== "object" || !("access_token" in body) || typeof body.access_token !== "string") {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Authentication response missing access_token.`);
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !("access_token" in body) ||
+    typeof body.access_token !== "string"
+  ) {
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Authentication response missing access_token.`,
+    );
   }
 
   return body as AuthenticateResponse;

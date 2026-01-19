@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { StocktakingDataResourceHandler } from "../../../../nodes/Accounting/handlers/StocktakingDataResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -16,12 +24,12 @@ const mockStocktakingData = [
     inventory_number: "320009",
     accounting_reason: 30,
     general_ledger_account: {
-      account_number: 8400
+      account_number: 8400,
     },
     inventory_name: "MB Vito 109 CDI Kombi",
     acquisition_date: "2005-04-29T00:00:00+02:00",
     economic_lifetime: 120,
-    kost1_cost_center_id: "cc_001"
+    kost1_cost_center_id: "cc_001",
   },
   {
     id: "502",
@@ -29,13 +37,13 @@ const mockStocktakingData = [
     inventory_number: "320010",
     accounting_reason: 50,
     general_ledger_account: {
-      account_number: 8500
+      account_number: 8500,
     },
     inventory_name: "Dell Laptop Precision",
     acquisition_date: "2023-01-15T00:00:00+01:00",
     economic_lifetime: 36,
-    kost1_cost_center_id: "cc_002"
-  }
+    kost1_cost_center_id: "cc_002",
+  },
 ];
 
 const mockSingleStocktakingData = {
@@ -44,12 +52,12 @@ const mockSingleStocktakingData = {
   inventory_number: "320009",
   accounting_reason: 30,
   general_ledger_account: {
-    account_number: 8400
+    account_number: 8400,
   },
   inventory_name: "MB Vito 109 CDI Kombi",
   acquisition_date: "2005-04-29T00:00:00+02:00",
   economic_lifetime: 120,
-  kost1_cost_center_id: "cc_001"
+  kost1_cost_center_id: "cc_001",
 };
 
 const mockUpdateResult = {
@@ -58,12 +66,12 @@ const mockUpdateResult = {
   inventory_number: "320009",
   accounting_reason: 30,
   general_ledger_account: {
-    account_number: 8400
+    account_number: 8400,
   },
   inventory_name: "MB Vito 109 CDI Kombi - Updated",
   acquisition_date: "2005-04-29T00:00:00+02:00",
   economic_lifetime: 120,
-  kost1_cost_center_id: "cc_001"
+  kost1_cost_center_id: "cc_001",
 };
 
 // Mock IExecuteFunctions
@@ -75,30 +83,35 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "assetId": "ASSET001",
-      "stocktakingData": JSON.stringify({
-        counted_quantity: 1,
-        condition: "excellent",
-        notes: "Updated after thorough inspection",
-        verification_date: "2023-12-31T15:30:00Z",
-        verified_by: "Inspector Smith"
-      }),
-      "top": 50,
-      "skip": 10,
-      "select": "asset_id,asset_name,asset_category,location,counted_quantity,condition",
-      "filter": "status eq 'active'",
-      "expand": "maintenance_records,stocktaking_history",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        assetId: "ASSET001",
+        stocktakingData: JSON.stringify({
+          counted_quantity: 1,
+          condition: "excellent",
+          notes: "Updated after thorough inspection",
+          verification_date: "2023-12-31T15:30:00Z",
+          verified_by: "Inspector Smith",
+        }),
+        top: 50,
+        skip: 10,
+        select:
+          "asset_id,asset_name,asset_category,location,counted_quantity,condition",
+        filter: "status eq 'active'",
+        expand: "maintenance_records,stocktaking_history",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -110,14 +123,23 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "FY2023"
+  fiscalYearId: "FY2023",
 };
 
 describe("StocktakingDataResourceHandler", () => {
   beforeEach(() => {
-    getStocktakingDataSpy = spyOn(datevConnectClient.accounting, "getStocktakingData").mockResolvedValue(mockStocktakingData as any);
-    getStocktakingDataByAssetSpy = spyOn(datevConnectClient.accounting, "getStocktakingDataByAsset").mockResolvedValue(mockSingleStocktakingData as any);
-    updateStocktakingDataSpy = spyOn(datevConnectClient.accounting, "updateStocktakingData").mockResolvedValue(mockUpdateResult as any);
+    getStocktakingDataSpy = spyOn(
+      datevConnectClient.accounting,
+      "getStocktakingData",
+    ).mockResolvedValue(mockStocktakingData as any);
+    getStocktakingDataByAssetSpy = spyOn(
+      datevConnectClient.accounting,
+      "getStocktakingDataByAsset",
+    ).mockResolvedValue(mockSingleStocktakingData as any);
+    updateStocktakingDataSpy = spyOn(
+      datevConnectClient.accounting,
+      "updateStocktakingData",
+    ).mockResolvedValue(mockUpdateResult as any);
   });
 
   afterEach(() => {
@@ -141,10 +163,11 @@ describe("StocktakingDataResourceHandler", () => {
         {
           top: 50,
           skip: 10,
-          select: "asset_id,asset_name,asset_category,location,counted_quantity,condition",
+          select:
+            "asset_id,asset_name,asset_category,location,counted_quantity,condition",
           filter: "status eq 'active'",
-          expand: "maintenance_records,stocktaking_history"
-        }
+          expand: "maintenance_records,stocktaking_history",
+        },
       );
 
       expect(returnData).toHaveLength(2); // Array with 2 assets becomes 2 items
@@ -182,8 +205,8 @@ describe("StocktakingDataResourceHandler", () => {
           skip: 5,
           select: "asset_id,asset_name,condition",
           filter: "department eq 'Manufacturing'",
-          expand: "maintenance_records"
-        }
+          expand: "maintenance_records",
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -199,8 +222,8 @@ describe("StocktakingDataResourceHandler", () => {
           skip: 5,
           select: "asset_id,asset_name,condition",
           filter: "department eq 'Manufacturing'",
-          expand: "maintenance_records"
-        })
+          expand: "maintenance_records",
+        }),
       );
     });
   });
@@ -221,10 +244,11 @@ describe("StocktakingDataResourceHandler", () => {
         {
           top: 50,
           skip: 10,
-          select: "asset_id,asset_name,asset_category,location,counted_quantity,condition",
+          select:
+            "asset_id,asset_name,asset_category,location,counted_quantity,condition",
           filter: "status eq 'active'",
-          expand: "maintenance_records,stocktaking_history"
-        }
+          expand: "maintenance_records,stocktaking_history",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -233,26 +257,26 @@ describe("StocktakingDataResourceHandler", () => {
 
     test("requires assetId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: undefined }
+        parameters: { assetId: undefined },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"assetId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "assetId" is required');
     });
 
     test("handles empty assetId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: "" }
+        parameters: { assetId: "" },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"assetId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "assetId" is required');
     });
 
     test("handles null response for single asset", async () => {
@@ -272,8 +296,8 @@ describe("StocktakingDataResourceHandler", () => {
         parameters: {
           assetId: "ASSET002",
           select: "asset_id,asset_name,net_book_value",
-          expand: "stocktaking_history"
-        }
+          expand: "stocktaking_history",
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -287,8 +311,8 @@ describe("StocktakingDataResourceHandler", () => {
         "ASSET002",
         expect.objectContaining({
           select: "asset_id,asset_name,net_book_value",
-          expand: "stocktaking_history"
-        })
+          expand: "stocktaking_history",
+        }),
       );
     });
   });
@@ -311,8 +335,8 @@ describe("StocktakingDataResourceHandler", () => {
           condition: "excellent",
           notes: "Updated after thorough inspection",
           verification_date: "2023-12-31T15:30:00Z",
-          verified_by: "Inspector Smith"
-        }
+          verified_by: "Inspector Smith",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -321,67 +345,67 @@ describe("StocktakingDataResourceHandler", () => {
 
     test("requires assetId parameter for update", async () => {
       const context = createMockContext({
-        parameters: { assetId: undefined }
+        parameters: { assetId: undefined },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"assetId\" is required");
+        handler.execute("update", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "assetId" is required');
     });
 
     test("requires stocktakingData parameter", async () => {
       const context = createMockContext({
-        parameters: { stocktakingData: undefined }
+        parameters: { stocktakingData: undefined },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"stocktakingData\" is required");
+        handler.execute("update", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "stocktakingData" is required');
     });
 
     test("handles invalid JSON in stocktakingData parameter", async () => {
       const context = createMockContext({
         parameters: {
-          stocktakingData: "invalid json"
-        }
+          stocktakingData: "invalid json",
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
-      ).rejects.toThrow("Invalid JSON in parameter \"stocktakingData\"");
+        handler.execute("update", mockAuthContext, returnData),
+      ).rejects.toThrow('Invalid JSON in parameter "stocktakingData"');
     });
 
     test("validates stocktakingData is an object", async () => {
       const context = createMockContext({
         parameters: {
-          stocktakingData: JSON.stringify([{ invalid: "array" }])
-        }
+          stocktakingData: JSON.stringify([{ invalid: "array" }]),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
+        handler.execute("update", mockAuthContext, returnData),
       ).rejects.toThrow("Stocktaking data must be a valid JSON object");
     });
 
     test("validates stocktakingData is not null", async () => {
       const context = createMockContext({
         parameters: {
-          stocktakingData: JSON.stringify(null)
-        }
+          stocktakingData: JSON.stringify(null),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
+        handler.execute("update", mockAuthContext, returnData),
       ).rejects.toThrow("Stocktaking data must be a valid JSON object");
     });
 
@@ -397,14 +421,14 @@ describe("StocktakingDataResourceHandler", () => {
         discrepancy_reason: "Unrecorded purchase",
         corrective_action: "Update asset register",
         maintenance_required: true,
-        next_inspection_date: "2024-06-30"
+        next_inspection_date: "2024-06-30",
       };
 
       const context = createMockContext({
         parameters: {
           assetId: "ASSET003",
-          stocktakingData: JSON.stringify(complexUpdateData)
-        }
+          stocktakingData: JSON.stringify(complexUpdateData),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -423,8 +447,8 @@ describe("StocktakingDataResourceHandler", () => {
           condition: "fair",
           discrepancy_reason: "Unrecorded purchase",
           corrective_action: "Update asset register",
-          maintenance_required: true
-        })
+          maintenance_required: true,
+        }),
       );
     });
 
@@ -442,21 +466,23 @@ describe("StocktakingDataResourceHandler", () => {
 
     test("handles undefined stocktakingData parameter gracefully", async () => {
       const context = createMockContext({
-        parameters: { stocktakingData: undefined }
+        parameters: { stocktakingData: undefined },
       });
       // Override getNodeParameter to return undefined
-      context.getNodeParameter = mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-        if (name === "stocktakingData") return undefined;
-        if (name === "assetId") return "ASSET001";
-        return defaultValue;
-      });
-      
+      context.getNodeParameter = mock(
+        (name: string, itemIndex: number, defaultValue?: unknown) => {
+          if (name === "stocktakingData") return undefined;
+          if (name === "assetId") return "ASSET001";
+          return defaultValue;
+        },
+      );
+
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"stocktakingData\" is required");
+        handler.execute("update", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "stocktakingData" is required');
     });
   });
 
@@ -467,18 +493,20 @@ describe("StocktakingDataResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "stocktakingData".');
+        handler.execute("unsupportedOperation", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "stocktakingData".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getStocktakingDataSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -489,24 +517,28 @@ describe("StocktakingDataResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      getStocktakingDataByAssetSpy.mockRejectedValueOnce(new Error("Asset not found"));
+      getStocktakingDataByAssetSpy.mockRejectedValueOnce(
+        new Error("Asset not found"),
+      );
       const context = createMockContext();
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
+        handler.execute("get", mockAuthContext, returnData),
       ).rejects.toThrow("Asset not found");
     });
 
     test("handles network timeout errors", async () => {
-      updateStocktakingDataSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      updateStocktakingDataSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -523,36 +555,42 @@ describe("StocktakingDataResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
 
     test("handles validation errors from update operations", async () => {
-      updateStocktakingDataSpy.mockRejectedValueOnce(new Error("Validation Error: Invalid asset condition"));
+      updateStocktakingDataSpy.mockRejectedValueOnce(
+        new Error("Validation Error: Invalid asset condition"),
+      );
       const context = createMockContext();
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
+        handler.execute("update", mockAuthContext, returnData),
       ).rejects.toThrow("Validation Error: Invalid asset condition");
     });
 
     test("handles database connection errors", async () => {
-      getStocktakingDataByAssetSpy.mockRejectedValueOnce(new Error("Database connection failed"));
+      getStocktakingDataByAssetSpy.mockRejectedValueOnce(
+        new Error("Database connection failed"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ error: "Database connection failed" });
+      expect(returnData[0].json).toEqual({
+        error: "Database connection failed",
+      });
     });
   });
 
@@ -568,7 +606,7 @@ describe("StocktakingDataResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -586,10 +624,10 @@ describe("StocktakingDataResourceHandler", () => {
       getStocktakingDataSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new StocktakingDataResourceHandler(context, 2);
       const returnData: any[] = [];
 
@@ -615,9 +653,9 @@ describe("StocktakingDataResourceHandler", () => {
         parameters: {
           stocktakingData: JSON.stringify({
             test: "data",
-            counted_quantity: 5
-          })
-        }
+            counted_quantity: 5,
+          }),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -631,8 +669,8 @@ describe("StocktakingDataResourceHandler", () => {
         "ASSET001",
         expect.objectContaining({
           test: "data",
-          counted_quantity: 5
-        })
+          counted_quantity: 5,
+        }),
       );
     });
   });
@@ -640,7 +678,7 @@ describe("StocktakingDataResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves assetId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: "TEST_ASSET" }
+        parameters: { assetId: "TEST_ASSET" },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -652,7 +690,7 @@ describe("StocktakingDataResourceHandler", () => {
         "client-123",
         "FY2023",
         "TEST_ASSET",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -663,8 +701,8 @@ describe("StocktakingDataResourceHandler", () => {
           skip: 5,
           select: "asset_id,asset_name,condition",
           filter: "location eq 'Warehouse A'",
-          expand: "maintenance_records"
-        }
+          expand: "maintenance_records",
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -680,8 +718,8 @@ describe("StocktakingDataResourceHandler", () => {
           skip: 5,
           select: "asset_id,asset_name,condition",
           filter: "location eq 'Warehouse A'",
-          expand: "maintenance_records"
-        })
+          expand: "maintenance_records",
+        }),
       );
     });
 
@@ -696,30 +734,30 @@ describe("StocktakingDataResourceHandler", () => {
         verified_by: "Expert Inspector",
         damage_assessment: {
           severity: "minor",
-          repair_cost_estimate: 250.00,
-          repair_urgency: "medium"
+          repair_cost_estimate: 250.0,
+          repair_urgency: "medium",
         },
         location_changes: [
           {
             from: "Storage Room A",
             to: "Workshop",
             date: "2023-12-15",
-            reason: "Scheduled maintenance"
-          }
+            reason: "Scheduled maintenance",
+          },
         ],
         compliance_checks: {
           safety_inspection: "passed",
           environmental_compliance: "passed",
           certification_valid: true,
-          next_certification_date: "2024-12-31"
-        }
+          next_certification_date: "2024-12-31",
+        },
       };
 
       const context = createMockContext({
         parameters: {
           assetId: "COMPLEX_ASSET",
-          stocktakingData: JSON.stringify(complexStocktakingData)
-        }
+          stocktakingData: JSON.stringify(complexStocktakingData),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -738,27 +776,27 @@ describe("StocktakingDataResourceHandler", () => {
           condition: "needs_repair",
           damage_assessment: expect.objectContaining({
             severity: "minor",
-            repair_cost_estimate: 250.00
+            repair_cost_estimate: 250.0,
           }),
           location_changes: expect.arrayContaining([
             expect.objectContaining({
               from: "Storage Room A",
-              to: "Workshop"
-            })
+              to: "Workshop",
+            }),
           ]),
           compliance_checks: expect.objectContaining({
             safety_inspection: "passed",
-            certification_valid: true
-          })
-        })
+            certification_valid: true,
+          }),
+        }),
       );
     });
 
     test("handles empty stocktakingData object", async () => {
       const context = createMockContext({
         parameters: {
-          stocktakingData: JSON.stringify({})
-        }
+          stocktakingData: JSON.stringify({}),
+        },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -770,7 +808,7 @@ describe("StocktakingDataResourceHandler", () => {
         "client-123",
         "FY2023",
         "ASSET001",
-        {}
+        {},
       );
     });
   });
@@ -781,7 +819,7 @@ describe("StocktakingDataResourceHandler", () => {
         { asset_id: "A1", asset_category: "machinery", condition: "excellent" },
         { asset_id: "A2", asset_category: "equipment", condition: "good" },
         { asset_id: "A3", asset_category: "furniture", condition: "fair" },
-        { asset_id: "A4", asset_category: "vehicles", condition: "poor" }
+        { asset_id: "A4", asset_category: "vehicles", condition: "poor" },
       ];
 
       getStocktakingDataSpy.mockResolvedValueOnce(assetsWithCategories as any);
@@ -805,11 +843,13 @@ describe("StocktakingDataResourceHandler", () => {
         condition_details: {
           visual_inspection: "poor",
           functional_test: "failed",
-          safety_check: "warning"
-        }
+          safety_check: "warning",
+        },
       };
 
-      getStocktakingDataByAssetSpy.mockResolvedValueOnce(assetConditions as any);
+      getStocktakingDataByAssetSpy.mockResolvedValueOnce(
+        assetConditions as any,
+      );
       const context = createMockContext();
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -817,8 +857,12 @@ describe("StocktakingDataResourceHandler", () => {
       await handler.execute("get", mockAuthContext, returnData);
 
       expect(returnData[0].json.condition).toBe("needs_repair");
-      expect(returnData[0].json.condition_details.visual_inspection).toBe("poor");
-      expect(returnData[0].json.condition_details.functional_test).toBe("failed");
+      expect(returnData[0].json.condition_details.visual_inspection).toBe(
+        "poor",
+      );
+      expect(returnData[0].json.condition_details.functional_test).toBe(
+        "failed",
+      );
     });
 
     test("handles numeric precision in financial data", async () => {
@@ -827,7 +871,7 @@ describe("StocktakingDataResourceHandler", () => {
         unit_value: 1234.567,
         acquisition_cost: 9999.99,
         accumulated_depreciation: 2345.678,
-        net_book_value: 7654.312
+        net_book_value: 7654.312,
       };
 
       getStocktakingDataByAssetSpy.mockResolvedValueOnce(preciseAsset as any);
@@ -851,7 +895,7 @@ describe("StocktakingDataResourceHandler", () => {
         last_maintenance: "2023-11-15",
         next_maintenance: "2024-05-15",
         verification_date: "2023-12-31T14:30:00Z",
-        warranty_until: "2025-03-10"
+        warranty_until: "2025-03-10",
       };
 
       getStocktakingDataByAssetSpy.mockResolvedValueOnce(assetWithDates as any);
@@ -875,7 +919,7 @@ describe("StocktakingDataResourceHandler", () => {
         is_insured: true,
         is_leased: false,
         has_warranty: true,
-        is_certified: false
+        is_certified: false,
       };
 
       getStocktakingDataByAssetSpy.mockResolvedValueOnce(assetWithFlags as any);
@@ -900,19 +944,21 @@ describe("StocktakingDataResourceHandler", () => {
           {
             date: "2023-11-15",
             type: "preventive",
-            cost: 150.00,
-            parts_replaced: ["filter", "oil", "gasket"]
+            cost: 150.0,
+            parts_replaced: ["filter", "oil", "gasket"],
           },
           {
             date: "2023-08-10",
             type: "repair",
-            cost: 300.00,
-            parts_replaced: ["motor", "bearing"]
-          }
-        ]
+            cost: 300.0,
+            parts_replaced: ["motor", "bearing"],
+          },
+        ],
       };
 
-      getStocktakingDataByAssetSpy.mockResolvedValueOnce(assetWithMaintenance as any);
+      getStocktakingDataByAssetSpy.mockResolvedValueOnce(
+        assetWithMaintenance as any,
+      );
       const context = createMockContext();
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -920,8 +966,15 @@ describe("StocktakingDataResourceHandler", () => {
       await handler.execute("get", mockAuthContext, returnData);
 
       expect(returnData[0].json.maintenance_records).toHaveLength(2);
-      expect(returnData[0].json.maintenance_records[0].parts_replaced).toEqual(["filter", "oil", "gasket"]);
-      expect(returnData[0].json.maintenance_records[1].parts_replaced).toEqual(["motor", "bearing"]);
+      expect(returnData[0].json.maintenance_records[0].parts_replaced).toEqual([
+        "filter",
+        "oil",
+        "gasket",
+      ]);
+      expect(returnData[0].json.maintenance_records[1].parts_replaced).toEqual([
+        "motor",
+        "bearing",
+      ]);
     });
   });
 });

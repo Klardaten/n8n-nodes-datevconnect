@@ -27,7 +27,7 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
       default:
         throw new NodeOperationError(
           this.context.getNode(),
-          `The operation "${operation}" is not supported for document states`
+          `The operation "${operation}" is not supported for document states`,
         );
     }
   }

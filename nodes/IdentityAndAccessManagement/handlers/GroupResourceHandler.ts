@@ -13,7 +13,8 @@ export class GroupResourceHandler extends BaseResourceHandler {
 
     switch (operation) {
       case "getAll": {
-        const response = await IdentityAndAccessManagementClient.fetchGroups(authContext);
+        const response =
+          await IdentityAndAccessManagementClient.fetchGroups(authContext);
         sendSuccess(response);
         return;
       }

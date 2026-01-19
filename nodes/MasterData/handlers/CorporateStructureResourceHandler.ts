@@ -1,9 +1,9 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
-import { 
-  type JsonValue, 
+import {
+  type JsonValue,
   fetchCorporateStructures,
   fetchCorporateStructure,
-  fetchEstablishment 
+  fetchEstablishment,
 } from "../../../src/services/datevConnectClient";
 import type { AuthContext, CorporateStructureOperation } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
@@ -72,7 +72,9 @@ export class CorporateStructureResourceHandler extends BaseResourceHandler {
     });
   }
 
-  private async handleGetEstablishment(authContext: AuthContext): Promise<JsonValue> {
+  private async handleGetEstablishment(
+    authContext: AuthContext,
+  ): Promise<JsonValue> {
     const organizationId = this.getRequiredString("organizationId");
     const establishmentId = this.getRequiredString("establishmentId");
     const select = this.getOptionalString("select");

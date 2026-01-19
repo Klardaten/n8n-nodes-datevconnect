@@ -12,17 +12,17 @@ export interface RequestContext {
   clientInstanceId: string;
   httpHelper?: HttpRequestHelper;
   // Operation parameters (conditionally required based on endpoint)
-  clientId?: string;        // Optional - not needed for /clients getAll endpoint
-  fiscalYearId?: string;    // Optional - not needed for client/fiscal-year endpoints
+  clientId?: string; // Optional - not needed for /clients getAll endpoint
+  fiscalYearId?: string; // Optional - not needed for client/fiscal-year endpoints
 }
 
 // Legacy alias for backward compatibility during transition
 export type AuthContext = RequestContext;
 
 // Supported accounting resources
-export type AccountingResource = 
+export type AccountingResource =
   | "client"
-  | "fiscalYear" 
+  | "fiscalYear"
   | "accountsReceivable"
   | "accountsPayable"
   | "accountPosting"
@@ -48,26 +48,46 @@ export type FiscalYearOperation = "getAll" | "get";
 export type AccountsReceivableOperation = "getAll" | "get" | "getCondensed";
 export type AccountsPayableOperation = "getAll" | "get" | "getCondensed";
 export type AccountPostingOperation = "getAll" | "get";
-export type AccountingSequenceOperation = "create" | "getAll" | "get" | "getAccountingRecords" | "getAccountingRecord";
+export type AccountingSequenceOperation =
+  | "create"
+  | "getAll"
+  | "get"
+  | "getAccountingRecords"
+  | "getAccountingRecord";
 export type TermsOfPaymentOperation = "getAll" | "get" | "create" | "update";
 export type CreditorOperation = "getAll" | "get" | "create" | "update";
 export type CostSequenceOperation = "getAll" | "get" | "create";
 export type DebitorsOperation = "getAll" | "get" | "create" | "update";
 export type FixedAssetOperation = "getAll" | "get";
 export type InternalCostServiceOperation = "getAll" | "get" | "create";
-export type PostingProposalOperation = "getAll" | "get" | "getRulesIncoming" | "getRulesOutgoing" | "getRulesCashRegister" | "getRuleIncoming" | "getRuleOutgoing" | "getRuleCashRegister" | "batchIncoming" | "batchOutgoing" | "batchCashRegister";
+export type PostingProposalOperation =
+  | "getAll"
+  | "get"
+  | "getRulesIncoming"
+  | "getRulesOutgoing"
+  | "getRulesCashRegister"
+  | "getRuleIncoming"
+  | "getRuleOutgoing"
+  | "getRuleCashRegister"
+  | "batchIncoming"
+  | "batchOutgoing"
+  | "batchCashRegister";
 export type StocktakingDataOperation = "getAll" | "get" | "update";
 export type VariousAddressOperation = "getAll" | "get" | "create";
 export type VariousDocumentOperation = "getAll" | "get";
 export type MasterDataCostSequenceOperation = "getAll" | "get" | "create";
-export type MasterDataCreditorOperation = "getAll" | "get" | "create" | "update";
+export type MasterDataCreditorOperation =
+  | "getAll"
+  | "get"
+  | "create"
+  | "update";
 export type MasterDataDebitorOperation = "getAll" | "get" | "create" | "update";
 export type MasterDataFixedAssetOperation = "getAll" | "get";
 export type MasterDataStocktakingDataOperation = "getAll" | "get" | "update";
 export type MasterDataVariousAddressOperation = "getAll" | "get" | "create";
 
 // Union type for all operations
-export type AccountingOperation = 
+export type AccountingOperation =
   | ClientOperation
   | FiscalYearOperation
   | AccountsReceivableOperation

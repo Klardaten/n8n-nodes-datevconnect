@@ -19,7 +19,8 @@ export class ResourceTypeResourceHandler extends BaseResourceHandler {
       );
     }
 
-    const response = await IdentityAndAccessManagementClient.fetchResourceTypes(authContext);
+    const response =
+      await IdentityAndAccessManagementClient.fetchResourceTypes(authContext);
     sendSuccess(response);
   }
 }

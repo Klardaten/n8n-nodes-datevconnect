@@ -29,7 +29,7 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
         case "getRulesCashRegister":
           response = await this.handleGetRulesCashRegister(requestContext);
           break;
-        case "getRuleIncoming":  
+        case "getRuleIncoming":
           response = await this.handleGetRuleIncoming(requestContext);
           break;
         case "getRuleOutgoing":
@@ -63,54 +63,46 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
 
   // New handle methods for the converted pattern
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   // New handle methods for the converted pattern
-  private async handleGetRulesIncoming(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRulesIncoming(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRulesIncoming(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleGetRulesOutgoing(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRulesOutgoing(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRulesOutgoing(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleGetRulesCashRegister(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRulesCashRegister(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRulesCashRegister(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleGetRuleIncoming(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRuleIncoming(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const ruleId = this.getRequiredString("ruleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleIncoming(
@@ -118,11 +110,13 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       ruleId,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleGetRuleOutgoing(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRuleOutgoing(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const ruleId = this.getRequiredString("ruleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleOutgoing(
@@ -130,11 +124,13 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       ruleId,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleGetRuleCashRegister(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetRuleCashRegister(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const ruleId = this.getRequiredString("ruleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleCashRegister(
@@ -142,40 +138,64 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       ruleId,
-      queryParams
+      queryParams,
     );
   }
 
-  private async handleBatchIncoming(requestContext: RequestContext): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter("batchData", this.itemIndex);
-    const batchData: JsonValue = this.parseJsonParameter(batchDataRaw, "batchData");
+  private async handleBatchIncoming(
+    requestContext: RequestContext,
+  ): Promise<JsonValue | undefined> {
+    const batchDataRaw = this.context.getNodeParameter(
+      "batchData",
+      this.itemIndex,
+    );
+    const batchData: JsonValue = this.parseJsonParameter(
+      batchDataRaw,
+      "batchData",
+    );
     return await datevConnectClient.accounting.batchPostingProposalsIncoming(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      batchData
+      batchData,
     );
   }
 
-  private async handleBatchOutgoing(requestContext: RequestContext): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter("batchData", this.itemIndex);
-    const batchData: JsonValue = this.parseJsonParameter(batchDataRaw, "batchData");
+  private async handleBatchOutgoing(
+    requestContext: RequestContext,
+  ): Promise<JsonValue | undefined> {
+    const batchDataRaw = this.context.getNodeParameter(
+      "batchData",
+      this.itemIndex,
+    );
+    const batchData: JsonValue = this.parseJsonParameter(
+      batchDataRaw,
+      "batchData",
+    );
     return await datevConnectClient.accounting.batchPostingProposalsOutgoing(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      batchData
+      batchData,
     );
   }
 
-  private async handleBatchCashRegister(requestContext: RequestContext): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter("batchData", this.itemIndex);
-    const batchData: JsonValue = this.parseJsonParameter(batchDataRaw, "batchData");
+  private async handleBatchCashRegister(
+    requestContext: RequestContext,
+  ): Promise<JsonValue | undefined> {
+    const batchDataRaw = this.context.getNodeParameter(
+      "batchData",
+      this.itemIndex,
+    );
+    const batchData: JsonValue = this.parseJsonParameter(
+      batchDataRaw,
+      "batchData",
+    );
     return await datevConnectClient.accounting.batchPostingProposalsCashRegister(
       this.context,
-      requestContext.clientId!,  
+      requestContext.clientId!,
       requestContext.fiscalYearId!,
-      batchData
+      batchData,
     );
   }
 }

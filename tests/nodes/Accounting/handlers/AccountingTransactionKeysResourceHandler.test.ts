@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountingTransactionKeysResourceHandler } from "../../../../nodes/Accounting/handlers/AccountingTransactionKeysResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -22,7 +30,7 @@ const mockAccountingTransactionKeysData = [
     is_tax_rate_selectable: false,
     number: 51,
     tax_rate: 19.0,
-    group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen"
+    group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen",
   },
   {
     id: "52202401010",
@@ -37,7 +45,7 @@ const mockAccountingTransactionKeysData = [
     is_tax_rate_selectable: false,
     number: 52,
     tax_rate: 19.0,
-    group: "Umsatzsteuer 19%"
+    group: "Umsatzsteuer 19%",
   },
   {
     id: "53202401010",
@@ -52,8 +60,8 @@ const mockAccountingTransactionKeysData = [
     is_tax_rate_selectable: false,
     number: 53,
     tax_rate: 7.0,
-    group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen"
-  }
+    group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen",
+  },
 ];
 
 const mockSingleAccountingTransactionKey = {
@@ -69,7 +77,7 @@ const mockSingleAccountingTransactionKey = {
   is_tax_rate_selectable: false,
   number: 51,
   tax_rate: 19.0,
-  group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen"
+  group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen",
 };
 
 // Mock IExecuteFunctions
@@ -81,23 +89,27 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "accountingTransactionKeyId": "TXN001",
-      "top": 50,
-      "skip": 10,
-      "select": "id,key,name,category",
-      "filter": "is_active eq true",
-      "expand": "usage_statistics",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        accountingTransactionKeyId: "TXN001",
+        top: 50,
+        skip: 10,
+        select: "id,key,name,category",
+        filter: "is_active eq true",
+        expand: "usage_statistics",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -109,13 +121,19 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountingTransactionKeysResourceHandler", () => {
   beforeEach(() => {
-    getAccountingTransactionKeysSpy = spyOn(datevConnectClient.accounting, "getAccountingTransactionKeys").mockResolvedValue(mockAccountingTransactionKeysData);
-    getAccountingTransactionKeySpy = spyOn(datevConnectClient.accounting, "getAccountingTransactionKey").mockResolvedValue(mockSingleAccountingTransactionKey);
+    getAccountingTransactionKeysSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingTransactionKeys",
+    ).mockResolvedValue(mockAccountingTransactionKeysData);
+    getAccountingTransactionKeySpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountingTransactionKey",
+    ).mockResolvedValue(mockSingleAccountingTransactionKey);
   });
 
   afterEach(() => {
@@ -131,13 +149,18 @@ describe("AccountingTransactionKeysResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,key,name,category",
-        filter: "is_active eq true",
-        expand: "usage_statistics"
-      });
+      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,key,name,category",
+          filter: "is_active eq true",
+          expand: "usage_statistics",
+        },
+      );
 
       expect(returnData).toHaveLength(3);
       expect(returnData[0].json).toEqual({
@@ -153,7 +176,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         is_tax_rate_selectable: false,
         number: 51,
         tax_rate: 19.0,
-        group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen"
+        group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen",
       });
     });
 
@@ -183,41 +206,51 @@ describe("AccountingTransactionKeysResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
 
     test("handles filtered results by category", async () => {
       const context = createMockContext({
         parameters: {
-          filter: "category eq 'payment'"
-        }
+          filter: "category eq 'payment'",
+        },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,key,name,category",
-        filter: "category eq 'payment'",
-        expand: "usage_statistics"
-      });
+      expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,key,name,category",
+          filter: "category eq 'payment'",
+          expand: "usage_statistics",
+        },
+      );
     });
   });
 
@@ -229,13 +262,19 @@ describe("AccountingTransactionKeysResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountingTransactionKeySpy).toHaveBeenCalledWith(context, "client-123", "2023", "TXN001", {
-        top: 50,
-        skip: 10,
-        select: "id,key,name,category",
-        filter: "is_active eq true",
-        expand: "usage_statistics"
-      });
+      expect(getAccountingTransactionKeySpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "TXN001",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,key,name,category",
+          filter: "is_active eq true",
+          expand: "usage_statistics",
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -251,7 +290,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         is_tax_rate_selectable: false,
         number: 51,
         tax_rate: 19.0,
-        group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen"
+        group: "Vorsteuerbeträge aus Rechnungen von anderen Unternehmen",
       });
     });
 
@@ -282,22 +321,28 @@ describe("AccountingTransactionKeysResourceHandler", () => {
     test("handles parameters with default values for get", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-          "accountingTransactionKeyId": "test-key-id"
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+          accountingTransactionKeyId: "test-key-id",
+        },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountingTransactionKeySpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-key-id", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountingTransactionKeySpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "test-key-id",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -308,18 +353,24 @@ describe("AccountingTransactionKeysResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      getAccountingTransactionKeysSpy.mockRejectedValueOnce(new Error("API Error"));
+      getAccountingTransactionKeysSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -330,24 +381,28 @@ describe("AccountingTransactionKeysResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      getAccountingTransactionKeysSpy.mockRejectedValueOnce(new Error("API Error"));
+      getAccountingTransactionKeysSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles network timeout errors", async () => {
-      getAccountingTransactionKeysSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      getAccountingTransactionKeysSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -358,13 +413,15 @@ describe("AccountingTransactionKeysResourceHandler", () => {
     });
 
     test("handles authentication errors", async () => {
-      getAccountingTransactionKeysSpy.mockRejectedValueOnce(new Error("Unauthorized"));
+      getAccountingTransactionKeysSpy.mockRejectedValueOnce(
+        new Error("Unauthorized"),
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
   });
@@ -381,7 +438,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -396,13 +453,15 @@ describe("AccountingTransactionKeysResourceHandler", () => {
     });
 
     test("respects item index in error handling", async () => {
-      getAccountingTransactionKeysSpy.mockRejectedValueOnce(new Error("Test error"));
+      getAccountingTransactionKeysSpy.mockRejectedValueOnce(
+        new Error("Test error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountingTransactionKeysResourceHandler(context, 7);
       const returnData: any[] = [];
 
@@ -420,14 +479,14 @@ describe("AccountingTransactionKeysResourceHandler", () => {
 
       // Verify that the handler constructs data properly through BaseResourceHandler
       expect(returnData).toHaveLength(3);
-      expect(returnData.every(item => item.json !== undefined)).toBe(true);
+      expect(returnData.every((item) => item.json !== undefined)).toBe(true);
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "id,key,category" }
+        parameters: { select: "id,key,category" },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -438,13 +497,13 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "id,key,category" })
+        expect.objectContaining({ select: "id,key,category" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "requires_approval eq true" }
+        parameters: { filter: "requires_approval eq true" },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -453,15 +512,15 @@ describe("AccountingTransactionKeysResourceHandler", () => {
 
       expect(getAccountingTransactionKeysSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
-        expect.objectContaining({ filter: "requires_approval eq true" })
+        expect.objectContaining({ filter: "requires_approval eq true" }),
       );
     });
 
     test("correctly retrieves accountingTransactionKeyId parameter", async () => {
       const context = createMockContext({
-        parameters: { accountingTransactionKeyId: "TXN999" }
+        parameters: { accountingTransactionKeyId: "TXN999" },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -472,13 +531,13 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { top: 25, skip: 5 },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -489,13 +548,13 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
 
     test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { expand: "related_accounts" }
+        parameters: { expand: "related_accounts" },
       });
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -506,7 +565,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ expand: "related_accounts" })
+        expect.objectContaining({ expand: "related_accounts" }),
       );
     });
   });
@@ -523,7 +582,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
           date_to: "2024-12-31T00:00:00+01:00",
           number: 51,
           tax_rate: 19.0,
-          is_tax_rate_selectable: false
+          is_tax_rate_selectable: false,
         },
         {
           id: "52202401010",
@@ -534,11 +593,13 @@ describe("AccountingTransactionKeysResourceHandler", () => {
           date_to: "2024-12-31T00:00:00+01:00",
           number: 52,
           tax_rate: 19.0,
-          is_tax_rate_selectable: false
-        }
+          is_tax_rate_selectable: false,
+        },
       ];
-      
-      getAccountingTransactionKeysSpy.mockResolvedValueOnce(mockDataWithVariousAdditionalFunctions);
+
+      getAccountingTransactionKeysSpy.mockResolvedValueOnce(
+        mockDataWithVariousAdditionalFunctions,
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -558,7 +619,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
           caption: "Vorsteuer 19%",
           is_tax_rate_selectable: false,
           number: 51,
-          tax_rate: 19.0
+          tax_rate: 19.0,
         },
         {
           id: "54202401010",
@@ -566,11 +627,13 @@ describe("AccountingTransactionKeysResourceHandler", () => {
           caption: "Wählbarer Steuersatz",
           is_tax_rate_selectable: true,
           number: 54,
-          tax_rate: 0.0
-        }
+          tax_rate: 0.0,
+        },
       ];
-      
-      getAccountingTransactionKeysSpy.mockResolvedValueOnce(mockDataWithBooleans);
+
+      getAccountingTransactionKeysSpy.mockResolvedValueOnce(
+        mockDataWithBooleans,
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -586,12 +649,14 @@ describe("AccountingTransactionKeysResourceHandler", () => {
         {
           id: "55202401010",
           caption: "Minimaler Steuerschlüssel",
-          number: 55
+          number: 55,
           // missing optional fields like group, factor2_account1, factor2_percent, etc.
-        }
+        },
       ];
-      
-      getAccountingTransactionKeysSpy.mockResolvedValueOnce(mockDataWithMissingFields);
+
+      getAccountingTransactionKeysSpy.mockResolvedValueOnce(
+        mockDataWithMissingFields,
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -601,7 +666,7 @@ describe("AccountingTransactionKeysResourceHandler", () => {
       expect(returnData[0].json).toEqual({
         id: "55202401010",
         caption: "Minimaler Steuerschlüssel",
-        number: 55
+        number: 55,
       });
     });
 
@@ -612,19 +677,25 @@ describe("AccountingTransactionKeysResourceHandler", () => {
           caption: "Steuerschlüssel mit Sonderzeichen: & / - _ (Test)",
           group: "Gruppe mit Zeichen: €, %, §, UStG",
           number: 56,
-          tax_rate: 19.0
-        }
+          tax_rate: 19.0,
+        },
       ];
-      
-      getAccountingTransactionKeysSpy.mockResolvedValueOnce(mockDataWithSpecialChars);
+
+      getAccountingTransactionKeysSpy.mockResolvedValueOnce(
+        mockDataWithSpecialChars,
+      );
       const context = createMockContext();
       const handler = new AccountingTransactionKeysResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(returnData[0].json.caption).toBe("Steuerschlüssel mit Sonderzeichen: & / - _ (Test)");
-      expect(returnData[0].json.group).toBe("Gruppe mit Zeichen: €, %, §, UStG");
+      expect(returnData[0].json.caption).toBe(
+        "Steuerschlüssel mit Sonderzeichen: & / - _ (Test)",
+      );
+      expect(returnData[0].json.group).toBe(
+        "Gruppe mit Zeichen: €, %, §, UStG",
+      );
     });
   });
 });

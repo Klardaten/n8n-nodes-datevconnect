@@ -18,7 +18,11 @@ import { OrderResourceHandler } from "./handlers/OrderResourceHandler";
 import { OrderTypeResourceHandler } from "./handlers/OrderTypeResourceHandler";
 import { SelfClientResourceHandler } from "./handlers/SelfClientResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
-import type { AuthContext, OrderManagementCredentials, Resource } from "./types";
+import type {
+  AuthContext,
+  OrderManagementCredentials,
+  Resource,
+} from "./types";
 import { toErrorObject } from "./utils";
 
 export class OrderManagement implements INodeType {
@@ -32,12 +36,15 @@ export class OrderManagement implements INodeType {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
 
-    const credentials = (await this.getCredentials("datevConnectApi")) as
-      | OrderManagementCredentials
-      | null;
+    const credentials = (await this.getCredentials(
+      "datevConnectApi",
+    )) as OrderManagementCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -63,8 +70,13 @@ export class OrderManagement implements INodeType {
     }
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
-      const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+      const paramClientInstanceId = this.getNodeParameter(
+        "clientInstanceId",
+        itemIndex,
+        "",
+      ) as string;
+      const effectiveClientInstanceId =
+        paramClientInstanceId || clientInstanceId;
 
       const authContext: AuthContext = {
         host,

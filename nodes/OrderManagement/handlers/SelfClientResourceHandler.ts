@@ -1,6 +1,10 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
 import { fetchSelfClients } from "../../../src/services/orderManagementClient";
-import type { AuthContext, SendSuccessFunction, SelfClientOperation } from "../types";
+import type {
+  AuthContext,
+  SendSuccessFunction,
+  SelfClientOperation,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class SelfClientResourceHandler extends BaseResourceHandler {

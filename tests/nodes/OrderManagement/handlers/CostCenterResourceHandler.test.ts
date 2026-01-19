@@ -16,11 +16,14 @@ describe("CostCenterResourceHandler", () => {
 
   beforeEach(() => {
     mockContext = {
-      getNodeParameter: mock((_name: string, _idx: number, defaultValue?: unknown) => defaultValue),
+      getNodeParameter: mock(
+        (_name: string, _idx: number, defaultValue?: unknown) => defaultValue,
+      ),
       continueOnFail: mock(() => false),
       getNode: mock(() => ({ type: "test-node" })),
       helpers: {
-        returnJsonArray: (data: Array<Record<string, unknown>>) => data.map((json) => ({ json })),
+        returnJsonArray: (data: Array<Record<string, unknown>>) =>
+          data.map((json) => ({ json })),
         constructExecutionMetaData: (
           data: Array<{ json: Record<string, unknown> }>,
           { itemData }: { itemData: { item: number } },
@@ -28,14 +31,18 @@ describe("CostCenterResourceHandler", () => {
       },
     };
     handler = new CostCenterResourceHandler(mockContext, 0);
-    spyOn(client, "fetchOrderManagementCostCenters").mockResolvedValue([{ costcenter_id: "c1" }]);
+    spyOn(client, "fetchOrderManagementCostCenters").mockResolvedValue([
+      { costcenter_id: "c1" },
+    ]);
   });
 
   test("getAll forwards params", async () => {
-    mockContext.getNodeParameter.mockImplementation((name: string, _idx: number, defaultValue?: unknown) => {
-      if (name === "select") return "costcenter_id";
-      return defaultValue;
-    });
+    mockContext.getNodeParameter.mockImplementation(
+      (name: string, _idx: number, defaultValue?: unknown) => {
+        if (name === "select") return "costcenter_id";
+        return defaultValue;
+      },
+    );
 
     const returnData: any[] = [];
     await handler.execute("getAll", authContext, returnData);

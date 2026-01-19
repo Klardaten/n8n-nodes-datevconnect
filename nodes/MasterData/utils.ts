@@ -15,7 +15,8 @@ export function toErrorObject(error: unknown): JsonObject {
     return error as JsonObject;
   }
 
-  const message = error instanceof Error ? error.message : String(error ?? "Unknown error");
+  const message =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
   return { message } satisfies JsonObject;
 }
 

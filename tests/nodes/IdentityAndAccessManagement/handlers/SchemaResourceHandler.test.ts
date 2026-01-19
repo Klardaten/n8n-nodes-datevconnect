@@ -25,7 +25,10 @@ describe("IdentityAndAccessManagement - SchemaResourceHandler", () => {
   });
 
   test("getAll operation fetches schemas", async () => {
-    const fetchSchemasSpy = spyOn(IdentityAndAccessManagementClient, "fetchSchemas").mockResolvedValue({
+    const fetchSchemasSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchSchemas",
+    ).mockResolvedValue({
       Resources: [{ id: "urn:ietf:params:scim:schemas:core:2.0:User" }],
     });
 
@@ -39,7 +42,10 @@ describe("IdentityAndAccessManagement - SchemaResourceHandler", () => {
   });
 
   test("get operation requires schemaId parameter", async () => {
-    const fetchSchemaSpy = spyOn(IdentityAndAccessManagementClient, "fetchSchema").mockResolvedValue({
+    const fetchSchemaSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchSchema",
+    ).mockResolvedValue({
       id: "urn:ietf:params:scim:schemas:core:2.0:User",
     });
 
@@ -63,8 +69,8 @@ describe("IdentityAndAccessManagement - SchemaResourceHandler", () => {
   });
 
   test("throws NodeOperationError for unsupported operations", async () => {
-    await expect(
-      handler.execute("create", authContext, []),
-    ).rejects.toThrow(NodeOperationError);
+    await expect(handler.execute("create", authContext, [])).rejects.toThrow(
+      NodeOperationError,
+    );
   });
 });

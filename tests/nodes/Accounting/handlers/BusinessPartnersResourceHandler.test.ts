@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { BusinessPartnersResourceHandler } from "../../../../nodes/Accounting/handlers/BusinessPartnersResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -23,26 +31,30 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "debitorId": "debitor-123",
-      "creditorId": "creditor-123",
-      "debitorData": '{"name":"Test Debitor"}',  
-      "creditorData": '{"name":"Test Creditor"}',
-      "top": 50,
-      "skip": 10,
-      "select": "id,name",
-      "filter": "status eq active",
-      "expand": "relationships",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        debitorId: "debitor-123",
+        creditorId: "creditor-123",
+        debitorData: '{"name":"Test Debitor"}',
+        creditorData: '{"name":"Test Creditor"}',
+        top: 50,
+        skip: 10,
+        select: "id,name",
+        filter: "status eq active",
+        expand: "relationships",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -59,7 +71,10 @@ const mockAuthContext: AuthContext = {
 
 describe("BusinessPartnersResourceHandler", () => {
   beforeEach(() => {
-    getDebitorsSpy = spyOn(datevConnectClient.accounting, "getDebitors").mockResolvedValue([
+    getDebitorsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getDebitors",
+    ).mockResolvedValue([
       {
         id: "100990000",
         account_number: 100990000,
@@ -70,7 +85,7 @@ describe("BusinessPartnersResourceHandler", () => {
         eu_vat_id_country_code: "DE",
         eu_vat_id_number: "123456789",
         accounting_information: {
-          account_balance: 15000.50
+          account_balance: 15000.5,
         },
         addresses: [
           {
@@ -78,9 +93,9 @@ describe("BusinessPartnersResourceHandler", () => {
             street: "Hauptstr. 123",
             zip_code: "10115",
             city: "Berlin",
-            country_code: "DE"
-          }
-        ]
+            country_code: "DE",
+          },
+        ],
       },
       {
         id: "100990001",
@@ -90,12 +105,15 @@ describe("BusinessPartnersResourceHandler", () => {
         alternative_search_name: "Mueller",
         is_business_partner_active: true,
         accounting_information: {
-          account_balance: 2500.00
-        }
-      }
+          account_balance: 2500.0,
+        },
+      },
     ]);
-    
-    getDebitorSpy = spyOn(datevConnectClient.accounting, "getDebitor").mockResolvedValue({
+
+    getDebitorSpy = spyOn(
+      datevConnectClient.accounting,
+      "getDebitor",
+    ).mockResolvedValue({
       id: "100990000",
       account_number: 100990000,
       caption: "Tech Solutions GmbH",
@@ -105,14 +123,23 @@ describe("BusinessPartnersResourceHandler", () => {
       eu_vat_id_country_code: "DE",
       eu_vat_id_number: "123456789",
       accounting_information: {
-        account_balance: 15000.50
-      }
+        account_balance: 15000.5,
+      },
     });
-    
-    createDebitorSpy = spyOn(datevConnectClient.accounting, "createDebitor").mockResolvedValue(undefined);
-    updateDebitorSpy = spyOn(datevConnectClient.accounting, "updateDebitor").mockResolvedValue(undefined);
-    
-    getCreditorsSpy = spyOn(datevConnectClient.accounting, "getCreditors").mockResolvedValue([
+
+    createDebitorSpy = spyOn(
+      datevConnectClient.accounting,
+      "createDebitor",
+    ).mockResolvedValue(undefined);
+    updateDebitorSpy = spyOn(
+      datevConnectClient.accounting,
+      "updateDebitor",
+    ).mockResolvedValue(undefined);
+
+    getCreditorsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getCreditors",
+    ).mockResolvedValue([
       {
         id: "701000000",
         account_number: 701000000,
@@ -121,7 +148,7 @@ describe("BusinessPartnersResourceHandler", () => {
         alternative_search_name: "Office Supplies",
         is_business_partner_active: true,
         accounting_information: {
-          alternative_contact_person: "Anna Schmidt"
+          alternative_contact_person: "Anna Schmidt",
         },
         addresses: [
           {
@@ -129,9 +156,9 @@ describe("BusinessPartnersResourceHandler", () => {
             street: "Industriestr. 45",
             zip_code: "20095",
             city: "Hamburg",
-            country_code: "DE"
-          }
-        ]
+            country_code: "DE",
+          },
+        ],
       },
       {
         id: "701000001",
@@ -141,12 +168,15 @@ describe("BusinessPartnersResourceHandler", () => {
         alternative_search_name: "IT Services",
         is_business_partner_active: true,
         accounting_information: {
-          alternative_contact_person: "John Smith"
-        }
-      }
+          alternative_contact_person: "John Smith",
+        },
+      },
     ]);
-    
-    getCreditorSpy = spyOn(datevConnectClient.accounting, "getCreditor").mockResolvedValue({
+
+    getCreditorSpy = spyOn(
+      datevConnectClient.accounting,
+      "getCreditor",
+    ).mockResolvedValue({
       id: "701000000",
       account_number: 701000000,
       caption: "Office Supplies GmbH",
@@ -154,12 +184,18 @@ describe("BusinessPartnersResourceHandler", () => {
       alternative_search_name: "Office Supplies",
       is_business_partner_active: true,
       accounting_information: {
-        alternative_contact_person: "Anna Schmidt"
-      }
+        alternative_contact_person: "Anna Schmidt",
+      },
     });
-    
-    createCreditorSpy = spyOn(datevConnectClient.accounting, "createCreditor").mockResolvedValue(undefined);
-    updateCreditorSpy = spyOn(datevConnectClient.accounting, "updateCreditor").mockResolvedValue(undefined);
+
+    createCreditorSpy = spyOn(
+      datevConnectClient.accounting,
+      "createCreditor",
+    ).mockResolvedValue(undefined);
+    updateCreditorSpy = spyOn(
+      datevConnectClient.accounting,
+      "updateCreditor",
+    ).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -182,13 +218,18 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("getDebitors", mockAuthContext, returnData);
 
-        expect(getDebitorsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-          top: 50,
-          skip: 10,
-          select: "id,name",
-          filter: "status eq active",
-          expand: "relationships"
-        });
+        expect(getDebitorsSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          {
+            top: 50,
+            skip: 10,
+            select: "id,name",
+            filter: "status eq active",
+            expand: "relationships",
+          },
+        );
 
         expect(returnData).toHaveLength(2);
         expect(returnData[0].json).toEqual({
@@ -201,7 +242,7 @@ describe("BusinessPartnersResourceHandler", () => {
           eu_vat_id_country_code: "DE",
           eu_vat_id_number: "123456789",
           accounting_information: {
-            account_balance: 15000.50
+            account_balance: 15000.5,
           },
           addresses: [
             {
@@ -209,9 +250,9 @@ describe("BusinessPartnersResourceHandler", () => {
               street: "Hauptstr. 123",
               zip_code: "10115",
               city: "Berlin",
-              country_code: "DE"
-            }
-          ]
+              country_code: "DE",
+            },
+          ],
         });
       });
 
@@ -229,21 +270,26 @@ describe("BusinessPartnersResourceHandler", () => {
       test("handles parameters with default values", async () => {
         const context = createMockContext({
           parameters: {
-            "top": undefined,
-            "skip": undefined,
-            "select": undefined,
-            "filter": undefined,
-            "expand": undefined,
-          }
+            top: undefined,
+            skip: undefined,
+            select: undefined,
+            filter: undefined,
+            expand: undefined,
+          },
         });
         const handler = new BusinessPartnersResourceHandler(context, 0);
         const returnData: any[] = [];
 
         await handler.execute("getDebitors", mockAuthContext, returnData);
 
-        expect(getDebitorsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-          top: 100  // Default value when top is undefined
-        });
+        expect(getDebitorsSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          {
+            top: 100, // Default value when top is undefined
+          },
+        );
       });
     });
 
@@ -255,13 +301,19 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("getDebitor", mockAuthContext, returnData);
 
-        expect(getDebitorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "debitor-123", {
-          top: 50,
-          skip: 10,
-          select: "id,name",
-          filter: "status eq active",
-          expand: "relationships"
-        });
+        expect(getDebitorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          "debitor-123",
+          {
+            top: 50,
+            skip: 10,
+            select: "id,name",
+            filter: "status eq active",
+            expand: "relationships",
+          },
+        );
 
         expect(returnData).toHaveLength(1);
         expect(returnData[0].json).toEqual({
@@ -274,8 +326,8 @@ describe("BusinessPartnersResourceHandler", () => {
           eu_vat_id_country_code: "DE",
           eu_vat_id_number: "123456789",
           accounting_information: {
-            account_balance: 15000.50
-          }
+            account_balance: 15000.5,
+          },
         });
       });
     });
@@ -289,7 +341,12 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("createDebitor", mockAuthContext, returnData);
 
-        expect(createDebitorSpy).toHaveBeenCalledWith(context, "client-123", "2023", { name: "Test Debitor" });
+        expect(createDebitorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          { name: "Test Debitor" },
+        );
         expect(returnData).toHaveLength(1);
         expect(returnData[0].json).toEqual({ id: "new-debitor-id" });
       });
@@ -302,7 +359,12 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("createDebitor", mockAuthContext, returnData);
 
-        expect(createDebitorSpy).toHaveBeenCalledWith(context, "client-123", "2023", { name: "Test Debitor" });
+        expect(createDebitorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          { name: "Test Debitor" },
+        );
         expect(returnData).toHaveLength(1);
         expect(returnData[0].json).toEqual({ success: true });
       });
@@ -310,16 +372,28 @@ describe("BusinessPartnersResourceHandler", () => {
 
     describe("updateDebitor operation", () => {
       test("updates debitor with data", async () => {
-        updateDebitorSpy.mockResolvedValueOnce({ id: "debitor-123", name: "Updated Debitor" });
+        updateDebitorSpy.mockResolvedValueOnce({
+          id: "debitor-123",
+          name: "Updated Debitor",
+        });
         const context = createMockContext();
         const handler = new BusinessPartnersResourceHandler(context, 0);
         const returnData: any[] = [];
 
         await handler.execute("updateDebitor", mockAuthContext, returnData);
 
-        expect(updateDebitorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "debitor-123", { name: "Test Debitor" });
+        expect(updateDebitorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          "debitor-123",
+          { name: "Test Debitor" },
+        );
         expect(returnData).toHaveLength(1);
-        expect(returnData[0].json).toEqual({ id: "debitor-123", name: "Updated Debitor" });
+        expect(returnData[0].json).toEqual({
+          id: "debitor-123",
+          name: "Updated Debitor",
+        });
       });
     });
   });
@@ -333,13 +407,18 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("getCreditors", mockAuthContext, returnData);
 
-        expect(getCreditorsSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-          top: 50,
-          skip: 10,
-          select: "id,name",
-          filter: "status eq active",
-          expand: "relationships"
-        });
+        expect(getCreditorsSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          {
+            top: 50,
+            skip: 10,
+            select: "id,name",
+            filter: "status eq active",
+            expand: "relationships",
+          },
+        );
 
         expect(returnData).toHaveLength(2);
         expect(returnData[0].json).toEqual({
@@ -350,7 +429,7 @@ describe("BusinessPartnersResourceHandler", () => {
           alternative_search_name: "Office Supplies",
           is_business_partner_active: true,
           accounting_information: {
-            alternative_contact_person: "Anna Schmidt"
+            alternative_contact_person: "Anna Schmidt",
           },
           addresses: [
             {
@@ -358,9 +437,9 @@ describe("BusinessPartnersResourceHandler", () => {
               street: "Industriestr. 45",
               zip_code: "20095",
               city: "Hamburg",
-              country_code: "DE"
-            }
-          ]
+              country_code: "DE",
+            },
+          ],
         });
       });
     });
@@ -373,13 +452,19 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("getCreditor", mockAuthContext, returnData);
 
-        expect(getCreditorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "creditor-123", {
-          top: 50,
-          skip: 10,
-          select: "id,name",
-          filter: "status eq active",
-          expand: "relationships"
-        });
+        expect(getCreditorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          "creditor-123",
+          {
+            top: 50,
+            skip: 10,
+            select: "id,name",
+            filter: "status eq active",
+            expand: "relationships",
+          },
+        );
 
         expect(returnData).toHaveLength(1);
         expect(returnData[0].json).toEqual({
@@ -390,8 +475,8 @@ describe("BusinessPartnersResourceHandler", () => {
           alternative_search_name: "Office Supplies",
           is_business_partner_active: true,
           accounting_information: {
-            alternative_contact_person: "Anna Schmidt"
-          }
+            alternative_contact_person: "Anna Schmidt",
+          },
         });
       });
     });
@@ -405,7 +490,12 @@ describe("BusinessPartnersResourceHandler", () => {
 
         await handler.execute("createCreditor", mockAuthContext, returnData);
 
-        expect(createCreditorSpy).toHaveBeenCalledWith(context, "client-123", "2023", { name: "Test Creditor" });
+        expect(createCreditorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          { name: "Test Creditor" },
+        );
         expect(returnData).toHaveLength(1);
         expect(returnData[0].json).toEqual({ id: "new-creditor-id" });
       });
@@ -413,16 +503,28 @@ describe("BusinessPartnersResourceHandler", () => {
 
     describe("updateCreditor operation", () => {
       test("updates creditor with data", async () => {
-        updateCreditorSpy.mockResolvedValueOnce({ id: "creditor-123", name: "Updated Creditor" });
+        updateCreditorSpy.mockResolvedValueOnce({
+          id: "creditor-123",
+          name: "Updated Creditor",
+        });
         const context = createMockContext();
         const handler = new BusinessPartnersResourceHandler(context, 0);
         const returnData: any[] = [];
 
         await handler.execute("updateCreditor", mockAuthContext, returnData);
 
-        expect(updateCreditorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "creditor-123", { name: "Test Creditor" });
+        expect(updateCreditorSpy).toHaveBeenCalledWith(
+          context,
+          "client-123",
+          "2023",
+          "creditor-123",
+          { name: "Test Creditor" },
+        );
         expect(returnData).toHaveLength(1);
-        expect(returnData[0].json).toEqual({ id: "creditor-123", name: "Updated Creditor" });
+        expect(returnData[0].json).toEqual({
+          id: "creditor-123",
+          name: "Updated Creditor",
+        });
       });
     });
   });
@@ -434,7 +536,11 @@ describe("BusinessPartnersResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
@@ -442,7 +548,7 @@ describe("BusinessPartnersResourceHandler", () => {
       const context = createMockContext();
       const handler = new BusinessPartnersResourceHandler(context, 0);
       const returnData: any[] = [];
-      
+
       const invalidAuthContext = {
         host: "https://api.example.com",
         token: "test-token",
@@ -451,16 +557,18 @@ describe("BusinessPartnersResourceHandler", () => {
       };
 
       await expect(
-        handler.execute("getDebitors", invalidAuthContext as any, returnData)
-      ).rejects.toThrow("Client ID and Fiscal Year ID are required for business partner operations");
+        handler.execute("getDebitors", invalidAuthContext as any, returnData),
+      ).rejects.toThrow(
+        "Client ID and Fiscal Year ID are required for business partner operations",
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getDebitorsSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
       const handler = new BusinessPartnersResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -478,7 +586,7 @@ describe("BusinessPartnersResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getDebitors", mockAuthContext, returnData)
+        handler.execute("getDebitors", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
   });
@@ -491,7 +599,12 @@ describe("BusinessPartnersResourceHandler", () => {
 
       await handler.execute("getDebitors", mockAuthContext, returnData);
 
-      expect(getDebitorsSpy).toHaveBeenCalledWith(context, "client-123", "2023", expect.any(Object));
+      expect(getDebitorsSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        expect.any(Object),
+      );
     });
 
     test("handles metadata properly", async () => {
@@ -509,7 +622,7 @@ describe("BusinessPartnersResourceHandler", () => {
       const context = createMockContext();
       const handler = new BusinessPartnersResourceHandler(context, 5); // Different item index
       const returnData: any[] = [];
-      
+
       const invalidAuthContext = {
         host: "https://api.example.com",
         token: "test-token",
@@ -517,41 +630,55 @@ describe("BusinessPartnersResourceHandler", () => {
       };
 
       await expect(
-        handler.execute("getDebitors", invalidAuthContext as any, returnData)
-      ).rejects.toThrow("Client ID and Fiscal Year ID are required for business partner operations");
+        handler.execute("getDebitors", invalidAuthContext as any, returnData),
+      ).rejects.toThrow(
+        "Client ID and Fiscal Year ID are required for business partner operations",
+      );
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves debitorId parameter", async () => {
       const context = createMockContext({
-        parameters: { debitorId: "test-debitor-id" }
+        parameters: { debitorId: "test-debitor-id" },
       });
       const handler = new BusinessPartnersResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getDebitor", mockAuthContext, returnData);
 
-      expect(getDebitorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-debitor-id", expect.any(Object));
+      expect(getDebitorSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "test-debitor-id",
+        expect.any(Object),
+      );
     });
 
     test("correctly retrieves creditorId parameter", async () => {
       const context = createMockContext({
-        parameters: { creditorId: "test-creditor-id" }
+        parameters: { creditorId: "test-creditor-id" },
       });
       const handler = new BusinessPartnersResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getCreditor", mockAuthContext, returnData);
 
-      expect(getCreditorSpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-creditor-id", expect.any(Object));
+      expect(getCreditorSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "test-creditor-id",
+        expect.any(Object),
+      );
     });
 
     test("correctly parses JSON data parameters", async () => {
       const context = createMockContext({
-        parameters: { 
-          debitorData: '{"name":"Custom Debitor","account":"12345"}' 
-        }
+        parameters: {
+          debitorData: '{"name":"Custom Debitor","account":"12345"}',
+        },
       });
       const handler = new BusinessPartnersResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -559,10 +686,10 @@ describe("BusinessPartnersResourceHandler", () => {
       await handler.execute("createDebitor", mockAuthContext, returnData);
 
       expect(createDebitorSpy).toHaveBeenCalledWith(
-        context, 
-        "client-123", 
-        "2023", 
-        { name: "Custom Debitor", account: "12345" }
+        context,
+        "client-123",
+        "2023",
+        { name: "Custom Debitor", account: "12345" },
       );
     });
   });

@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { PostingProposalsResourceHandler } from "../../../../nodes/Accounting/handlers/PostingProposalsResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -29,30 +37,30 @@ const mockIncomingRules = [
         field: "vendor_name",
         operator: "contains",
         value: "GmbH",
-        case_sensitive: false
+        case_sensitive: false,
       },
       {
         field: "amount",
         operator: "greater_than",
-        value: 100.00,
-        case_sensitive: false
-      }
+        value: 100.0,
+        case_sensitive: false,
+      },
     ],
     actions: [
       {
         type: "set_account",
         account_number: "4000",
-        account_name: "Operating Expenses"
+        account_name: "Operating Expenses",
       },
       {
         type: "set_cost_center",
-        cost_center_id: "CC001"
-      }
+        cost_center_id: "CC001",
+      },
     ],
     created_date: "2023-01-01T10:00:00Z",
     last_modified: "2023-11-01T14:30:00Z",
     last_used: "2023-10-30T09:15:00Z",
-    usage_count: 245
+    usage_count: 245,
   },
   {
     id: "IR002",
@@ -66,20 +74,20 @@ const mockIncomingRules = [
         field: "vendor_name",
         operator: "equals",
         value: "City Utilities",
-        case_sensitive: true
-      }
+        case_sensitive: true,
+      },
     ],
     actions: [
       {
         type: "set_account",
         account_number: "6300",
-        account_name: "Utilities"
-      }
+        account_name: "Utilities",
+      },
     ],
     created_date: "2023-01-15T11:00:00Z",
     last_modified: "2023-10-15T16:00:00Z",
-    usage_count: 12
-  }
+    usage_count: 12,
+  },
 ];
 
 const mockOutgoingRules = [
@@ -94,23 +102,23 @@ const mockOutgoingRules = [
       {
         field: "customer_type",
         operator: "equals",
-        value: "business"
-      }
+        value: "business",
+      },
     ],
     actions: [
       {
         type: "set_account",
         account_number: "8000",
-        account_name: "Sales Revenue"
+        account_name: "Sales Revenue",
       },
       {
         type: "calculate_tax",
-        tax_rate: 0.19
-      }
+        tax_rate: 0.19,
+      },
     ],
     created_date: "2023-01-01T10:00:00Z",
-    usage_count: 1458
-  }
+    usage_count: 1458,
+  },
 ];
 
 const mockCashRegisterRules = [
@@ -125,19 +133,19 @@ const mockCashRegisterRules = [
       {
         field: "payment_method",
         operator: "equals",
-        value: "cash"
-      }
+        value: "cash",
+      },
     ],
     actions: [
       {
         type: "set_account",
         account_number: "8400",
-        account_name: "Cash Sales"
-      }
+        account_name: "Cash Sales",
+      },
     ],
     created_date: "2023-01-01T10:00:00Z",
-    usage_count: 3254
-  }
+    usage_count: 3254,
+  },
 ];
 
 const mockSingleIncomingRule = {
@@ -152,44 +160,44 @@ const mockSingleIncomingRule = {
       field: "vendor_name",
       operator: "contains",
       value: "GmbH",
-      case_sensitive: false
+      case_sensitive: false,
     },
     {
       field: "amount",
       operator: "greater_than",
-      value: 100.00,
-      case_sensitive: false
-    }
+      value: 100.0,
+      case_sensitive: false,
+    },
   ],
   actions: [
     {
       type: "set_account",
       account_number: "4000",
-      account_name: "Operating Expenses"
+      account_name: "Operating Expenses",
     },
     {
-      type: "set_cost_center", 
-      cost_center_id: "CC001"
-    }
+      type: "set_cost_center",
+      cost_center_id: "CC001",
+    },
   ],
   match_statistics: {
     total_matches: 245,
     successful_applications: 240,
     failed_applications: 5,
-    average_processing_time: 125.5
+    average_processing_time: 125.5,
   },
   validation_rules: [
     {
       field: "vendor_tax_id",
       required: true,
-      validation_type: "tax_id_format"
-    }
+      validation_type: "tax_id_format",
+    },
   ],
   created_date: "2023-01-01T10:00:00Z",
   created_by: "admin@company.com",
   last_modified: "2023-11-01T14:30:00Z",
   last_modified_by: "manager@company.com",
-  version: 3
+  version: 3,
 };
 
 const mockBatchResult = {
@@ -211,7 +219,7 @@ const mockBatchResult = {
       posting_account: "4000",
       cost_center: "CC001",
       error: null,
-      suggestions: null
+      suggestions: null,
     },
     {
       item_id: "INV002",
@@ -220,7 +228,7 @@ const mockBatchResult = {
       suggestions: ["Create manual posting", "Review rule conditions"],
       applied_rule: null,
       posting_account: null,
-      cost_center: null
+      cost_center: null,
     },
     {
       item_id: "INV003",
@@ -229,18 +237,18 @@ const mockBatchResult = {
       posting_account: "6300",
       error: null,
       suggestions: null,
-      cost_center: null
-    }
+      cost_center: null,
+    },
   ],
   warnings: [
     "2 items skipped due to duplicate detection",
-    "1 item had validation warnings but was processed"
+    "1 item had validation warnings but was processed",
   ],
   summary: {
     total_amount: 15750.25,
     tax_amount: 2992.55,
-    net_amount: 12757.70
-  }
+    net_amount: 12757.7,
+  },
 };
 
 // Mock IExecuteFunctions
@@ -252,44 +260,48 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "ruleId": "IR001",
-      "batchData": JSON.stringify({
-        items: [
-          {
-            invoice_id: "INV001",
-            vendor_name: "Test Vendor GmbH",
-            amount: 1500.00,
-            currency: "EUR"
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        ruleId: "IR001",
+        batchData: JSON.stringify({
+          items: [
+            {
+              invoice_id: "INV001",
+              vendor_name: "Test Vendor GmbH",
+              amount: 1500.0,
+              currency: "EUR",
+            },
+            {
+              invoice_id: "INV002",
+              vendor_name: "Another Vendor",
+              amount: 750.5,
+              currency: "EUR",
+            },
+          ],
+          processing_options: {
+            auto_apply_rules: true,
+            validate_before_processing: true,
+            skip_duplicates: true,
           },
-          {
-            invoice_id: "INV002",
-            vendor_name: "Another Vendor",
-            amount: 750.50,
-            currency: "EUR"
-          }
-        ],
-        processing_options: {
-          auto_apply_rules: true,
-          validate_before_processing: true,
-          skip_duplicates: true
-        }
-      }),
-      "top": 50,
-      "skip": 10,
-      "select": "id,name,description,rule_type,is_active,priority",
-      "filter": "is_active eq true",
-      "expand": "conditions,actions",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+        }),
+        top: 50,
+        skip: 10,
+        select: "id,name,description,rule_type,is_active,priority",
+        filter: "is_active eq true",
+        expand: "conditions,actions",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -301,25 +313,52 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "FY2023"
+  fiscalYearId: "FY2023",
 };
 
 describe("PostingProposalsResourceHandler", () => {
   beforeEach(() => {
-    getPostingProposalRulesIncomingSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRulesIncoming").mockResolvedValue(mockIncomingRules as any);
-    getPostingProposalRulesOutgoingSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRulesOutgoing").mockResolvedValue(mockOutgoingRules as any);
-    getPostingProposalRulesCashRegisterSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRulesCashRegister").mockResolvedValue(mockCashRegisterRules as any);
-    getPostingProposalRuleIncomingSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRuleIncoming").mockResolvedValue(mockSingleIncomingRule as any);
-    getPostingProposalRuleOutgoingSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRuleOutgoing").mockResolvedValue(mockSingleIncomingRule as any);
-    getPostingProposalRuleCashRegisterSpy = spyOn(datevConnectClient.accounting, "getPostingProposalRuleCashRegister").mockResolvedValue(mockSingleIncomingRule as any);
-    batchPostingProposalsIncomingSpy = spyOn(datevConnectClient.accounting, "batchPostingProposalsIncoming").mockResolvedValue(mockBatchResult as any);
-    batchPostingProposalsOutgoingSpy = spyOn(datevConnectClient.accounting, "batchPostingProposalsOutgoing").mockResolvedValue(mockBatchResult as any);
-    batchPostingProposalsCashRegisterSpy = spyOn(datevConnectClient.accounting, "batchPostingProposalsCashRegister").mockResolvedValue(mockBatchResult as any);
+    getPostingProposalRulesIncomingSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRulesIncoming",
+    ).mockResolvedValue(mockIncomingRules as any);
+    getPostingProposalRulesOutgoingSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRulesOutgoing",
+    ).mockResolvedValue(mockOutgoingRules as any);
+    getPostingProposalRulesCashRegisterSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRulesCashRegister",
+    ).mockResolvedValue(mockCashRegisterRules as any);
+    getPostingProposalRuleIncomingSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRuleIncoming",
+    ).mockResolvedValue(mockSingleIncomingRule as any);
+    getPostingProposalRuleOutgoingSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRuleOutgoing",
+    ).mockResolvedValue(mockSingleIncomingRule as any);
+    getPostingProposalRuleCashRegisterSpy = spyOn(
+      datevConnectClient.accounting,
+      "getPostingProposalRuleCashRegister",
+    ).mockResolvedValue(mockSingleIncomingRule as any);
+    batchPostingProposalsIncomingSpy = spyOn(
+      datevConnectClient.accounting,
+      "batchPostingProposalsIncoming",
+    ).mockResolvedValue(mockBatchResult as any);
+    batchPostingProposalsOutgoingSpy = spyOn(
+      datevConnectClient.accounting,
+      "batchPostingProposalsOutgoing",
+    ).mockResolvedValue(mockBatchResult as any);
+    batchPostingProposalsCashRegisterSpy = spyOn(
+      datevConnectClient.accounting,
+      "batchPostingProposalsCashRegister",
+    ).mockResolvedValue(mockBatchResult as any);
   });
 
   afterEach(() => {
     getPostingProposalRulesIncomingSpy?.mockRestore();
-    getPostingProposalRulesOutgoingSpy?.mockRestore(); 
+    getPostingProposalRulesOutgoingSpy?.mockRestore();
     getPostingProposalRulesCashRegisterSpy?.mockRestore();
     getPostingProposalRuleIncomingSpy?.mockRestore();
     getPostingProposalRuleOutgoingSpy?.mockRestore();
@@ -346,8 +385,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(2); // Array with 2 rules becomes 2 items
@@ -396,8 +435,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(1); // Array with 1 rule becomes 1 item
@@ -409,8 +448,8 @@ describe("PostingProposalsResourceHandler", () => {
         parameters: {
           top: 20,
           filter: "priority le 5",
-          select: "id,name,is_active"
-        }
+          select: "id,name,is_active",
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -424,8 +463,8 @@ describe("PostingProposalsResourceHandler", () => {
         expect.objectContaining({
           top: 20,
           filter: "priority le 5",
-          select: "id,name,is_active"
-        })
+          select: "id,name,is_active",
+        }),
       );
     });
   });
@@ -436,7 +475,11 @@ describe("PostingProposalsResourceHandler", () => {
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await handler.execute("getRulesCashRegister", mockAuthContext, returnData);
+      await handler.execute(
+        "getRulesCashRegister",
+        mockAuthContext,
+        returnData,
+      );
 
       expect(getPostingProposalRulesCashRegisterSpy).toHaveBeenCalledWith(
         context,
@@ -447,8 +490,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(1); // Array with 1 rule becomes 1 item
@@ -474,8 +517,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -484,14 +527,14 @@ describe("PostingProposalsResourceHandler", () => {
 
     test("requires ruleId parameter for getRuleIncoming", async () => {
       const context = createMockContext({
-        parameters: { ruleId: undefined }
+        parameters: { ruleId: undefined },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getRuleIncoming", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"ruleId\" is required");
+        handler.execute("getRuleIncoming", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "ruleId" is required');
     });
   });
 
@@ -513,8 +556,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -540,8 +583,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,rule_type,is_active,priority",
           filter: "is_active eq true",
-          expand: "conditions,actions"
-        }
+          expand: "conditions,actions",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -550,14 +593,14 @@ describe("PostingProposalsResourceHandler", () => {
 
     test("requires ruleId parameter for getRuleCashRegister", async () => {
       const context = createMockContext({
-        parameters: { ruleId: "" }
+        parameters: { ruleId: "" },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getRuleCashRegister", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"ruleId\" is required");
+        handler.execute("getRuleCashRegister", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "ruleId" is required');
     });
   });
 
@@ -578,22 +621,22 @@ describe("PostingProposalsResourceHandler", () => {
             {
               invoice_id: "INV001",
               vendor_name: "Test Vendor GmbH",
-              amount: 1500.00,
-              currency: "EUR"
+              amount: 1500.0,
+              currency: "EUR",
             },
             {
               invoice_id: "INV002",
               vendor_name: "Another Vendor",
-              amount: 750.50,
-              currency: "EUR"
-            }
+              amount: 750.5,
+              currency: "EUR",
+            },
           ],
           processing_options: {
             auto_apply_rules: true,
             validate_before_processing: true,
-            skip_duplicates: true
-          }
-        }
+            skip_duplicates: true,
+          },
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -615,15 +658,15 @@ describe("PostingProposalsResourceHandler", () => {
     test("handles invalid JSON in batchData parameter", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: "invalid json"
-        }
+          batchData: "invalid json",
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("batchIncoming", mockAuthContext, returnData)
-      ).rejects.toThrow("Invalid JSON in parameter \"batchData\"");
+        handler.execute("batchIncoming", mockAuthContext, returnData),
+      ).rejects.toThrow('Invalid JSON in parameter "batchData"');
     });
   });
 
@@ -636,15 +679,15 @@ describe("PostingProposalsResourceHandler", () => {
               {
                 invoice_id: "OUT001",
                 customer_name: "Test Customer Ltd",
-                amount: 2500.00,
-                currency: "EUR"
-              }
+                amount: 2500.0,
+                currency: "EUR",
+              },
             ],
             processing_options: {
-              auto_apply_rules: true
-            }
-          })
-        }
+              auto_apply_rules: true,
+            },
+          }),
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -660,10 +703,10 @@ describe("PostingProposalsResourceHandler", () => {
             expect.objectContaining({
               invoice_id: "OUT001",
               customer_name: "Test Customer Ltd",
-              amount: 2500.00
-            })
-          ])
-        })
+              amount: 2500.0,
+            }),
+          ]),
+        }),
       );
 
       expect(returnData).toHaveLength(1);
@@ -680,12 +723,12 @@ describe("PostingProposalsResourceHandler", () => {
               {
                 transaction_id: "CASH001",
                 payment_method: "cash",
-                amount: 45.50,
-                currency: "EUR"
-              }
-            ]
-          })
-        }
+                amount: 45.5,
+                currency: "EUR",
+              },
+            ],
+          }),
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -701,10 +744,10 @@ describe("PostingProposalsResourceHandler", () => {
             expect.objectContaining({
               transaction_id: "CASH001",
               payment_method: "cash",
-              amount: 45.50
-            })
-          ])
-        })
+              amount: 45.5,
+            }),
+          ]),
+        }),
       );
 
       expect(returnData).toHaveLength(1);
@@ -713,14 +756,16 @@ describe("PostingProposalsResourceHandler", () => {
 
     test("handles undefined batchData parameter gracefully", async () => {
       const context = createMockContext({
-        parameters: { batchData: undefined }
+        parameters: { batchData: undefined },
       });
       // Override getNodeParameter to return undefined
-      context.getNodeParameter = mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-        if (name === "batchData") return undefined;
-        return defaultValue;
-      });
-      
+      context.getNodeParameter = mock(
+        (name: string, itemIndex: number, defaultValue?: unknown) => {
+          if (name === "batchData") return undefined;
+          return defaultValue;
+        },
+      );
+
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -730,7 +775,7 @@ describe("PostingProposalsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        undefined
+        undefined,
       );
     });
   });
@@ -742,18 +787,22 @@ describe("PostingProposalsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "postingProposals".');
+        handler.execute("unsupportedOperation", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "postingProposals".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      getPostingProposalRulesIncomingSpy.mockRejectedValueOnce(new Error("API Error"));
+      getPostingProposalRulesIncomingSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -764,24 +813,28 @@ describe("PostingProposalsResourceHandler", () => {
     });
 
     test("propagates error when continueOnFail is false", async () => {
-      getPostingProposalRulesOutgoingSpy.mockRejectedValueOnce(new Error("API Error"));
+      getPostingProposalRulesOutgoingSpy.mockRejectedValueOnce(
+        new Error("API Error"),
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getRulesOutgoing", mockAuthContext, returnData)
+        handler.execute("getRulesOutgoing", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles network timeout errors in batch operations", async () => {
-      batchPostingProposalsIncomingSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      batchPostingProposalsIncomingSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -792,24 +845,28 @@ describe("PostingProposalsResourceHandler", () => {
     });
 
     test("handles authentication errors", async () => {
-      getPostingProposalRuleIncomingSpy.mockRejectedValueOnce(new Error("Unauthorized"));
+      getPostingProposalRuleIncomingSpy.mockRejectedValueOnce(
+        new Error("Unauthorized"),
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getRuleIncoming", mockAuthContext, returnData)
+        handler.execute("getRuleIncoming", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
 
     test("handles validation errors from batch operations", async () => {
-      batchPostingProposalsOutgoingSpy.mockRejectedValueOnce(new Error("Validation Error: Missing required field"));
+      batchPostingProposalsOutgoingSpy.mockRejectedValueOnce(
+        new Error("Validation Error: Missing required field"),
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("batchOutgoing", mockAuthContext, returnData)
+        handler.execute("batchOutgoing", mockAuthContext, returnData),
       ).rejects.toThrow("Validation Error: Missing required field");
     });
   });
@@ -826,7 +883,7 @@ describe("PostingProposalsResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -841,13 +898,15 @@ describe("PostingProposalsResourceHandler", () => {
     });
 
     test("respects item index in error handling", async () => {
-      getPostingProposalRulesIncomingSpy.mockRejectedValueOnce(new Error("Test error"));
+      getPostingProposalRulesIncomingSpy.mockRejectedValueOnce(
+        new Error("Test error"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new PostingProposalsResourceHandler(context, 2);
       const returnData: any[] = [];
 
@@ -873,9 +932,9 @@ describe("PostingProposalsResourceHandler", () => {
         parameters: {
           batchData: JSON.stringify({
             test: "data",
-            items: []
-          })
-        }
+            items: [],
+          }),
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -888,8 +947,8 @@ describe("PostingProposalsResourceHandler", () => {
         "FY2023",
         expect.objectContaining({
           test: "data",
-          items: []
-        })
+          items: [],
+        }),
       );
     });
   });
@@ -897,7 +956,7 @@ describe("PostingProposalsResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves ruleId parameter", async () => {
       const context = createMockContext({
-        parameters: { ruleId: "TEST_RULE" }
+        parameters: { ruleId: "TEST_RULE" },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -909,7 +968,7 @@ describe("PostingProposalsResourceHandler", () => {
         "client-123",
         "FY2023",
         "TEST_RULE",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -920,8 +979,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 5,
           select: "id,name,priority",
           filter: "rule_type eq 'incoming_invoice'",
-          expand: "conditions"
-        }
+          expand: "conditions",
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -937,8 +996,8 @@ describe("PostingProposalsResourceHandler", () => {
           skip: 5,
           select: "id,name,priority",
           filter: "rule_type eq 'incoming_invoice'",
-          expand: "conditions"
-        })
+          expand: "conditions",
+        }),
       );
     });
 
@@ -948,37 +1007,37 @@ describe("PostingProposalsResourceHandler", () => {
           {
             invoice_id: "INV001",
             vendor_name: "Complex Vendor Ltd",
-            amount: 5000.00,
+            amount: 5000.0,
             currency: "EUR",
             line_items: [
               {
                 description: "Service A",
-                amount: 3000.00,
-                account: "4000"
+                amount: 3000.0,
+                account: "4000",
               },
               {
-                description: "Service B", 
-                amount: 2000.00,
-                account: "4100"
-              }
-            ]
-          }
+                description: "Service B",
+                amount: 2000.0,
+                account: "4100",
+              },
+            ],
+          },
         ],
         processing_options: {
           auto_apply_rules: true,
           validation_level: "strict",
-          notification_email: "accounting@company.com"
+          notification_email: "accounting@company.com",
         },
         metadata: {
           batch_name: "Monthly Processing",
-          created_by: "system"
-        }
+          created_by: "system",
+        },
       };
 
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify(complexBatchData)
-        }
+          batchData: JSON.stringify(complexBatchData),
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -996,26 +1055,26 @@ describe("PostingProposalsResourceHandler", () => {
               vendor_name: "Complex Vendor Ltd",
               line_items: expect.arrayContaining([
                 expect.objectContaining({ description: "Service A" }),
-                expect.objectContaining({ description: "Service B" })
-              ])
-            })
+                expect.objectContaining({ description: "Service B" }),
+              ]),
+            }),
           ]),
           processing_options: expect.objectContaining({
             auto_apply_rules: true,
-            validation_level: "strict"
+            validation_level: "strict",
           }),
           metadata: expect.objectContaining({
-            batch_name: "Monthly Processing"
-          })
-        })
+            batch_name: "Monthly Processing",
+          }),
+        }),
       );
     });
 
     test("handles empty batchData object", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify({})
-        }
+          batchData: JSON.stringify({}),
+        },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -1026,7 +1085,7 @@ describe("PostingProposalsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        {}
+        {},
       );
     });
   });
@@ -1036,10 +1095,12 @@ describe("PostingProposalsResourceHandler", () => {
       const mixedRules = [
         { id: "R1", rule_type: "incoming_invoice", priority: 1 },
         { id: "R2", rule_type: "expense_report", priority: 2 },
-        { id: "R3", rule_type: "vendor_credit", priority: 3 }
+        { id: "R3", rule_type: "vendor_credit", priority: 3 },
       ];
 
-      getPostingProposalRulesIncomingSpy.mockResolvedValueOnce(mixedRules as any);
+      getPostingProposalRulesIncomingSpy.mockResolvedValueOnce(
+        mixedRules as any,
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -1062,37 +1123,37 @@ describe("PostingProposalsResourceHandler", () => {
             field: "vendor_name",
             operator: "matches_regex",
             value: "^[A-Z][a-z]+ (GmbH|Ltd|Inc)$",
-            case_sensitive: false
+            case_sensitive: false,
           },
           {
             field: "amount",
             operator: "between",
-            min_value: 100.00,
-            max_value: 10000.00
+            min_value: 100.0,
+            max_value: 10000.0,
           },
           {
             field: "invoice_date",
             operator: "within_days",
-            days: 30
-          }
+            days: 30,
+          },
         ],
         actions: [
           {
             type: "set_account",
             account_number: "4000",
-            condition: "default"
+            condition: "default",
           },
           {
             type: "set_cost_center",
             cost_center_id: "CC001",
-            allocation_percentage: 0.6
+            allocation_percentage: 0.6,
           },
           {
             type: "create_workflow",
             workflow_id: "APPROVAL_001",
-            trigger_amount: 5000.00
-          }
-        ]
+            trigger_amount: 5000.0,
+          },
+        ],
       };
 
       getPostingProposalRuleIncomingSpy.mockResolvedValueOnce(complexRule);
@@ -1116,29 +1177,31 @@ describe("PostingProposalsResourceHandler", () => {
           {
             item_id: "INV001",
             status: "success",
-            processing_time: 45.2
+            processing_time: 45.2,
           },
           {
             item_id: "INV002",
             status: "failed",
             error_code: "NO_MATCHING_RULE",
-            error_details: "No rule matched the given conditions"
+            error_details: "No rule matched the given conditions",
           },
           {
             item_id: "INV003",
             status: "warning",
             warning_code: "PARTIAL_MATCH",
-            warning_details: "Rule matched but with low confidence"
+            warning_details: "Rule matched but with low confidence",
           },
           {
             item_id: "INV004",
             status: "skipped",
-            skip_reason: "Duplicate detected"
-          }
-        ]
+            skip_reason: "Duplicate detected",
+          },
+        ],
       };
 
-      batchPostingProposalsIncomingSpy.mockResolvedValueOnce(detailedBatchResult);
+      batchPostingProposalsIncomingSpy.mockResolvedValueOnce(
+        detailedBatchResult,
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -1159,18 +1222,20 @@ describe("PostingProposalsResourceHandler", () => {
           is_active: true,
           auto_apply: false,
           requires_approval: true,
-          case_sensitive: false
+          case_sensitive: false,
         },
         {
           id: "R2",
           is_active: false,
           auto_apply: true,
           requires_approval: false,
-          case_sensitive: true
-        }
+          case_sensitive: true,
+        },
       ];
 
-      getPostingProposalRulesOutgoingSpy.mockResolvedValueOnce(rulesWithFlags as any);
+      getPostingProposalRulesOutgoingSpy.mockResolvedValueOnce(
+        rulesWithFlags as any,
+      );
       const context = createMockContext();
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -1191,20 +1256,20 @@ describe("PostingProposalsResourceHandler", () => {
           {
             field: "amount",
             operator: "greater_than",
-            value: 1234.5678
-          }
+            value: 1234.5678,
+          },
         ],
         actions: [
           {
             type: "apply_discount",
-            percentage: 0.125,  // 12.5%
-            max_discount: 999.99
-          }
+            percentage: 0.125, // 12.5%
+            max_discount: 999.99,
+          },
         ],
         usage_statistics: {
           success_rate: 0.9876,
-          average_processing_time: 123.456789
-        }
+          average_processing_time: 123.456789,
+        },
       };
 
       getPostingProposalRuleIncomingSpy.mockResolvedValueOnce(preciseRule);
@@ -1226,7 +1291,7 @@ describe("PostingProposalsResourceHandler", () => {
         last_modified: "2023-11-01T14:30:00Z",
         effective_from: "2023-01-01",
         effective_until: "2023-12-31",
-        last_executed: "2023-10-30T09:15:00Z"
+        last_executed: "2023-10-30T09:15:00Z",
       };
 
       getPostingProposalRuleIncomingSpy.mockResolvedValueOnce(ruleWithDates);

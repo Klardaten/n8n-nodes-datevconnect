@@ -45,15 +45,12 @@ export class ClientResourceHandler extends BaseResourceHandler {
     const select = this.getOptionalString("select");
     const filter = this.getOptionalString("filter");
 
-    return await datevConnectClient.accounting.getClients(
-      this.context,
-      {
-        top,
-        skip,
-        select,
-        filter,
-      }
-    );
+    return await datevConnectClient.accounting.getClients(this.context, {
+      top,
+      skip,
+      select,
+      filter,
+    });
   }
 
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
@@ -66,7 +63,7 @@ export class ClientResourceHandler extends BaseResourceHandler {
       {
         ...requestContext,
         select: select,
-      }
+      },
     );
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect",
-  "version": "1.0.10",
+  "version": "1.0.8",
   "description": "n8n community node for DATEVconnect API via Klardaten Gateway",
   "license": "MIT",
   "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
@@ -33,7 +33,8 @@
     "typecheck": "tsc --noEmit",
     "lint:fix": "npx n8n-node lint --fix",
     "release": "npx n8n-node release",
-    "prepublishOnly": "npx n8n-node prerelease"
+    "prepublishOnly": "npx n8n-node prerelease",
+    "prettier": "npx prettier --write ."
   },
   "files": [
     "README.md",
