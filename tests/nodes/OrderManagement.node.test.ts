@@ -4,12 +4,7 @@ import { NodeOperationError, NodeApiError } from "n8n-workflow";
 import * as datevConnectClientModule from "../../src/services/datevConnectClient";
 import { OrderResourceHandler } from "../../nodes/OrderManagement/handlers/OrderResourceHandler";
 import { OrderTypeResourceHandler } from "../../nodes/OrderManagement/handlers/OrderTypeResourceHandler";
-import { ClientGroupResourceHandler } from "../../nodes/OrderManagement/handlers/ClientGroupResourceHandler";
 import { InvoiceResourceHandler } from "../../nodes/OrderManagement/handlers/InvoiceResourceHandler";
-import { EmployeeResourceHandler } from "../../nodes/OrderManagement/handlers/EmployeeResourceHandler";
-import { FeeResourceHandler } from "../../nodes/OrderManagement/handlers/FeeResourceHandler";
-import { CostCenterResourceHandler } from "../../nodes/OrderManagement/handlers/CostCenterResourceHandler";
-import { SelfClientResourceHandler } from "../../nodes/OrderManagement/handlers/SelfClientResourceHandler";
 
 const { OrderManagement } =
   await import("../../nodes/OrderManagement/OrderManagement.node");
