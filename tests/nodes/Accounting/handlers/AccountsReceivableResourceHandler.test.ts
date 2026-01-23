@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { AccountsReceivableResourceHandler } from "../../../../nodes/Accounting/handlers/AccountsReceivableResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -14,39 +22,39 @@ const mockAccountsReceivableData = [
   {
     id: "ar-123",
     customer_id: "cust-123",
-    amount: 1000.00,
+    amount: 1000.0,
     due_date: "2023-12-31",
-    status: "open"
+    status: "open",
   },
   {
     id: "ar-456",
     customer_id: "cust-456",
-    amount: 750.50,
+    amount: 750.5,
     due_date: "2023-11-30",
-    status: "overdue"
-  }
+    status: "overdue",
+  },
 ];
 
 const mockSingleAccountReceivable = {
   id: "ar-123",
   customer_id: "cust-123",
-  amount: 1000.00,
+  amount: 1000.0,
   due_date: "2023-12-31",
   status: "open",
-  description: "Invoice payment"
+  description: "Invoice payment",
 };
 
 const mockCondensedData = [
   {
     customer_id: "cust-123",
-    total_amount: 1500.00,
-    count: 3
+    total_amount: 1500.0,
+    count: 3,
   },
   {
     customer_id: "cust-456",
-    total_amount: 750.50,
-    count: 1
-  }
+    total_amount: 750.5,
+    count: 1,
+  },
 ];
 
 // Mock IExecuteFunctions
@@ -58,23 +66,27 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "accountsReceivableId": "ar-123",
-      "top": 50,
-      "skip": 10,
-      "select": "id,customer_id,amount",
-      "filter": "status eq open",
-      "expand": "customer",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        accountsReceivableId: "ar-123",
+        top: 50,
+        skip: 10,
+        select: "id,customer_id,amount",
+        filter: "status eq open",
+        expand: "customer",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -86,14 +98,23 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("AccountsReceivableResourceHandler", () => {
   beforeEach(() => {
-    getAccountsReceivableSpy = spyOn(datevConnectClient.accounting, "getAccountsReceivable").mockResolvedValue(mockAccountsReceivableData);
-    getAccountReceivableSpy = spyOn(datevConnectClient.accounting, "getAccountReceivable").mockResolvedValue(mockSingleAccountReceivable);
-    getAccountsReceivableCondensedSpy = spyOn(datevConnectClient.accounting, "getAccountsReceivableCondensed").mockResolvedValue(mockCondensedData);
+    getAccountsReceivableSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountsReceivable",
+    ).mockResolvedValue(mockAccountsReceivableData);
+    getAccountReceivableSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountReceivable",
+    ).mockResolvedValue(mockSingleAccountReceivable);
+    getAccountsReceivableCondensedSpy = spyOn(
+      datevConnectClient.accounting,
+      "getAccountsReceivableCondensed",
+    ).mockResolvedValue(mockCondensedData);
   });
 
   afterEach(() => {
@@ -110,21 +131,26 @@ describe("AccountsReceivableResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountsReceivableSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,customer_id,amount",
-        filter: "status eq open",
-        expand: "customer"
-      });
+      expect(getAccountsReceivableSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,customer_id,amount",
+          filter: "status eq open",
+          expand: "customer",
+        },
+      );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
         id: "ar-123",
         customer_id: "cust-123",
-        amount: 1000.00,
+        amount: 1000.0,
         due_date: "2023-12-31",
-        status: "open"
+        status: "open",
       });
     });
 
@@ -142,21 +168,26 @@ describe("AccountsReceivableResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getAccountsReceivableSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountsReceivableSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -168,13 +199,19 @@ describe("AccountsReceivableResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountReceivableSpy).toHaveBeenCalledWith(context, "client-123", "2023", "ar-123", {
-        top: 50,
-        skip: 10,
-        select: "id,customer_id,amount",
-        filter: "status eq open",
-        expand: "customer"
-      });
+      expect(getAccountReceivableSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "ar-123",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,customer_id,amount",
+          filter: "status eq open",
+          expand: "customer",
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual(mockSingleAccountReceivable);
@@ -183,22 +220,28 @@ describe("AccountsReceivableResourceHandler", () => {
     test("handles parameters with default values for get", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-          "accountsReceivableId": "test-ar-id"
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+          accountsReceivableId: "test-ar-id",
+        },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getAccountReceivableSpy).toHaveBeenCalledWith(context, "client-123", "2023", "test-ar-id", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getAccountReceivableSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "test-ar-id",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -210,19 +253,24 @@ describe("AccountsReceivableResourceHandler", () => {
 
       await handler.execute("getCondensed", mockAuthContext, returnData);
 
-      expect(getAccountsReceivableCondensedSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,customer_id,amount",
-        filter: "status eq open",
-        expand: "customer"
-      });
+      expect(getAccountsReceivableCondensedSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,customer_id,amount",
+          filter: "status eq open",
+          expand: "customer",
+        },
+      );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
         customer_id: "cust-123",
-        total_amount: 1500.00,
-        count: 3
+        total_amount: 1500.0,
+        count: 3,
       });
     });
 
@@ -245,18 +293,24 @@ describe("AccountsReceivableResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "accountsReceivable".');
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "accountsReceivable".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getAccountsReceivableSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -273,7 +327,7 @@ describe("AccountsReceivableResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
   });
@@ -290,7 +344,7 @@ describe("AccountsReceivableResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -308,10 +362,10 @@ describe("AccountsReceivableResourceHandler", () => {
       getAccountsReceivableSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new AccountsReceivableResourceHandler(context, 5);
       const returnData: any[] = [];
 
@@ -324,7 +378,7 @@ describe("AccountsReceivableResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "id,amount,due_date" }
+        parameters: { select: "id,amount,due_date" },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -335,13 +389,13 @@ describe("AccountsReceivableResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "id,amount,due_date" })
+        expect.objectContaining({ select: "id,amount,due_date" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "amount gt 500" }
+        parameters: { filter: "amount gt 500" },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -350,15 +404,15 @@ describe("AccountsReceivableResourceHandler", () => {
 
       expect(getAccountsReceivableSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
-        expect.objectContaining({ filter: "amount gt 500" })
+        expect.objectContaining({ filter: "amount gt 500" }),
       );
     });
 
     test("correctly retrieves accountsReceivableId parameter", async () => {
       const context = createMockContext({
-        parameters: { accountsReceivableId: "test-ar-id" }
+        parameters: { accountsReceivableId: "test-ar-id" },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -368,15 +422,15 @@ describe("AccountsReceivableResourceHandler", () => {
       expect(getAccountReceivableSpy).toHaveBeenCalledWith(
         context,
         "client-123",
-        "2023", 
+        "2023",
         "test-ar-id",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { top: 25, skip: 5 },
       });
       const handler = new AccountsReceivableResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -387,7 +441,7 @@ describe("AccountsReceivableResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
   });

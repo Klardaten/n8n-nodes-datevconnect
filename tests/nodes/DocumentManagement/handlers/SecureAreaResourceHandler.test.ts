@@ -10,7 +10,7 @@ let mockContext: any;
 const mockAuthContext: AuthContext = {
   host: "localhost",
   token: "test-token",
-  clientInstanceId: "test-client-id"
+  clientInstanceId: "test-client-id",
 };
 
 describe("SecureAreaResourceHandler", () => {
@@ -26,26 +26,30 @@ describe("SecureAreaResourceHandler", () => {
     // Mock the DocumentManagementClient methods
     spyOn(DocumentManagementClient, "fetchSecureAreas").mockResolvedValue([
       { id: 1, name: "Confidential", description: "Confidential documents" },
-      { id: 2, name: "Public", description: "Public documents" }
+      { id: 2, name: "Public", description: "Public documents" },
     ]);
   });
 
   test("getAll operation fetches secure areas", async () => {
     const returnData: any[] = [];
-    await secureAreaResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await secureAreaResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(2);
     expect(returnData[0].json).toEqual({
       success: true,
       id: 1,
       name: "Confidential",
-      description: "Confidential documents"
+      description: "Confidential documents",
     });
     expect(returnData[1].json).toEqual({
       success: true,
       id: 2,
       name: "Public",
-      description: "Public documents"
+      description: "Public documents",
     });
     expect(DocumentManagementClient.fetchSecureAreas).toHaveBeenCalledWith({
       host: "localhost",
@@ -56,14 +60,20 @@ describe("SecureAreaResourceHandler", () => {
 
   test("handles API errors gracefully when continueOnFail is true", async () => {
     mockContext.continueOnFail.mockReturnValue(true);
-    spyOn(DocumentManagementClient, "fetchSecureAreas").mockRejectedValue(new Error("API Error"));
-    
+    spyOn(DocumentManagementClient, "fetchSecureAreas").mockRejectedValue(
+      new Error("API Error"),
+    );
+
     const returnData: any[] = [];
-    await secureAreaResourceHandler.execute("getAll", mockAuthContext, returnData);
+    await secureAreaResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      returnData,
+    );
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json).toEqual({
-      error: "API Error"
+      error: "API Error",
     });
   });
 });

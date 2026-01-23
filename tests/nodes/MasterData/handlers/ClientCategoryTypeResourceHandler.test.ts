@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { ClientCategoryTypeResourceHandler } from "../../../../nodes/MasterData/handlers/ClientCategoryTypeResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -19,26 +27,30 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Client category type operations parameters
-      "select": "id,name,short_name",
-      "filter": "startswith(name, 'Test')",
-      "clientCategoryTypeId": "c43f9c3g-380c-494e-47c8-d12fff738188",
-      "clientCategoryTypeData": JSON.stringify({
-        short_name: "TCT",
-        name: "Test Category Type",
-        note: "Test category type for unit tests"
-      }),
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Client category type operations parameters
+        select: "id,name,short_name",
+        filter: "startswith(name, 'Test')",
+        clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        clientCategoryTypeData: JSON.stringify({
+          short_name: "TCT",
+          name: "Test Category Type",
+          note: "Test category type for unit tests",
+        }),
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -53,10 +65,22 @@ const mockAuthContext: AuthContext = {
 
 describe("ClientCategoryTypeResourceHandler", () => {
   beforeEach(() => {
-    fetchClientCategoryTypesSpy = spyOn(datevConnectClientModule, "fetchClientCategoryTypes").mockResolvedValue([]);
-    fetchClientCategoryTypeSpy = spyOn(datevConnectClientModule, "fetchClientCategoryType").mockResolvedValue({});
-    createClientCategoryTypeSpy = spyOn(datevConnectClientModule, "createClientCategoryType").mockResolvedValue(undefined);
-    updateClientCategoryTypeSpy = spyOn(datevConnectClientModule, "updateClientCategoryType").mockResolvedValue(undefined);
+    fetchClientCategoryTypesSpy = spyOn(
+      datevConnectClientModule,
+      "fetchClientCategoryTypes",
+    ).mockResolvedValue([]);
+    fetchClientCategoryTypeSpy = spyOn(
+      datevConnectClientModule,
+      "fetchClientCategoryType",
+    ).mockResolvedValue({});
+    createClientCategoryTypeSpy = spyOn(
+      datevConnectClientModule,
+      "createClientCategoryType",
+    ).mockResolvedValue(undefined);
+    updateClientCategoryTypeSpy = spyOn(
+      datevConnectClientModule,
+      "updateClientCategoryType",
+    ).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -69,8 +93,16 @@ describe("ClientCategoryTypeResourceHandler", () => {
   describe("getAll operation", () => {
     test("fetches client category types with parameters", async () => {
       const mockResponse = [
-        { id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type", short_name: "TCT" },
-        { id: "d54g8d4h-491d-495f-48d9-e23ggg849199", name: "Another Category Type", short_name: "ACT" },
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+          short_name: "TCT",
+        },
+        {
+          id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
+          name: "Another Category Type",
+          short_name: "ACT",
+        },
       ];
 
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
@@ -87,9 +119,18 @@ describe("ClientCategoryTypeResourceHandler", () => {
         skip: 0,
         select: "id,name,short_name",
         filter: "startswith(name, 'Test')",
-      });      expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type", short_name: "TCT" });
-      expect(returnData[1].json).toEqual({ id: "d54g8d4h-491d-495f-48d9-e23ggg849199", name: "Another Category Type", short_name: "ACT" });
+      });
+      expect(returnData).toHaveLength(2);
+      expect(returnData[0].json).toEqual({
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Test Category Type",
+        short_name: "TCT",
+      });
+      expect(returnData[1].json).toEqual({
+        id: "d54g8d4h-491d-495f-48d9-e23ggg849199",
+        name: "Another Category Type",
+        short_name: "ACT",
+      });
     });
 
     test("handles empty results", async () => {
@@ -111,12 +152,20 @@ describe("ClientCategoryTypeResourceHandler", () => {
         parameters: {
           select: undefined,
           filter: undefined,
-        }
+        },
       });
-      const mockResponse = [{ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Default Category Type" }];
+      const mockResponse = [
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Default Category Type",
+        },
+      ];
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
 
-      const handler = new ClientCategoryTypeResourceHandler(mockContextWithDefaults, 0);
+      const handler = new ClientCategoryTypeResourceHandler(
+        mockContextWithDefaults,
+        0,
+      );
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
@@ -132,7 +181,10 @@ describe("ClientCategoryTypeResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Default Category Type" });
+      expect(returnData[0].json).toEqual({
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Default Category Type",
+      });
     });
   });
 
@@ -142,7 +194,7 @@ describe("ClientCategoryTypeResourceHandler", () => {
         id: "c43f9c3g-380c-494e-47c8-d12fff738188",
         name: "Test Category Type",
         short_name: "TCT",
-        note: "Test category type for unit tests"
+        note: "Test category type for unit tests",
       };
 
       fetchClientCategoryTypeSpy.mockResolvedValue(mockResponse);
@@ -169,13 +221,19 @@ describe("ClientCategoryTypeResourceHandler", () => {
       const mockContextWithDefaults = createMockContext({
         parameters: {
           select: undefined,
-          clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188"
-        }
+          clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        },
       });
-      const mockResponse = { id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Category Type" };
+      const mockResponse = {
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Category Type",
+      };
       fetchClientCategoryTypeSpy.mockResolvedValue(mockResponse);
 
-      const handler = new ClientCategoryTypeResourceHandler(mockContextWithDefaults, 0);
+      const handler = new ClientCategoryTypeResourceHandler(
+        mockContextWithDefaults,
+        0,
+      );
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
@@ -210,7 +268,7 @@ describe("ClientCategoryTypeResourceHandler", () => {
         clientCategoryType: {
           short_name: "TCT",
           name: "Test Category Type",
-          note: "Test category type for unit tests"
+          note: "Test category type for unit tests",
         },
       });
 
@@ -251,7 +309,7 @@ describe("ClientCategoryTypeResourceHandler", () => {
         clientCategoryType: {
           short_name: "TCT",
           name: "Test Category Type",
-          note: "Test category type for unit tests"
+          note: "Test category type for unit tests",
         },
       });
 
@@ -281,21 +339,26 @@ describe("ClientCategoryTypeResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupported", mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupported" is not supported for resource "clientCategoryType".');
+        handler.execute("unsupported", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupported" is not supported for resource "clientCategoryType".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       const mockContextWithContinueOnFail = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
 
       const apiError = new Error("API Error");
       fetchClientCategoryTypesSpy.mockRejectedValue(apiError);
 
-      const handler = new ClientCategoryTypeResourceHandler(mockContextWithContinueOnFail, 0);
+      const handler = new ClientCategoryTypeResourceHandler(
+        mockContextWithContinueOnFail,
+        0,
+      );
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
@@ -315,14 +378,19 @@ describe("ClientCategoryTypeResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
 
   describe("inheritance from BaseResourceHandler", () => {
     test("uses proper authentication context", async () => {
-      const mockResponse = [{ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" }];
+      const mockResponse = [
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+        },
+      ];
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
 
       const mockContext = createMockContext();
@@ -336,12 +404,17 @@ describe("ClientCategoryTypeResourceHandler", () => {
           host: mockAuthContext.host,
           token: mockAuthContext.token,
           clientInstanceId: mockAuthContext.clientInstanceId,
-        })
+        }),
       );
     });
 
     test("handles metadata properly", async () => {
-      const mockResponse = [{ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" }];
+      const mockResponse = [
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+        },
+      ];
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
 
       const mockContext = createMockContext();
@@ -351,7 +424,10 @@ describe("ClientCategoryTypeResourceHandler", () => {
       await handler.execute("getAll", mockAuthContext, returnData);
 
       expect(returnData).toHaveLength(1);
-      expect(returnData[0].json).toEqual({ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" });
+      expect(returnData[0].json).toEqual({
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Test Category Type",
+      });
     });
 
     test("respects item index in error handling", async () => {
@@ -360,11 +436,14 @@ describe("ClientCategoryTypeResourceHandler", () => {
 
       const mockContextWithContinueOnFail = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
 
-      const handler = new ClientCategoryTypeResourceHandler(mockContextWithContinueOnFail, 3);
+      const handler = new ClientCategoryTypeResourceHandler(
+        mockContextWithContinueOnFail,
+        3,
+      );
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
@@ -378,7 +457,12 @@ describe("ClientCategoryTypeResourceHandler", () => {
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
-      const mockResponse = [{ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" }];
+      const mockResponse = [
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+        },
+      ];
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
 
       const mockContext = createMockContext();
@@ -390,12 +474,17 @@ describe("ClientCategoryTypeResourceHandler", () => {
       expect(fetchClientCategoryTypesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           select: "id,name,short_name",
-        })
+        }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
-      const mockResponse = [{ id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" }];
+      const mockResponse = [
+        {
+          id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+          name: "Test Category Type",
+        },
+      ];
       fetchClientCategoryTypesSpy.mockResolvedValue(mockResponse);
 
       const mockContext = createMockContext();
@@ -407,12 +496,15 @@ describe("ClientCategoryTypeResourceHandler", () => {
       expect(fetchClientCategoryTypesSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           filter: "startswith(name, 'Test')",
-        })
+        }),
       );
     });
 
     test("correctly retrieves clientCategoryTypeId parameter", async () => {
-      const mockResponse = { id: "c43f9c3g-380c-494e-47c8-d12fff738188", name: "Test Category Type" };
+      const mockResponse = {
+        id: "c43f9c3g-380c-494e-47c8-d12fff738188",
+        name: "Test Category Type",
+      };
       fetchClientCategoryTypeSpy.mockResolvedValue(mockResponse);
 
       const mockContext = createMockContext();
@@ -424,7 +516,7 @@ describe("ClientCategoryTypeResourceHandler", () => {
       expect(fetchClientCategoryTypeSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           clientCategoryTypeId: "c43f9c3g-380c-494e-47c8-d12fff738188",
-        })
+        }),
       );
     });
   });

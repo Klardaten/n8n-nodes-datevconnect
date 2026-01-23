@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { TermsOfPaymentResourceHandler } from "../../../../nodes/Accounting/handlers/TermsOfPaymentResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -19,12 +27,12 @@ const mockTermOfPaymentDays = {
   due_in_days: {
     cash_discount1_days: 10,
     cash_discount2_days: 20,
-    due_in_days: 30
-  }
+    due_in_days: 30,
+  },
 };
 
 const mockTermOfPaymentPeriod = {
-  id: "456", 
+  id: "456",
   caption: "44 days net",
   due_type: "due_as_period",
   cash_discount1_percentage: 3.0,
@@ -33,10 +41,10 @@ const mockTermOfPaymentPeriod = {
       invoice_day_of_month: 15,
       due_date_net: {
         day_of_month: 15,
-        related_month: "next_month"
-      }
-    }
-  }
+        related_month: "next_month",
+      },
+    },
+  },
 };
 
 const mockTermsOfPaymentData = [mockTermOfPaymentDays, mockTermOfPaymentPeriod];
@@ -50,8 +58,8 @@ const mockSingleTermOfPayment = {
   due_in_days: {
     cash_discount1_days: 10,
     cash_discount2_days: 20,
-    due_in_days: 30
-  }
+    due_in_days: 30,
+  },
 };
 
 const mockCreateResponse = {
@@ -60,8 +68,8 @@ const mockCreateResponse = {
   due_type: "due_in_days",
   cash_discount1_percentage: 0,
   due_in_days: {
-    due_in_days: 60
-  }
+    due_in_days: 60,
+  },
 };
 
 const mockUpdateResponse = {
@@ -71,8 +79,8 @@ const mockUpdateResponse = {
   cash_discount1_percentage: 1.5,
   due_in_days: {
     cash_discount1_days: 15,
-    due_in_days: 30
-  }
+    due_in_days: 30,
+  },
 };
 
 // Mock IExecuteFunctions
@@ -84,30 +92,34 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "termOfPaymentId": "NET30",
-      "termOfPaymentData": JSON.stringify({
-        name: "Test Payment Term",
-        payment_days: 45,
-        discount_percentage: 2.5,
-        discount_days: 10,
-        is_active: true
-      }),
-      "top": 50,
-      "skip": 10,
-      "select": "id,name,payment_days",
-      "filter": "is_active eq true",
-      "expand": "details",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        termOfPaymentId: "NET30",
+        termOfPaymentData: JSON.stringify({
+          name: "Test Payment Term",
+          payment_days: 45,
+          discount_percentage: 2.5,
+          discount_days: 10,
+          is_active: true,
+        }),
+        top: 50,
+        skip: 10,
+        select: "id,name,payment_days",
+        filter: "is_active eq true",
+        expand: "details",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -119,15 +131,27 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("TermsOfPaymentResourceHandler", () => {
   beforeEach(() => {
-    getTermsOfPaymentSpy = spyOn(datevConnectClient.accounting, "getTermsOfPayment").mockResolvedValue(mockTermsOfPaymentData);
-    getTermOfPaymentSpy = spyOn(datevConnectClient.accounting, "getTermOfPayment").mockResolvedValue(mockSingleTermOfPayment);
-    createTermOfPaymentSpy = spyOn(datevConnectClient.accounting, "createTermOfPayment").mockResolvedValue(mockCreateResponse);
-    updateTermOfPaymentSpy = spyOn(datevConnectClient.accounting, "updateTermOfPayment").mockResolvedValue(mockUpdateResponse);
+    getTermsOfPaymentSpy = spyOn(
+      datevConnectClient.accounting,
+      "getTermsOfPayment",
+    ).mockResolvedValue(mockTermsOfPaymentData);
+    getTermOfPaymentSpy = spyOn(
+      datevConnectClient.accounting,
+      "getTermOfPayment",
+    ).mockResolvedValue(mockSingleTermOfPayment);
+    createTermOfPaymentSpy = spyOn(
+      datevConnectClient.accounting,
+      "createTermOfPayment",
+    ).mockResolvedValue(mockCreateResponse);
+    updateTermOfPaymentSpy = spyOn(
+      datevConnectClient.accounting,
+      "updateTermOfPayment",
+    ).mockResolvedValue(mockUpdateResponse);
   });
 
   afterEach(() => {
@@ -145,13 +169,18 @@ describe("TermsOfPaymentResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 50,
-        skip: 10,
-        select: "id,name,payment_days",
-        filter: "is_active eq true",
-        expand: "details"
-      });
+      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,name,payment_days",
+          filter: "is_active eq true",
+          expand: "details",
+        },
+      );
 
       expect(returnData).toHaveLength(2);
       expect(returnData[0].json).toEqual({
@@ -163,8 +192,8 @@ describe("TermsOfPaymentResourceHandler", () => {
         due_in_days: {
           cash_discount1_days: 10,
           cash_discount2_days: 20,
-          due_in_days: 30
-        }
+          due_in_days: 30,
+        },
       });
     });
 
@@ -182,21 +211,26 @@ describe("TermsOfPaymentResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -208,13 +242,19 @@ describe("TermsOfPaymentResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getTermOfPaymentSpy).toHaveBeenCalledWith(context, "client-123", "2023", "NET30", {
-        top: 50,
-        skip: 10,
-        select: "id,name,payment_days",
-        filter: "is_active eq true",
-        expand: "details"
-      });
+      expect(getTermOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "NET30",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,name,payment_days",
+          filter: "is_active eq true",
+          expand: "details",
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -226,8 +266,8 @@ describe("TermsOfPaymentResourceHandler", () => {
         due_in_days: {
           cash_discount1_days: 10,
           cash_discount2_days: 20,
-          due_in_days: 30
-        }
+          due_in_days: 30,
+        },
       });
     });
 
@@ -245,13 +285,13 @@ describe("TermsOfPaymentResourceHandler", () => {
 
     test("requires termOfPaymentId parameter", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentId: undefined }
+        parameters: { termOfPaymentId: undefined },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
+        handler.execute("get", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
@@ -264,13 +304,18 @@ describe("TermsOfPaymentResourceHandler", () => {
 
       await handler.execute("create", mockAuthContext, returnData);
 
-      expect(createTermOfPaymentSpy).toHaveBeenCalledWith(context, "client-123", "2023", {
-        name: "Test Payment Term",
-        payment_days: 45,
-        discount_percentage: 2.5,
-        discount_days: 10,
-        is_active: true
-      });
+      expect(createTermOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        {
+          name: "Test Payment Term",
+          payment_days: 45,
+          discount_percentage: 2.5,
+          discount_days: 10,
+          is_active: true,
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -279,8 +324,8 @@ describe("TermsOfPaymentResourceHandler", () => {
         due_type: "due_in_days",
         cash_discount1_percentage: 0,
         due_in_days: {
-          due_in_days: 60
-        }
+          due_in_days: 60,
+        },
       });
     });
 
@@ -298,49 +343,49 @@ describe("TermsOfPaymentResourceHandler", () => {
 
     test("requires termOfPaymentData parameter", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: undefined }
+        parameters: { termOfPaymentData: undefined },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
     test("validates termOfPaymentData is valid JSON object", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: "invalid json" }
+        parameters: { termOfPaymentData: "invalid json" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
     test("rejects array as termOfPaymentData", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: JSON.stringify([{ name: "test" }]) }
+        parameters: { termOfPaymentData: JSON.stringify([{ name: "test" }]) },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Term of payment data must be a valid JSON object");
     });
 
     test("rejects null as termOfPaymentData", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: "null" }
+        parameters: { termOfPaymentData: "null" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("create", mockAuthContext, returnData)
+        handler.execute("create", mockAuthContext, returnData),
       ).rejects.toThrow("Term of payment data must be a valid JSON object");
     });
   });
@@ -353,13 +398,19 @@ describe("TermsOfPaymentResourceHandler", () => {
 
       await handler.execute("update", mockAuthContext, returnData);
 
-      expect(updateTermOfPaymentSpy).toHaveBeenCalledWith(context, "client-123", "2023", "NET30", {
-        name: "Test Payment Term",
-        payment_days: 45,
-        discount_percentage: 2.5,
-        discount_days: 10,
-        is_active: true
-      });
+      expect(updateTermOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "NET30",
+        {
+          name: "Test Payment Term",
+          payment_days: 45,
+          discount_percentage: 2.5,
+          discount_days: 10,
+          is_active: true,
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -369,8 +420,8 @@ describe("TermsOfPaymentResourceHandler", () => {
         cash_discount1_percentage: 1.5,
         due_in_days: {
           cash_discount1_days: 15,
-          due_in_days: 30
-        }
+          due_in_days: 30,
+        },
       });
     });
 
@@ -388,31 +439,31 @@ describe("TermsOfPaymentResourceHandler", () => {
 
     test("requires both termOfPaymentId and termOfPaymentData parameters", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           termOfPaymentId: undefined,
-          termOfPaymentData: JSON.stringify({ name: "test" })
-        }
+          termOfPaymentData: JSON.stringify({ name: "test" }),
+        },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
+        handler.execute("update", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
     test("validates termOfPaymentData is valid JSON object for update", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           termOfPaymentId: "NET30",
-          termOfPaymentData: "invalid json"
-        }
+          termOfPaymentData: "invalid json",
+        },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("update", mockAuthContext, returnData)
+        handler.execute("update", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
   });
@@ -424,18 +475,24 @@ describe("TermsOfPaymentResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
-      ).rejects.toThrow('The operation "unsupportedOperation" is not supported for resource "termsOfPayment".');
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
+      ).rejects.toThrow(
+        'The operation "unsupportedOperation" is not supported for resource "termsOfPayment".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
       getTermsOfPaymentSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -452,7 +509,7 @@ describe("TermsOfPaymentResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
   });
@@ -469,7 +526,7 @@ describe("TermsOfPaymentResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -487,10 +544,10 @@ describe("TermsOfPaymentResourceHandler", () => {
       getTermsOfPaymentSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new TermsOfPaymentResourceHandler(context, 5);
       const returnData: any[] = [];
 
@@ -503,7 +560,7 @@ describe("TermsOfPaymentResourceHandler", () => {
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { select: "id,name,payment_days" }
+        parameters: { select: "id,name,payment_days" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -514,30 +571,13 @@ describe("TermsOfPaymentResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "id,name,payment_days" })
+        expect.objectContaining({ select: "id,name,payment_days" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "is_active eq true" }
-      });
-      const handler = new TermsOfPaymentResourceHandler(context, 0);
-      const returnData: any[] = [];
-
-      await handler.execute("getAll", mockAuthContext, returnData);
-
-      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(
-        context,
-        "client-123", 
-        "2023",
-        expect.objectContaining({ filter: "is_active eq true" })
-      );
-    });
-
-    test("correctly retrieves top and skip parameters", async () => {
-      const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { filter: "is_active eq true" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -548,7 +588,24 @@ describe("TermsOfPaymentResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ filter: "is_active eq true" }),
+      );
+    });
+
+    test("correctly retrieves top and skip parameters", async () => {
+      const context = createMockContext({
+        parameters: { top: 25, skip: 5 },
+      });
+      const handler = new TermsOfPaymentResourceHandler(context, 0);
+      const returnData: any[] = [];
+
+      await handler.execute("getAll", mockAuthContext, returnData);
+
+      expect(getTermsOfPaymentSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
   });

@@ -13,7 +13,8 @@ export class SchemaResourceHandler extends BaseResourceHandler {
 
     switch (operation) {
       case "getAll": {
-        const response = await IdentityAndAccessManagementClient.fetchSchemas(authContext);
+        const response =
+          await IdentityAndAccessManagementClient.fetchSchemas(authContext);
         sendSuccess(response);
         return;
       }

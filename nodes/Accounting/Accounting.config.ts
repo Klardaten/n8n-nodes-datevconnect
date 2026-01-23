@@ -40,7 +40,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
           description: "Operations on accounting sequences",
         },
         {
-          name: 'Accounting Statistic',
+          name: "Accounting Statistic",
           value: "accountingStatistics",
           description: "Operations on monthly accounting sequence statistics",
         },
@@ -50,7 +50,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
           description: "Operations on accounting balance sheet and P&L data",
         },
         {
-          name: 'Accounting Transaction Key',
+          name: "Accounting Transaction Key",
           value: "accountingTransactionKeys",
           description: "Operations on accounting transaction key master data",
         },
@@ -67,7 +67,8 @@ export const accountingNodeDescription: INodeTypeDescription = {
         {
           name: "Business Partner",
           value: "businessPartners",
-          description: "Operations on debitors (customers) and creditors (suppliers)",
+          description:
+            "Operations on debitors (customers) and creditors (suppliers)",
         },
         {
           name: "Client",
@@ -75,22 +76,22 @@ export const accountingNodeDescription: INodeTypeDescription = {
           description: "Operations on accounting clients/companies",
         },
         {
-          name: 'Cost Center Property',
+          name: "Cost Center Property",
           value: "costCenterProperties",
           description: "Operations on cost center properties and attributes",
         },
         {
-          name: 'Cost Centers/Unit',
+          name: "Cost Centers/Unit",
           value: "costCentersUnits",
           description: "Operations on cost centers and cost units",
         },
         {
-          name: 'Cost Sequence',
+          name: "Cost Sequence",
           value: "costSequences",
           description: "Operations on cost accounting sequences",
         },
         {
-          name: 'Cost System',
+          name: "Cost System",
           value: "costSystems",
           description: "Operations on cost accounting systems",
         },
@@ -105,14 +106,15 @@ export const accountingNodeDescription: INodeTypeDescription = {
           description: "Operations on chart of accounts",
         },
         {
-          name: 'Internal Cost Service',
+          name: "Internal Cost Service",
           value: "internalCostServices",
           description: "Operations on internal cost service allocations",
         },
         {
           name: "Posting Proposal",
           value: "postingProposals",
-          description: "Operations on posting proposal rules and batch processing",
+          description:
+            "Operations on posting proposal rules and batch processing",
         },
         {
           name: "Stocktaking Data",
@@ -148,7 +150,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve a list of many clients/companies',
+          description: "Retrieve a list of many clients/companies",
           action: "Get many clients",
         },
         {
@@ -318,7 +320,8 @@ export const accountingNodeDescription: INodeTypeDescription = {
         {
           name: "Get Accounting Records",
           value: "getAccountingRecords",
-          description: "Retrieve all accounting records of a specific processed sequence",
+          description:
+            "Retrieve all accounting records of a specific processed sequence",
           action: "Get accounting records from sequence",
         },
         {
@@ -364,19 +367,22 @@ export const accountingNodeDescription: INodeTypeDescription = {
         {
           name: "Get Rule - Cash Register",
           value: "getRuleCashRegister",
-          description: "Retrieve a specific posting proposal rule for cash register",
+          description:
+            "Retrieve a specific posting proposal rule for cash register",
           action: "Get a posting proposal rule for cash register",
         },
         {
           name: "Get Rule - Incoming",
           value: "getRuleIncoming",
-          description: "Retrieve a specific posting proposal rule for incoming invoices",
+          description:
+            "Retrieve a specific posting proposal rule for incoming invoices",
           action: "Get a posting proposal rule for incoming invoices",
         },
         {
           name: "Get Rule - Outgoing",
           value: "getRuleOutgoing",
-          description: "Retrieve a specific posting proposal rule for outgoing invoices",
+          description:
+            "Retrieve a specific posting proposal rule for outgoing invoices",
           action: "Get a posting proposal rule for outgoing invoices",
         },
         {
@@ -657,13 +663,13 @@ export const accountingNodeDescription: INodeTypeDescription = {
           name: "Get Many",
           value: "getAll",
           description: "Retrieve a list of cost centers/units",
-          action: 'Get many cost centers units',
+          action: "Get many cost centers units",
         },
         {
           name: "Get",
           value: "get",
           description: "Retrieve a specific cost center/unit",
-          action: 'Get a cost center unit',
+          action: "Get a cost center unit",
         },
       ],
       default: "getAll",
@@ -851,7 +857,27 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          resource: ["fiscalYear", "accountsReceivable", "accountsPayable", "accountPosting", "accountingSequence", "postingProposals", "accountingSumsAndBalances", "businessPartners", "generalLedgerAccounts", "termsOfPayment", "stocktakingData", "costSystems", "costCentersUnits", "costCenterProperties", "internalCostServices", "costSequences", "accountingStatistics", "accountingTransactionKeys", "variousAddresses"],
+          resource: [
+            "fiscalYear",
+            "accountsReceivable",
+            "accountsPayable",
+            "accountPosting",
+            "accountingSequence",
+            "postingProposals",
+            "accountingSumsAndBalances",
+            "businessPartners",
+            "generalLedgerAccounts",
+            "termsOfPayment",
+            "stocktakingData",
+            "costSystems",
+            "costCentersUnits",
+            "costCenterProperties",
+            "internalCostServices",
+            "costSequences",
+            "accountingStatistics",
+            "accountingTransactionKeys",
+            "variousAddresses",
+          ],
         },
       },
       default: "",
@@ -880,7 +906,26 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          resource: ["accountsReceivable", "accountsPayable", "accountPosting", "accountingSequence", "postingProposals", "accountingSumsAndBalances", "businessPartners", "generalLedgerAccounts", "termsOfPayment", "stocktakingData", "costSystems", "costCentersUnits", "costCenterProperties", "internalCostServices", "costSequences", "accountingStatistics", "accountingTransactionKeys", "variousAddresses"],
+          resource: [
+            "accountsReceivable",
+            "accountsPayable",
+            "accountPosting",
+            "accountingSequence",
+            "postingProposals",
+            "accountingSumsAndBalances",
+            "businessPartners",
+            "generalLedgerAccounts",
+            "termsOfPayment",
+            "stocktakingData",
+            "costSystems",
+            "costCentersUnits",
+            "costCenterProperties",
+            "internalCostServices",
+            "costSequences",
+            "accountingStatistics",
+            "accountingTransactionKeys",
+            "variousAddresses",
+          ],
         },
       },
       default: "",
@@ -986,7 +1031,11 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          operation: ["getRuleIncoming", "getRuleOutgoing", "getRuleCashRegister"],
+          operation: [
+            "getRuleIncoming",
+            "getRuleOutgoing",
+            "getRuleCashRegister",
+          ],
           resource: ["postingProposals"],
         },
       },
@@ -1106,7 +1155,12 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          resource: ["costCentersUnits", "costCenterProperties", "internalCostServices", "costSequences"],
+          resource: [
+            "costCentersUnits",
+            "costCenterProperties",
+            "internalCostServices",
+            "costSequences",
+          ],
         },
       },
       default: "",
@@ -1197,9 +1251,15 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           operation: [
-            "getAll", "getCondensed", "getAccountingRecords",
-            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
-            "getDebitors", "getCreditors", "getUtilized"
+            "getAll",
+            "getCondensed",
+            "getAccountingRecords",
+            "getRulesIncoming",
+            "getRulesOutgoing",
+            "getRulesCashRegister",
+            "getDebitors",
+            "getCreditors",
+            "getUtilized",
           ],
         },
         hide: {
@@ -1219,9 +1279,15 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           operation: [
-            "getAll", "getCondensed", "getAccountingRecords",
-            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
-            "getDebitors", "getCreditors", "getUtilized"
+            "getAll",
+            "getCondensed",
+            "getAccountingRecords",
+            "getRulesIncoming",
+            "getRulesOutgoing",
+            "getRulesCashRegister",
+            "getDebitors",
+            "getCreditors",
+            "getUtilized",
           ],
         },
         hide: {
@@ -1241,10 +1307,22 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           operation: [
-            "getAll", "get", "getCondensed", "getAccountingRecords", "getAccountingRecord",
-            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
-            "getRuleIncoming", "getRuleOutgoing", "getRuleCashRegister",
-            "getDebitors", "getDebitor", "getCreditors", "getCreditor", "getUtilized"
+            "getAll",
+            "get",
+            "getCondensed",
+            "getAccountingRecords",
+            "getAccountingRecord",
+            "getRulesIncoming",
+            "getRulesOutgoing",
+            "getRulesCashRegister",
+            "getRuleIncoming",
+            "getRuleOutgoing",
+            "getRuleCashRegister",
+            "getDebitors",
+            "getDebitor",
+            "getCreditors",
+            "getCreditor",
+            "getUtilized",
           ],
         },
       },
@@ -1258,9 +1336,15 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayOptions: {
         show: {
           operation: [
-            "getAll", "getCondensed", "getAccountingRecords",
-            "getRulesIncoming", "getRulesOutgoing", "getRulesCashRegister",
-            "getDebitors", "getCreditors", "getUtilized"
+            "getAll",
+            "getCondensed",
+            "getAccountingRecords",
+            "getRulesIncoming",
+            "getRulesOutgoing",
+            "getRulesCashRegister",
+            "getDebitors",
+            "getCreditors",
+            "getUtilized",
           ],
         },
       },
@@ -1273,12 +1357,27 @@ export const accountingNodeDescription: INodeTypeDescription = {
       type: "string",
       displayOptions: {
         show: {
-          operation: ["get", "getAll", "getDebitor", "getCreditor", "getDebitors", "getCreditors"],
-          resource: ["client", "accountsReceivable", "accountsPayable", "variousAddresses", "businessPartners", "accountPosting"],
+          operation: [
+            "get",
+            "getAll",
+            "getDebitor",
+            "getCreditor",
+            "getDebitors",
+            "getCreditors",
+          ],
+          resource: [
+            "client",
+            "accountsReceivable",
+            "accountsPayable",
+            "variousAddresses",
+            "businessPartners",
+            "accountPosting",
+          ],
         },
       },
       default: "",
-      description: "Parameter to include subordinate objects (e.g., 'detail,addresses' or '*' for all)",
+      description:
+        "Parameter to include subordinate objects (e.g., 'detail,addresses' or '*' for all)",
     },
 
     // Parameters for create operations

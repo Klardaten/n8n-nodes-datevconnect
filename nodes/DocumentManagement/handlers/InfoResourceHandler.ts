@@ -21,7 +21,7 @@ export class InfoResourceHandler extends BaseResourceHandler {
       default:
         throw new NodeOperationError(
           this.context.getNode(),
-          `The operation "${operation}" is not supported for info`
+          `The operation "${operation}" is not supported for info`,
         );
     }
   }

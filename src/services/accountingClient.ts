@@ -10,7 +10,9 @@ interface CredentialsData {
 }
 
 async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
-  const credentials = await executeFunctions.getCredentials("datevConnectApi") as CredentialsData;
+  const credentials = (await executeFunctions.getCredentials(
+    "datevConnectApi",
+  )) as CredentialsData;
 
   // Check if we have a cached token or need to authenticate
   const authResponse = await client.authenticate({
@@ -30,7 +32,10 @@ async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
 
 export const datevConnectClient = {
   accounting: {
-    async getClients(executeFunctions: IExecuteFunctions, queryParams: IDataObject = {}) {
+    async getClients(
+      executeFunctions: IExecuteFunctions,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
 
       return client.fetchAccountingClients({
@@ -39,7 +44,11 @@ export const datevConnectClient = {
       });
     },
 
-    async getClient(executeFunctions: IExecuteFunctions, clientId: string, queryParams: IDataObject = {}) {
+    async getClient(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingClient({
         ...options,
@@ -49,7 +58,11 @@ export const datevConnectClient = {
       });
     },
 
-    async getFiscalYears(executeFunctions: IExecuteFunctions, clientId: string, queryParams: IDataObject = {}) {
+    async getFiscalYears(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchFiscalYears({
         ...options,
@@ -61,7 +74,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getFiscalYear(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getFiscalYear(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchFiscalYear({
         ...options,
@@ -71,7 +89,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountsReceivable(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountsReceivable(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountsReceivable({
         ...options,
@@ -85,7 +108,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountsReceivableCondensed(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountsReceivableCondensed(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountsReceivableCondensed({
         ...options,
@@ -98,7 +126,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountReceivable(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountsReceivableId: string, queryParams: IDataObject = {}) {
+    async getAccountReceivable(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountsReceivableId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountReceivable({
         ...options,
@@ -110,7 +144,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountsPayable(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountsPayable(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountsPayable({
         ...options,
@@ -124,7 +163,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountsPayableCondensed(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountsPayableCondensed(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountsPayableCondensed({
         ...options,
@@ -137,7 +181,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountPayable(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountsPayableId: string, queryParams: IDataObject = {}) {
+    async getAccountPayable(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountsPayableId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountPayable({
         ...options,
@@ -149,7 +199,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountPostings(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountPostings(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountPostings({
         ...options,
@@ -161,7 +216,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountPosting(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountPostingId: string, queryParams: IDataObject = {}) {
+    async getAccountPosting(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountPostingId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountPosting({
         ...options,
@@ -173,7 +234,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingSequences(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountingSequences(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingSequences({
         ...options,
@@ -185,7 +251,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingSequence(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingSequenceId: string, queryParams: IDataObject = {}) {
+    async getAccountingSequence(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingSequenceId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingSequence({
         ...options,
@@ -196,7 +268,12 @@ export const datevConnectClient = {
       });
     },
 
-    async createAccountingSequence(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingSequence: JsonValue) {
+    async createAccountingSequence(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingSequence: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createAccountingSequence({
         ...options,
@@ -206,7 +283,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingRecords(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingSequenceId: string, queryParams: IDataObject = {}) {
+    async getAccountingRecords(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingSequenceId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingRecords({
         ...options,
@@ -220,7 +303,14 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingRecord(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingSequenceId: string, accountingRecordId: string, queryParams: IDataObject = {}) {
+    async getAccountingRecord(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingSequenceId: string,
+      accountingRecordId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingRecord({
         ...options,
@@ -232,7 +322,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRulesIncoming(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRulesIncoming(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRulesIncoming({
         ...options,
@@ -244,7 +339,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRulesOutgoing(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRulesOutgoing(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRulesOutgoing({
         ...options,
@@ -256,7 +356,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRulesCashRegister(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRulesCashRegister(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRulesCashRegister({
         ...options,
@@ -268,7 +373,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRuleIncoming(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, ruleId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRuleIncoming(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      ruleId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRuleIncoming({
         ...options,
@@ -279,7 +390,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRuleOutgoing(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, ruleId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRuleOutgoing(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      ruleId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRuleOutgoing({
         ...options,
@@ -290,7 +407,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getPostingProposalRuleCashRegister(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, ruleId: string, queryParams: IDataObject = {}) {
+    async getPostingProposalRuleCashRegister(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      ruleId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchPostingProposalRuleCashRegister({
         ...options,
@@ -301,7 +424,12 @@ export const datevConnectClient = {
       });
     },
 
-    async batchPostingProposalsIncoming(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, postingProposals: JsonValue) {
+    async batchPostingProposalsIncoming(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      postingProposals: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.batchPostingProposalsIncoming({
         ...options,
@@ -311,7 +439,12 @@ export const datevConnectClient = {
       });
     },
 
-    async batchPostingProposalsOutgoing(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, postingProposals: JsonValue) {
+    async batchPostingProposalsOutgoing(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      postingProposals: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.batchPostingProposalsOutgoing({
         ...options,
@@ -321,7 +454,12 @@ export const datevConnectClient = {
       });
     },
 
-    async batchPostingProposalsCashRegister(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, postingProposals: JsonValue) {
+    async batchPostingProposalsCashRegister(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      postingProposals: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.batchPostingProposalsCashRegister({
         ...options,
@@ -331,7 +469,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingSumsAndBalances(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountingSumsAndBalances(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingSumsAndBalances({
         ...options,
@@ -359,7 +502,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getDebitors(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getDebitors(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchDebitors({
         ...options,
@@ -373,7 +521,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getDebitor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, debitorId: string, queryParams: IDataObject = {}) {
+    async getDebitor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      debitorId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchDebitor({
         ...options,
@@ -385,7 +539,12 @@ export const datevConnectClient = {
       });
     },
 
-    async createDebitor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, debitor: JsonValue) {
+    async createDebitor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      debitor: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createDebitor({
         ...options,
@@ -395,7 +554,13 @@ export const datevConnectClient = {
       });
     },
 
-    async updateDebitor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, debitorId: string, debitor: JsonValue) {
+    async updateDebitor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      debitorId: string,
+      debitor: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.updateDebitor({
         ...options,
@@ -406,7 +571,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getNextAvailableDebitor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getNextAvailableDebitor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchNextAvailableDebitor({
         ...options,
@@ -416,7 +586,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getCreditors(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getCreditors(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCreditors({
         ...options,
@@ -430,7 +605,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getCreditor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, creditorId: string, queryParams: IDataObject = {}) {
+    async getCreditor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      creditorId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCreditor({
         ...options,
@@ -442,7 +623,12 @@ export const datevConnectClient = {
       });
     },
 
-    async createCreditor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, creditor: JsonValue) {
+    async createCreditor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      creditor: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createCreditor({
         ...options,
@@ -452,7 +638,13 @@ export const datevConnectClient = {
       });
     },
 
-    async updateCreditor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, creditorId: string, creditor: JsonValue) {
+    async updateCreditor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      creditorId: string,
+      creditor: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.updateCreditor({
         ...options,
@@ -463,7 +655,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getNextAvailableCreditor(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getNextAvailableCreditor(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchNextAvailableCreditor({
         ...options,
@@ -473,7 +670,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getGeneralLedgerAccounts(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getGeneralLedgerAccounts(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchGeneralLedgerAccounts({
         ...options,
@@ -486,7 +688,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getGeneralLedgerAccount(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, generalLedgerAccountId: string, queryParams: IDataObject = {}) {
+    async getGeneralLedgerAccount(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      generalLedgerAccountId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchGeneralLedgerAccount({
         ...options,
@@ -497,7 +705,12 @@ export const datevConnectClient = {
       });
     },
 
-    async getUtilizedGeneralLedgerAccounts(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getUtilizedGeneralLedgerAccounts(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchUtilizedGeneralLedgerAccounts({
         ...options,
@@ -510,7 +723,12 @@ export const datevConnectClient = {
     },
 
     // Terms of Payment methods
-    async getTermsOfPayment(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getTermsOfPayment(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchTermsOfPayment({
         ...options,
@@ -523,7 +741,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getTermOfPayment(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, termOfPaymentId: string, queryParams: IDataObject = {}) {
+    async getTermOfPayment(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      termOfPaymentId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchTermOfPayment({
         ...options,
@@ -534,7 +758,12 @@ export const datevConnectClient = {
       });
     },
 
-    async createTermOfPayment(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, termOfPaymentData: JsonValue) {
+    async createTermOfPayment(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      termOfPaymentData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createTermOfPayment({
         ...options,
@@ -544,7 +773,13 @@ export const datevConnectClient = {
       });
     },
 
-    async updateTermOfPayment(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, termOfPaymentId: string, termOfPaymentData: JsonValue) {
+    async updateTermOfPayment(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      termOfPaymentId: string,
+      termOfPaymentData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.updateTermOfPayment({
         ...options,
@@ -556,7 +791,12 @@ export const datevConnectClient = {
     },
 
     // Stocktaking Data methods
-    async getStocktakingData(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getStocktakingData(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchStocktakingData({
         ...options,
@@ -569,7 +809,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getStocktakingDataByAsset(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, assetId: string, queryParams: IDataObject = {}) {
+    async getStocktakingDataByAsset(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      assetId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchStocktakingDataByAsset({
         ...options,
@@ -582,7 +828,13 @@ export const datevConnectClient = {
       });
     },
 
-    async updateStocktakingData(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, assetId: string, stocktakingData: JsonValue) {
+    async updateStocktakingData(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      assetId: string,
+      stocktakingData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.updateStocktakingData({
         ...options,
@@ -594,7 +846,12 @@ export const datevConnectClient = {
     },
 
     // Cost Systems methods
-    async getCostSystems(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getCostSystems(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostSystems({
         ...options,
@@ -606,7 +863,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getCostSystem(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, queryParams: IDataObject = {}) {
+    async getCostSystem(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostSystem({
         ...options,
@@ -618,7 +881,13 @@ export const datevConnectClient = {
     },
 
     // Cost Centers methods
-    async getCostCenters(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, queryParams: IDataObject = {}) {
+    async getCostCenters(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostCenters({
         ...options,
@@ -631,7 +900,14 @@ export const datevConnectClient = {
       });
     },
 
-    async getCostCenter(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, costCenterId: string, queryParams: IDataObject = {}) {
+    async getCostCenter(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costCenterId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostCenter({
         ...options,
@@ -644,7 +920,13 @@ export const datevConnectClient = {
     },
 
     // Cost Center Properties methods
-    async getCostCenterProperties(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, queryParams: IDataObject = {}) {
+    async getCostCenterProperties(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostCenterProperties({
         ...options,
@@ -657,7 +939,14 @@ export const datevConnectClient = {
       });
     },
 
-    async getCostCenterProperty(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, costCenterPropertyId: string, queryParams: IDataObject = {}) {
+    async getCostCenterProperty(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costCenterPropertyId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostCenterProperty({
         ...options,
@@ -670,7 +959,13 @@ export const datevConnectClient = {
     },
 
     // Internal Cost Services methods
-    async createInternalCostService(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, internalCostServiceData: JsonValue) {
+    async createInternalCostService(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      internalCostServiceData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createInternalCostService({
         ...options,
@@ -682,7 +977,13 @@ export const datevConnectClient = {
     },
 
     // Cost Sequences methods
-    async getCostSequences(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, queryParams: IDataObject = {}) {
+    async getCostSequences(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostSequences({
         ...options,
@@ -695,7 +996,14 @@ export const datevConnectClient = {
       });
     },
 
-    async getCostSequence(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, costSequenceId: string, queryParams: IDataObject = {}) {
+    async getCostSequence(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costSequenceId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostSequence({
         ...options,
@@ -707,7 +1015,14 @@ export const datevConnectClient = {
       });
     },
 
-    async createCostSequence(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, costSequenceId: string, costSequenceData: JsonValue) {
+    async createCostSequence(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costSequenceId: string,
+      costSequenceData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createCostSequence({
         ...options,
@@ -719,7 +1034,14 @@ export const datevConnectClient = {
       });
     },
 
-    async getCostAccountingRecords(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, costSystemId: string, costSequenceId: string, queryParams: IDataObject = {}) {
+    async getCostAccountingRecords(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costSequenceId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchCostAccountingRecords({
         ...options,
@@ -734,7 +1056,12 @@ export const datevConnectClient = {
     },
 
     // Accounting Statistics methods
-    async getAccountingStatistics(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountingStatistics(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingStatistics({
         ...options,
@@ -748,7 +1075,12 @@ export const datevConnectClient = {
     },
 
     // Accounting Transaction Keys methods
-    async getAccountingTransactionKeys(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getAccountingTransactionKeys(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingTransactionKeys({
         ...options,
@@ -760,7 +1092,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getAccountingTransactionKey(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, accountingTransactionKeyId: string, queryParams: IDataObject = {}) {
+    async getAccountingTransactionKey(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      accountingTransactionKeyId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchAccountingTransactionKey({
         ...options,
@@ -775,7 +1113,12 @@ export const datevConnectClient = {
     },
 
     // Various Addresses methods
-    async getVariousAddresses(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, queryParams: IDataObject = {}) {
+    async getVariousAddresses(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchVariousAddresses({
         ...options,
@@ -788,7 +1131,13 @@ export const datevConnectClient = {
       });
     },
 
-    async getVariousAddress(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, variousAddressId: string, queryParams: IDataObject = {}) {
+    async getVariousAddress(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      variousAddressId: string,
+      queryParams: IDataObject = {},
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.fetchVariousAddress({
         ...options,
@@ -802,7 +1151,12 @@ export const datevConnectClient = {
       });
     },
 
-    async createVariousAddress(executeFunctions: IExecuteFunctions, clientId: string, fiscalYearId: string, variousAddressData: JsonValue) {
+    async createVariousAddress(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      variousAddressData: JsonValue,
+    ) {
       const options = await getAuthenticatedOptions(executeFunctions);
       return client.createVariousAddress({
         ...options,

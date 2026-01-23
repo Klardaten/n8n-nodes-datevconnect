@@ -43,13 +43,15 @@ export class StocktakingDataResourceHandler extends BaseResourceHandler {
     }
   }
 
-  private async handleGetAll(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleGetAll(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const queryParams = this.buildQueryParams();
     const result = await datevConnectClient.accounting.getStocktakingData(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
-      queryParams
+      queryParams,
     );
     return result ?? null;
   }
@@ -57,35 +59,38 @@ export class StocktakingDataResourceHandler extends BaseResourceHandler {
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
     const assetId = this.getRequiredString("assetId");
     const queryParams = this.buildQueryParams();
-    const result = await datevConnectClient.accounting.getStocktakingDataByAsset(
-      this.context,
-      requestContext.clientId!,
-      requestContext.fiscalYearId!,
-      assetId,
-      queryParams
-    );
+    const result =
+      await datevConnectClient.accounting.getStocktakingDataByAsset(
+        this.context,
+        requestContext.clientId!,
+        requestContext.fiscalYearId!,
+        assetId,
+        queryParams,
+      );
     return result ?? null;
   }
 
-  private async handleUpdate(requestContext: RequestContext): Promise<JsonValue> {
+  private async handleUpdate(
+    requestContext: RequestContext,
+  ): Promise<JsonValue> {
     const assetId = this.getRequiredString("assetId");
     const stocktakingData = this.getRequiredString("stocktakingData");
     const data = this.parseJsonParameter(stocktakingData, "stocktakingData");
-    
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
       throw new NodeOperationError(
         this.context.getNode(),
         "Stocktaking data must be a valid JSON object",
-        { itemIndex: this.itemIndex }
+        { itemIndex: this.itemIndex },
       );
     }
-    
+
     const result = await datevConnectClient.accounting.updateStocktakingData(
       this.context,
       requestContext.clientId!,
       requestContext.fiscalYearId!,
       assetId,
-      data
+      data,
     );
     return result ?? null;
   }

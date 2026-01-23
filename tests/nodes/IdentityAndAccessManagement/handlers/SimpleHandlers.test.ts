@@ -38,9 +38,9 @@ describe("IdentityAndAccessManagement - simple handlers", () => {
     expect(fetchSpy).toHaveBeenCalledWith(authContext);
     expect(returnData[0].json.documentationUri).toBe("https://docs");
 
-    await expect(
-      handler.execute("getAll", authContext, []),
-    ).rejects.toThrow(NodeOperationError);
+    await expect(handler.execute("getAll", authContext, [])).rejects.toThrow(
+      NodeOperationError,
+    );
 
     fetchSpy.mockRestore();
   });
@@ -65,7 +65,10 @@ describe("IdentityAndAccessManagement - simple handlers", () => {
   test("CurrentUserResourceHandler fetches /Users/me", async () => {
     const context = createContext();
     const handler = new CurrentUserResourceHandler(context, 0);
-    const fetchSpy = spyOn(IdentityAndAccessManagementClient, "fetchCurrentUser").mockResolvedValue({
+    const fetchSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchCurrentUser",
+    ).mockResolvedValue({
       id: "current-user",
     });
 
@@ -75,9 +78,9 @@ describe("IdentityAndAccessManagement - simple handlers", () => {
     expect(fetchSpy).toHaveBeenCalledWith(authContext);
     expect(returnData[0].json.id).toBe("current-user");
 
-    await expect(
-      handler.execute("getAll", authContext, []),
-    ).rejects.toThrow(NodeOperationError);
+    await expect(handler.execute("getAll", authContext, [])).rejects.toThrow(
+      NodeOperationError,
+    );
 
     fetchSpy.mockRestore();
   });

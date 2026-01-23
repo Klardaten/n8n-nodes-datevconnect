@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { CostCenterPropertiesResourceHandler } from "../../../../nodes/Accounting/handlers/CostCenterPropertiesResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -19,7 +27,7 @@ const mockCostCenterPropertiesData = [
     is_active: true,
     default_value: null,
     allowed_values: ["Sales", "Marketing", "IT", "HR", "Finance"],
-    sort_order: 1
+    sort_order: 1,
   },
   {
     id: "PROP002",
@@ -30,7 +38,7 @@ const mockCostCenterPropertiesData = [
     is_active: true,
     default_value: "Main Office",
     allowed_values: ["Main Office", "Branch A", "Branch B", "Remote"],
-    sort_order: 2
+    sort_order: 2,
   },
   {
     id: "PROP003",
@@ -39,10 +47,10 @@ const mockCostCenterPropertiesData = [
     data_type: "decimal",
     is_required: false,
     is_active: true,
-    default_value: 10000.00,
+    default_value: 10000.0,
     allowed_values: null,
-    sort_order: 3
-  }
+    sort_order: 3,
+  },
 ];
 
 const mockSingleCostCenterProperty = {
@@ -57,7 +65,7 @@ const mockSingleCostCenterProperty = {
   sort_order: 1,
   created_date: "2023-01-15T09:00:00Z",
   last_modified: "2023-10-20T15:30:00Z",
-  usage_count: 45
+  usage_count: 45,
 };
 
 // Mock IExecuteFunctions
@@ -69,24 +77,28 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "costSystemId": "COSTSYS001",
-      "costCenterPropertyId": "PROP001",
-      "top": 50,
-      "skip": 10,
-      "select": "id,name,data_type,is_required",
-      "filter": "is_active eq true",
-      "expand": "usage_statistics",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        costSystemId: "COSTSYS001",
+        costCenterPropertyId: "PROP001",
+        top: 50,
+        skip: 10,
+        select: "id,name,data_type,is_required",
+        filter: "is_active eq true",
+        expand: "usage_statistics",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -98,13 +110,19 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "2023"
+  fiscalYearId: "2023",
 };
 
 describe("CostCenterPropertiesResourceHandler", () => {
   beforeEach(() => {
-    getCostCenterPropertiesSpy = spyOn(datevConnectClient.accounting, "getCostCenterProperties").mockResolvedValue(mockCostCenterPropertiesData);
-    getCostCenterPropertySpy = spyOn(datevConnectClient.accounting, "getCostCenterProperty").mockResolvedValue(mockSingleCostCenterProperty);
+    getCostCenterPropertiesSpy = spyOn(
+      datevConnectClient.accounting,
+      "getCostCenterProperties",
+    ).mockResolvedValue(mockCostCenterPropertiesData);
+    getCostCenterPropertySpy = spyOn(
+      datevConnectClient.accounting,
+      "getCostCenterProperty",
+    ).mockResolvedValue(mockSingleCostCenterProperty);
   });
 
   afterEach(() => {
@@ -120,13 +138,19 @@ describe("CostCenterPropertiesResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(context, "client-123", "2023", "COSTSYS001", {
-        top: 50,
-        skip: 10,
-        select: "id,name,data_type,is_required",
-        filter: "is_active eq true",
-        expand: "usage_statistics"
-      });
+      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "COSTSYS001",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,name,data_type,is_required",
+          filter: "is_active eq true",
+          expand: "usage_statistics",
+        },
+      );
 
       expect(returnData).toHaveLength(3);
       expect(returnData[0].json).toEqual({
@@ -138,7 +162,7 @@ describe("CostCenterPropertiesResourceHandler", () => {
         is_active: true,
         default_value: null,
         allowed_values: ["Sales", "Marketing", "IT", "HR", "Finance"],
-        sort_order: 1
+        sort_order: 1,
       });
     });
 
@@ -168,33 +192,39 @@ describe("CostCenterPropertiesResourceHandler", () => {
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "costSystemId": "COSTSYS001",
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          costSystemId: "COSTSYS001",
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(context, "client-123", "2023", "COSTSYS001", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "COSTSYS001",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
 
     test("requires costSystemId parameter", async () => {
       const context = createMockContext({
-        parameters: { costSystemId: undefined }
+        parameters: { costSystemId: undefined },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow();
     });
 
@@ -202,21 +232,27 @@ describe("CostCenterPropertiesResourceHandler", () => {
       const context = createMockContext({
         parameters: {
           costSystemId: "COSTSYS001",
-          filter: "data_type eq 'string'"
-        }
+          filter: "data_type eq 'string'",
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(context, "client-123", "2023", "COSTSYS001", {
-        top: 50,
-        skip: 10,
-        select: "id,name,data_type,is_required",
-        filter: "data_type eq 'string'",
-        expand: "usage_statistics"
-      });
+      expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "COSTSYS001",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,name,data_type,is_required",
+          filter: "data_type eq 'string'",
+          expand: "usage_statistics",
+        },
+      );
     });
   });
 
@@ -228,13 +264,20 @@ describe("CostCenterPropertiesResourceHandler", () => {
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getCostCenterPropertySpy).toHaveBeenCalledWith(context, "client-123", "2023", "COSTSYS001", "PROP001", {
-        top: 50,
-        skip: 10,
-        select: "id,name,data_type,is_required",
-        filter: "is_active eq true",
-        expand: "usage_statistics"
-      });
+      expect(getCostCenterPropertySpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "COSTSYS001",
+        "PROP001",
+        {
+          top: 50,
+          skip: 10,
+          select: "id,name,data_type,is_required",
+          filter: "is_active eq true",
+          expand: "usage_statistics",
+        },
+      );
 
       expect(returnData).toHaveLength(1);
       expect(returnData[0].json).toEqual({
@@ -249,7 +292,7 @@ describe("CostCenterPropertiesResourceHandler", () => {
         sort_order: 1,
         created_date: "2023-01-15T09:00:00Z",
         last_modified: "2023-10-20T15:30:00Z",
-        usage_count: 45
+        usage_count: 45,
       });
     });
 
@@ -279,37 +322,46 @@ describe("CostCenterPropertiesResourceHandler", () => {
 
     test("requires both costSystemId and costCenterPropertyId parameters for get", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          costCenterPropertyId: undefined 
-        }
+          costCenterPropertyId: undefined,
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await expect(handler.execute("get", mockAuthContext, returnData)).rejects.toThrow('Parameter "costCenterPropertyId" is required');
+      await expect(
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "costCenterPropertyId" is required');
     });
 
     test("handles parameters with default values for get", async () => {
       const context = createMockContext({
         parameters: {
-          "costSystemId": "COSTSYS002",
-          "costCenterPropertyId": "PROP999",
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          costSystemId: "COSTSYS002",
+          costCenterPropertyId: "PROP999",
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("get", mockAuthContext, returnData);
 
-      expect(getCostCenterPropertySpy).toHaveBeenCalledWith(context, "client-123", "2023", "COSTSYS002", "PROP999", {
-        top: 100  // Default value when top is undefined
-      });
+      expect(getCostCenterPropertySpy).toHaveBeenCalledWith(
+        context,
+        "client-123",
+        "2023",
+        "COSTSYS002",
+        "PROP999",
+        {
+          top: 100, // Default value when top is undefined
+        },
+      );
     });
   });
 
@@ -320,7 +372,11 @@ describe("CostCenterPropertiesResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
@@ -328,10 +384,10 @@ describe("CostCenterPropertiesResourceHandler", () => {
       getCostCenterPropertiesSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -348,18 +404,20 @@ describe("CostCenterPropertiesResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles network timeout errors", async () => {
-      getCostCenterPropertiesSpy.mockRejectedValueOnce(new Error("Network timeout"));
+      getCostCenterPropertiesSpy.mockRejectedValueOnce(
+        new Error("Network timeout"),
+      );
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -370,13 +428,15 @@ describe("CostCenterPropertiesResourceHandler", () => {
     });
 
     test("handles authentication errors", async () => {
-      getCostCenterPropertiesSpy.mockRejectedValueOnce(new Error("Unauthorized"));
+      getCostCenterPropertiesSpy.mockRejectedValueOnce(
+        new Error("Unauthorized"),
+      );
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
   });
@@ -394,7 +454,7 @@ describe("CostCenterPropertiesResourceHandler", () => {
         expect.any(String),
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -412,10 +472,10 @@ describe("CostCenterPropertiesResourceHandler", () => {
       getCostCenterPropertiesSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostCenterPropertiesResourceHandler(context, 4);
       const returnData: any[] = [];
 
@@ -433,17 +493,17 @@ describe("CostCenterPropertiesResourceHandler", () => {
 
       // Verify that the handler constructs data properly through BaseResourceHandler
       expect(returnData).toHaveLength(3);
-      expect(returnData.every(item => item.json !== undefined)).toBe(true);
+      expect(returnData.every((item) => item.json !== undefined)).toBe(true);
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves select parameter", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          select: "id,name,data_type" 
-        }
+          select: "id,name,data_type",
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -455,16 +515,16 @@ describe("CostCenterPropertiesResourceHandler", () => {
         "client-123",
         "2023",
         "COSTSYS001",
-        expect.objectContaining({ select: "id,name,data_type" })
+        expect.objectContaining({ select: "id,name,data_type" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          filter: "is_required eq true" 
-        }
+          filter: "is_required eq true",
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -473,16 +533,16 @@ describe("CostCenterPropertiesResourceHandler", () => {
 
       expect(getCostCenterPropertiesSpy).toHaveBeenCalledWith(
         context,
-        "client-123", 
+        "client-123",
         "2023",
         "COSTSYS001",
-        expect.objectContaining({ filter: "is_required eq true" })
+        expect.objectContaining({ filter: "is_required eq true" }),
       );
     });
 
     test("correctly retrieves costSystemId parameter", async () => {
       const context = createMockContext({
-        parameters: { costSystemId: "COSTSYS999" }
+        parameters: { costSystemId: "COSTSYS999" },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -494,16 +554,16 @@ describe("CostCenterPropertiesResourceHandler", () => {
         "client-123",
         "2023",
         "COSTSYS999",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves costCenterPropertyId parameter", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          costCenterPropertyId: "PROP999" 
-        }
+          costCenterPropertyId: "PROP999",
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -515,17 +575,17 @@ describe("CostCenterPropertiesResourceHandler", () => {
         "client-123",
         "2023",
         "COSTSYS001",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          top: 25, 
-          skip: 5 
-        }
+          top: 25,
+          skip: 5,
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -537,16 +597,16 @@ describe("CostCenterPropertiesResourceHandler", () => {
         "client-123",
         "2023",
         "COSTSYS001",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
 
     test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { 
+        parameters: {
           costSystemId: "COSTSYS001",
-          expand: "validation_rules" 
-        }
+          expand: "validation_rules",
+        },
       });
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -558,7 +618,7 @@ describe("CostCenterPropertiesResourceHandler", () => {
         "client-123",
         "2023",
         "COSTSYS001",
-        expect.objectContaining({ expand: "validation_rules" })
+        expect.objectContaining({ expand: "validation_rules" }),
       );
     });
   });
@@ -570,29 +630,31 @@ describe("CostCenterPropertiesResourceHandler", () => {
           id: "PROP001",
           name: "String Property",
           data_type: "string",
-          default_value: "Default"
+          default_value: "Default",
         },
         {
           id: "PROP002",
           name: "Number Property",
           data_type: "decimal",
-          default_value: 100.5
+          default_value: 100.5,
         },
         {
           id: "PROP003",
           name: "Boolean Property",
           data_type: "boolean",
-          default_value: true
+          default_value: true,
         },
         {
           id: "PROP004",
           name: "Date Property",
           data_type: "date",
-          default_value: "2023-01-01"
-        }
+          default_value: "2023-01-01",
+        },
       ];
-      
-      getCostCenterPropertiesSpy.mockResolvedValueOnce(mockDataWithVariousTypes);
+
+      getCostCenterPropertiesSpy.mockResolvedValueOnce(
+        mockDataWithVariousTypes,
+      );
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -611,24 +673,36 @@ describe("CostCenterPropertiesResourceHandler", () => {
         {
           id: "PROP001",
           name: "Size Property",
-          allowed_values: ["Small", "Medium", "Large", "Extra Large"]
+          allowed_values: ["Small", "Medium", "Large", "Extra Large"],
         },
         {
           id: "PROP002",
           name: "Priority Property",
-          allowed_values: ["Low", "Medium", "High", "Critical"]
-        }
+          allowed_values: ["Low", "Medium", "High", "Critical"],
+        },
       ];
-      
-      getCostCenterPropertiesSpy.mockResolvedValueOnce(mockDataWithAllowedValues);
+
+      getCostCenterPropertiesSpy.mockResolvedValueOnce(
+        mockDataWithAllowedValues,
+      );
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(returnData[0].json.allowed_values).toEqual(["Small", "Medium", "Large", "Extra Large"]);
-      expect(returnData[1].json.allowed_values).toEqual(["Low", "Medium", "High", "Critical"]);
+      expect(returnData[0].json.allowed_values).toEqual([
+        "Small",
+        "Medium",
+        "Large",
+        "Extra Large",
+      ]);
+      expect(returnData[1].json.allowed_values).toEqual([
+        "Low",
+        "Medium",
+        "High",
+        "Critical",
+      ]);
     });
 
     test("handles properties with boolean flags", async () => {
@@ -637,16 +711,16 @@ describe("CostCenterPropertiesResourceHandler", () => {
           id: "PROP001",
           name: "Required Property",
           is_required: true,
-          is_active: true
+          is_active: true,
         },
         {
           id: "PROP002",
           name: "Optional Property",
           is_required: false,
-          is_active: false
-        }
+          is_active: false,
+        },
       ];
-      
+
       getCostCenterPropertiesSpy.mockResolvedValueOnce(mockDataWithBooleans);
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
@@ -665,12 +739,14 @@ describe("CostCenterPropertiesResourceHandler", () => {
         {
           id: "PROP001",
           name: "Minimal Property",
-          data_type: "string"
+          data_type: "string",
           // missing description, default_value, allowed_values, etc.
-        }
+        },
       ];
-      
-      getCostCenterPropertiesSpy.mockResolvedValueOnce(mockDataWithMissingFields);
+
+      getCostCenterPropertiesSpy.mockResolvedValueOnce(
+        mockDataWithMissingFields,
+      );
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -680,7 +756,7 @@ describe("CostCenterPropertiesResourceHandler", () => {
       expect(returnData[0].json).toEqual({
         id: "PROP001",
         name: "Minimal Property",
-        data_type: "string"
+        data_type: "string",
       });
     });
 
@@ -691,11 +767,13 @@ describe("CostCenterPropertiesResourceHandler", () => {
           name: "No Default Property",
           data_type: "string",
           default_value: null,
-          allowed_values: null
-        }
+          allowed_values: null,
+        },
       ];
-      
-      getCostCenterPropertiesSpy.mockResolvedValueOnce(mockDataWithNullDefaults);
+
+      getCostCenterPropertiesSpy.mockResolvedValueOnce(
+        mockDataWithNullDefaults,
+      );
       const context = createMockContext();
       const handler = new CostCenterPropertiesResourceHandler(context, 0);
       const returnData: any[] = [];

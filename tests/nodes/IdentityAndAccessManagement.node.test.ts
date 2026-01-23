@@ -78,7 +78,10 @@ describe("IdentityAndAccessManagement node", () => {
   let authenticateSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
-    authenticateSpy = spyOn(datevConnectClientModule, "authenticate").mockResolvedValue({
+    authenticateSpy = spyOn(
+      datevConnectClientModule,
+      "authenticate",
+    ).mockResolvedValue({
       access_token: "token-123",
     });
   });
@@ -140,8 +143,14 @@ describe("IdentityAndAccessManagement node", () => {
     });
 
     const handlerSpies = [
-      spyOn(ServiceProviderConfigResourceHandler.prototype, "execute").mockResolvedValue(),
-      spyOn(ResourceTypeResourceHandler.prototype, "execute").mockResolvedValue(),
+      spyOn(
+        ServiceProviderConfigResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(),
+      spyOn(
+        ResourceTypeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue(),
       spyOn(SchemaResourceHandler.prototype, "execute").mockResolvedValue(),
       spyOn(UserResourceHandler.prototype, "execute").mockResolvedValue(),
       spyOn(GroupResourceHandler.prototype, "execute").mockResolvedValue(),
@@ -174,7 +183,10 @@ describe("IdentityAndAccessManagement node", () => {
       },
     });
 
-    const handlerSpy = spyOn(CurrentUserResourceHandler.prototype, "execute").mockResolvedValue();
+    const handlerSpy = spyOn(
+      CurrentUserResourceHandler.prototype,
+      "execute",
+    ).mockResolvedValue();
 
     await node.execute.call(context as unknown as IExecuteFunctions);
 

@@ -78,15 +78,15 @@ const createMockContext = (overrides: any = {}) => ({
         ...overrides.parameters,
       };
       return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-    }
+    },
   ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
     returnJsonArray: mock((data: any[]) =>
-      data.map((entry) => ({ json: entry }))
+      data.map((entry) => ({ json: entry })),
     ),
     constructExecutionMetaData: mock((data: any[], meta: any) =>
-      data.map((entry) => ({ ...entry, pairedItem: meta.itemData }))
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -108,11 +108,11 @@ describe("AccountPostingResourceHandler", () => {
   beforeEach(() => {
     getAccountPostingsSpy = spyOn(
       datevConnectClient.accounting,
-      "getAccountPostings"
+      "getAccountPostings",
     ).mockResolvedValue(mockAccountPostingData);
     getAccountPostingSpy = spyOn(
       datevConnectClient.accounting,
-      "getAccountPosting"
+      "getAccountPosting",
     ).mockResolvedValue(mockSingleAccountPosting);
   });
 
@@ -137,7 +137,7 @@ describe("AccountPostingResourceHandler", () => {
           select: "id,account_number,amount_debit,amount_credit",
           filter: "amount_debit gt 100",
           expand: "*",
-        }
+        },
       );
 
       expect(returnData).toHaveLength(2);
@@ -186,7 +186,7 @@ describe("AccountPostingResourceHandler", () => {
         "2023",
         {
           expand: "*",
-        }
+        },
       );
     });
   });
@@ -207,7 +207,7 @@ describe("AccountPostingResourceHandler", () => {
         {
           select: "id,account_number,amount_debit,amount_credit",
           expand: "*",
-        }
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -234,7 +234,7 @@ describe("AccountPostingResourceHandler", () => {
         "test-account-posting-id",
         {
           expand: "*",
-        }
+        },
       );
     });
   });
@@ -249,10 +249,10 @@ describe("AccountPostingResourceHandler", () => {
         handler.execute(
           "unsupportedOperation" as any,
           mockAuthContext,
-          returnData
-        )
+          returnData,
+        ),
       ).rejects.toThrow(
-        'The operation "unsupportedOperation" is not supported for resource "accountPosting".'
+        'The operation "unsupportedOperation" is not supported for resource "accountPosting".',
       );
     });
 
@@ -280,7 +280,7 @@ describe("AccountPostingResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
   });
@@ -297,7 +297,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -342,7 +342,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ select: "id,account,description" })
+        expect.objectContaining({ select: "id,account,description" }),
       );
     });
 
@@ -359,7 +359,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ filter: "amount gt 500" })
+        expect.objectContaining({ filter: "amount gt 500" }),
       );
     });
 
@@ -377,7 +377,7 @@ describe("AccountPostingResourceHandler", () => {
         "client-123",
         "2023",
         "test-account-posting-id",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -394,7 +394,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ expand: "*" })
+        expect.objectContaining({ expand: "*" }),
       );
     });
   });

@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { TaxAuthorityResourceHandler } from "../../../../nodes/MasterData/handlers/TaxAuthorityResourceHandler";
 import type { AuthContext } from "../../../../nodes/MasterData/types";
 import * as datevConnectClientModule from "../../../../src/services/datevConnectClient";
@@ -16,20 +24,24 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      // Tax authority operations parameters (only select and filter are used)
-      "select": "id,name,code",
-      "filter": "active eq true",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        // Tax authority operations parameters (only select and filter are used)
+        select: "id,name,code",
+        filter: "active eq true",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -44,7 +56,10 @@ const mockAuthContext: AuthContext = {
 
 describe("TaxAuthorityResourceHandler", () => {
   beforeEach(() => {
-    fetchTaxAuthoritiesSpy = spyOn(datevConnectClientModule, "fetchTaxAuthorities").mockResolvedValue([]);
+    fetchTaxAuthoritiesSpy = spyOn(
+      datevConnectClientModule,
+      "fetchTaxAuthorities",
+    ).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -74,8 +89,16 @@ describe("TaxAuthorityResourceHandler", () => {
       });
 
       expect(returnData).toHaveLength(2);
-      expect(returnData[0].json).toEqual({ id: "1", name: "Tax Authority 1", code: "TA001" });
-      expect(returnData[1].json).toEqual({ id: "2", name: "Tax Authority 2", code: "TA002" });
+      expect(returnData[0].json).toEqual({
+        id: "1",
+        name: "Tax Authority 1",
+        code: "TA001",
+      });
+      expect(returnData[1].json).toEqual({
+        id: "2",
+        name: "Tax Authority 2",
+        code: "TA002",
+      });
     });
 
     test("handles empty results", async () => {
@@ -126,12 +149,16 @@ describe("TaxAuthorityResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOp", mockAuthContext, returnData)
-      ).rejects.toThrow("The operation \"unsupportedOp\" is not supported for resource \"taxAuthority\".");
+        handler.execute("unsupportedOp", mockAuthContext, returnData),
+      ).rejects.toThrow(
+        'The operation "unsupportedOp" is not supported for resource "taxAuthority".',
+      );
     });
 
     test("handles API errors gracefully when continueOnFail is true", async () => {
-      fetchTaxAuthoritiesSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchTaxAuthoritiesSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => true) },
@@ -147,7 +174,9 @@ describe("TaxAuthorityResourceHandler", () => {
     });
 
     test("throws error when continueOnFail is false", async () => {
-      fetchTaxAuthoritiesSpy.mockRejectedValueOnce(new Error("API Connection Failed"));
+      fetchTaxAuthoritiesSpy.mockRejectedValueOnce(
+        new Error("API Connection Failed"),
+      );
 
       const context = createMockContext({
         context: { continueOnFail: mock(() => false) },
@@ -156,7 +185,7 @@ describe("TaxAuthorityResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Connection Failed");
     });
   });
@@ -200,7 +229,7 @@ describe("TaxAuthorityResourceHandler", () => {
       // Verify metadata construction is called
       expect(context.helpers.constructExecutionMetaData).toHaveBeenCalledWith(
         [{ json: { id: "1", name: "Tax Authority 1" } }],
-        { itemData: { item: 0 } }
+        { itemData: { item: 0 } },
       );
     });
   });

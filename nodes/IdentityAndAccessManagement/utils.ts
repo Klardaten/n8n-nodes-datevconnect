@@ -72,7 +72,11 @@ export function getOptionalString(
   parameterName: string,
   itemIndex: number,
 ): string | undefined {
-  const value = context.getNodeParameter(parameterName, itemIndex, "") as string;
+  const value = context.getNodeParameter(
+    parameterName,
+    itemIndex,
+    "",
+  ) as string;
   return value.trim() || undefined;
 }
 
@@ -94,11 +98,17 @@ export function getNumberParameter(
   itemIndex: number,
   defaultValue: number,
 ): number {
-  const value = context.getNodeParameter(parameterName, itemIndex, defaultValue) as number;
+  const value = context.getNodeParameter(
+    parameterName,
+    itemIndex,
+    defaultValue,
+  ) as number;
   return value;
 }
 
-export function buildQueryParams(params: Record<string, unknown>): Record<string, string> {
+export function buildQueryParams(
+  params: Record<string, unknown>,
+): Record<string, string> {
   const query: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(params)) {
@@ -115,7 +125,10 @@ export function getRequiredJsonData(
   parameterName: string,
   itemIndex: number,
 ): JsonValue {
-  const rawValue = context.getNodeParameter(parameterName, itemIndex) as JsonValue;
+  const rawValue = context.getNodeParameter(
+    parameterName,
+    itemIndex,
+  ) as JsonValue;
   if (!rawValue) {
     throw new NodeOperationError(
       context.getNode(),

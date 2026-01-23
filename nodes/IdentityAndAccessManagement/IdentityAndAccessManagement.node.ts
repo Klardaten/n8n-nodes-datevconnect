@@ -22,7 +22,9 @@ import { toErrorObject } from "./utils";
 export class IdentityAndAccessManagement implements INodeType {
   description: INodeTypeDescription = {
     ...identityAndAccessManagementNodeDescription,
-    icon: identityAndAccessManagementNodeDescription.icon ?? "file:../klardaten.svg",
+    icon:
+      identityAndAccessManagementNodeDescription.icon ??
+      "file:../klardaten.svg",
     usableAsTool: true,
   };
 
@@ -30,12 +32,15 @@ export class IdentityAndAccessManagement implements INodeType {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
 
-    const credentials = (await this.getCredentials("datevConnectApi")) as
-      | IdentityAndAccessManagementCredentials
-      | null;
+    const credentials = (await this.getCredentials(
+      "datevConnectApi",
+    )) as IdentityAndAccessManagementCredentials | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -61,12 +66,17 @@ export class IdentityAndAccessManagement implements INodeType {
     }
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
-      const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+      const paramClientInstanceId = this.getNodeParameter(
+        "clientInstanceId",
+        itemIndex,
+        "",
+      ) as string;
+      const effectiveClientInstanceId =
+        paramClientInstanceId || clientInstanceId;
 
-      const authContext = { 
-        host, 
-        token, 
+      const authContext = {
+        host,
+        token,
         clientInstanceId: effectiveClientInstanceId,
         httpHelper: this.helpers.httpRequest,
       };

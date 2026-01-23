@@ -1,4 +1,4 @@
-import { createFetchFromHttpHelper } from './httpHelpers';
+import { createFetchFromHttpHelper } from "./httpHelpers";
 import {
   type JsonValue,
   type HttpRequestHelper,
@@ -8,11 +8,17 @@ import {
   ensureSuccess,
   JSON_CONTENT_TYPE,
   DEFAULT_ERROR_PREFIX,
-} from './shared';
+} from "./shared";
 
 // Re-export for backward compatibility
-export type { JsonValue, HttpRequestHelper, AuthenticateOptions, AuthenticateResponse, BaseRequestOptions } from './shared';
-export { authenticate } from './shared';
+export type {
+  JsonValue,
+  HttpRequestHelper,
+  AuthenticateOptions,
+  AuthenticateResponse,
+  BaseRequestOptions,
+} from "./shared";
+export { authenticate } from "./shared";
 
 export interface FetchClientsOptions extends BaseRequestOptions {
   top?: number;
@@ -236,7 +242,6 @@ export interface FetchAddresseesDeletionLogOptions extends BaseRequestOptions {
   skip?: number;
 }
 
-
 const MASTER_DATA_BASE_PATH = "datevconnect/master-data/v1";
 const CLIENTS_PATH = `${MASTER_DATA_BASE_PATH}/clients`;
 const TAX_AUTHORITIES_PATH = `${MASTER_DATA_BASE_PATH}/tax-authorities`;
@@ -267,11 +272,20 @@ interface MasterDataRequestOptions {
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
-
 async function sendMasterDataRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
+  const {
+    host,
+    token,
+    clientInstanceId,
+    path,
+    method,
+    query,
+    body,
+    httpHelper,
+    fetchImpl: providedFetchImpl,
+  } = options;
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -283,8 +297,10 @@ async function sendMasterDataRequest(
     }
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
-  
+  const fetchImpl = httpHelper
+    ? createFetchFromHttpHelper(httpHelper)
+    : providedFetchImpl || fetch;
+
   const response = await fetchImpl(url, {
     method,
     headers: buildHeaders({
@@ -299,7 +315,9 @@ async function sendMasterDataRequest(
   return ensureSuccess(response);
 }
 
-export async function fetchClients(options: FetchClientsOptions): Promise<JsonValue> {
+export async function fetchClients(
+  options: FetchClientsOptions,
+): Promise<JsonValue> {
   const { top, skip, select, filter } = options;
 
   const body = await sendMasterDataRequest({
@@ -321,7 +339,9 @@ export async function fetchClients(options: FetchClientsOptions): Promise<JsonVa
   return body;
 }
 
-export async function fetchClient(options: FetchClientOptions): Promise<JsonValue> {
+export async function fetchClient(
+  options: FetchClientOptions,
+): Promise<JsonValue> {
   const { clientId, select } = options;
   const body = await sendMasterDataRequest({
     ...options,
@@ -339,7 +359,9 @@ export async function fetchClient(options: FetchClientOptions): Promise<JsonValu
   return body;
 }
 
-export async function createClient(options: CreateClientOptions): Promise<JsonValue | undefined> {
+export async function createClient(
+  options: CreateClientOptions,
+): Promise<JsonValue | undefined> {
   const { client, maxNumber } = options;
 
   return sendMasterDataRequest({
@@ -353,7 +375,9 @@ export async function createClient(options: CreateClientOptions): Promise<JsonVa
   });
 }
 
-export async function updateClient(options: UpdateClientOptions): Promise<JsonValue | undefined> {
+export async function updateClient(
+  options: UpdateClientOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, client } = options;
 
   return sendMasterDataRequest({
@@ -379,7 +403,9 @@ export async function fetchClientResponsibilities(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected responsibilities payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected responsibilities payload.`,
+    );
   }
 
   return body;
@@ -413,7 +439,9 @@ export async function fetchClientCategories(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client categories payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client categories payload.`,
+    );
   }
 
   return body;
@@ -432,7 +460,9 @@ export async function updateClientCategories(
   });
 }
 
-export async function fetchClientGroups(options: FetchClientGroupsOptions): Promise<JsonValue> {
+export async function fetchClientGroups(
+  options: FetchClientGroupsOptions,
+): Promise<JsonValue> {
   const { clientId, select } = options;
 
   const body = await sendMasterDataRequest({
@@ -482,7 +512,9 @@ export async function fetchClientDeletionLog(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client deletion log payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client deletion log payload.`,
+    );
   }
 
   return body;
@@ -504,7 +536,9 @@ export async function fetchNextFreeClientNumber(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected next free number payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected next free number payload.`,
+    );
   }
 
   return body;
@@ -528,7 +562,9 @@ export async function fetchTaxAuthorities(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected tax authorities payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected tax authorities payload.`,
+    );
   }
 
   return body;
@@ -574,7 +610,9 @@ export async function fetchRelationshipTypes(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected relationship types payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected relationship types payload.`,
+    );
   }
 
   return body;
@@ -622,7 +660,9 @@ export async function fetchCorporateStructures(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected corporate structures payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected corporate structures payload.`,
+    );
   }
 
   return body;
@@ -643,7 +683,9 @@ export async function fetchCorporateStructure(
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected corporate structure payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected corporate structure payload.`,
+    );
   }
 
   return body;
@@ -670,7 +712,9 @@ export async function fetchEstablishment(
   return body;
 }
 
-export async function fetchEmployees(options: FetchEmployeesOptions): Promise<JsonValue> {
+export async function fetchEmployees(
+  options: FetchEmployeesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -692,7 +736,9 @@ export async function fetchEmployees(options: FetchEmployeesOptions): Promise<Js
   return body;
 }
 
-export async function fetchEmployee(options: FetchEmployeeOptions): Promise<JsonValue> {
+export async function fetchEmployee(
+  options: FetchEmployeeOptions,
+): Promise<JsonValue> {
   const { employeeId, select } = options;
 
   const body = await sendMasterDataRequest({
@@ -711,7 +757,9 @@ export async function fetchEmployee(options: FetchEmployeeOptions): Promise<Json
   return body;
 }
 
-export async function createEmployee(options: CreateEmployeeOptions): Promise<JsonValue | undefined> {
+export async function createEmployee(
+  options: CreateEmployeeOptions,
+): Promise<JsonValue | undefined> {
   const { employee } = options;
 
   return sendMasterDataRequest({
@@ -722,7 +770,9 @@ export async function createEmployee(options: CreateEmployeeOptions): Promise<Js
   });
 }
 
-export async function updateEmployee(options: UpdateEmployeeOptions): Promise<JsonValue | undefined> {
+export async function updateEmployee(
+  options: UpdateEmployeeOptions,
+): Promise<JsonValue | undefined> {
   const { employeeId, employee } = options;
 
   return sendMasterDataRequest({
@@ -733,7 +783,9 @@ export async function updateEmployee(options: UpdateEmployeeOptions): Promise<Js
   });
 }
 
-export async function fetchCountryCodes(options: FetchCountryCodesOptions): Promise<JsonValue> {
+export async function fetchCountryCodes(
+  options: FetchCountryCodesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -755,7 +807,9 @@ export async function fetchCountryCodes(options: FetchCountryCodesOptions): Prom
   return body;
 }
 
-export async function fetchClientGroupTypes(options: FetchClientGroupTypesOptions): Promise<JsonValue> {
+export async function fetchClientGroupTypes(
+  options: FetchClientGroupTypesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -771,13 +825,17 @@ export async function fetchClientGroupTypes(options: FetchClientGroupTypesOption
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client group types payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client group types payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchClientGroupType(options: FetchClientGroupTypeOptions): Promise<JsonValue> {
+export async function fetchClientGroupType(
+  options: FetchClientGroupTypeOptions,
+): Promise<JsonValue> {
   const { clientGroupTypeId, select } = options;
 
   const body = await sendMasterDataRequest({
@@ -790,13 +848,17 @@ export async function fetchClientGroupType(options: FetchClientGroupTypeOptions)
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client group type payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client group type payload.`,
+    );
   }
 
   return body;
 }
 
-export async function createClientGroupType(options: CreateClientGroupTypeOptions): Promise<JsonValue | undefined> {
+export async function createClientGroupType(
+  options: CreateClientGroupTypeOptions,
+): Promise<JsonValue | undefined> {
   const { clientGroupType } = options;
 
   const body = await sendMasterDataRequest({
@@ -809,7 +871,9 @@ export async function createClientGroupType(options: CreateClientGroupTypeOption
   return body;
 }
 
-export async function updateClientGroupType(options: UpdateClientGroupTypeOptions): Promise<JsonValue | undefined> {
+export async function updateClientGroupType(
+  options: UpdateClientGroupTypeOptions,
+): Promise<JsonValue | undefined> {
   const { clientGroupTypeId, clientGroupType } = options;
 
   const body = await sendMasterDataRequest({
@@ -822,7 +886,9 @@ export async function updateClientGroupType(options: UpdateClientGroupTypeOption
   return body;
 }
 
-export async function fetchClientCategoryTypes(options: FetchClientCategoryTypesOptions): Promise<JsonValue> {
+export async function fetchClientCategoryTypes(
+  options: FetchClientCategoryTypesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -838,13 +904,17 @@ export async function fetchClientCategoryTypes(options: FetchClientCategoryTypes
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client category types payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client category types payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchClientCategoryType(options: FetchClientCategoryTypeOptions): Promise<JsonValue> {
+export async function fetchClientCategoryType(
+  options: FetchClientCategoryTypeOptions,
+): Promise<JsonValue> {
   const { clientCategoryTypeId, select } = options;
 
   const body = await sendMasterDataRequest({
@@ -857,13 +927,17 @@ export async function fetchClientCategoryType(options: FetchClientCategoryTypeOp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected client category type payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected client category type payload.`,
+    );
   }
 
   return body;
 }
 
-export async function createClientCategoryType(options: CreateClientCategoryTypeOptions): Promise<JsonValue | undefined> {
+export async function createClientCategoryType(
+  options: CreateClientCategoryTypeOptions,
+): Promise<JsonValue | undefined> {
   const { clientCategoryType } = options;
 
   const body = await sendMasterDataRequest({
@@ -876,7 +950,9 @@ export async function createClientCategoryType(options: CreateClientCategoryType
   return body;
 }
 
-export async function updateClientCategoryType(options: UpdateClientCategoryTypeOptions): Promise<JsonValue | undefined> {
+export async function updateClientCategoryType(
+  options: UpdateClientCategoryTypeOptions,
+): Promise<JsonValue | undefined> {
   const { clientCategoryTypeId, clientCategoryType } = options;
 
   const body = await sendMasterDataRequest({
@@ -889,7 +965,9 @@ export async function updateClientCategoryType(options: UpdateClientCategoryType
   return body;
 }
 
-export async function fetchBanks(options: FetchBanksOptions): Promise<JsonValue> {
+export async function fetchBanks(
+  options: FetchBanksOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -911,7 +989,9 @@ export async function fetchBanks(options: FetchBanksOptions): Promise<JsonValue>
   return body;
 }
 
-export async function fetchAreaOfResponsibilities(options: FetchAreaOfResponsibilitiesOptions): Promise<JsonValue> {
+export async function fetchAreaOfResponsibilities(
+  options: FetchAreaOfResponsibilitiesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -927,13 +1007,17 @@ export async function fetchAreaOfResponsibilities(options: FetchAreaOfResponsibi
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected area of responsibilities payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected area of responsibilities payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAddressees(options: FetchAddresseesOptions): Promise<JsonValue> {
+export async function fetchAddressees(
+  options: FetchAddresseesOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -955,7 +1039,9 @@ export async function fetchAddressees(options: FetchAddresseesOptions): Promise<
   return body;
 }
 
-export async function fetchAddressee(options: FetchAddresseeOptions): Promise<JsonValue> {
+export async function fetchAddressee(
+  options: FetchAddresseeOptions,
+): Promise<JsonValue> {
   const { addresseeId, select, expand } = options;
 
   const body = await sendMasterDataRequest({
@@ -975,7 +1061,9 @@ export async function fetchAddressee(options: FetchAddresseeOptions): Promise<Js
   return body;
 }
 
-export async function createAddressee(options: CreateAddresseeOptions): Promise<JsonValue | undefined> {
+export async function createAddressee(
+  options: CreateAddresseeOptions,
+): Promise<JsonValue | undefined> {
   const { addressee, nationalRight } = options;
 
   const body = await sendMasterDataRequest({
@@ -991,7 +1079,9 @@ export async function createAddressee(options: CreateAddresseeOptions): Promise<
   return body;
 }
 
-export async function updateAddressee(options: UpdateAddresseeOptions): Promise<JsonValue | undefined> {
+export async function updateAddressee(
+  options: UpdateAddresseeOptions,
+): Promise<JsonValue | undefined> {
   const { addresseeId, addressee } = options;
 
   const body = await sendMasterDataRequest({
@@ -1004,7 +1094,9 @@ export async function updateAddressee(options: UpdateAddresseeOptions): Promise<
   return body;
 }
 
-export async function fetchAddresseesDeletionLog(options: FetchAddresseesDeletionLogOptions): Promise<JsonValue> {
+export async function fetchAddresseesDeletionLog(
+  options: FetchAddresseesDeletionLogOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip } = options;
 
   const body = await sendMasterDataRequest({
@@ -1020,7 +1112,9 @@ export async function fetchAddresseesDeletionLog(options: FetchAddresseesDeletio
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected addressees deletion log payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected addressees deletion log payload.`,
+    );
   }
 
   return body;
@@ -1552,7 +1646,17 @@ const ACCOUNTING_BASE_PATH = "datevconnect/accounting/v1";
 async function sendAccountingRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const { host, token, clientInstanceId, path, method, query, body, httpHelper, fetchImpl: providedFetchImpl } = options;
+  const {
+    host,
+    token,
+    clientInstanceId,
+    path,
+    method,
+    query,
+    body,
+    httpHelper,
+    fetchImpl: providedFetchImpl,
+  } = options;
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -1564,8 +1668,10 @@ async function sendAccountingRequest(
     }
   }
 
-  const fetchImpl = httpHelper ? createFetchFromHttpHelper(httpHelper) : (providedFetchImpl || fetch);
-  
+  const fetchImpl = httpHelper
+    ? createFetchFromHttpHelper(httpHelper)
+    : providedFetchImpl || fetch;
+
   const response = await fetchImpl(url, {
     method,
     headers: buildHeaders({
@@ -1580,7 +1686,9 @@ async function sendAccountingRequest(
   return ensureSuccess(response);
 }
 
-export async function fetchAccountingClients(options: FetchAccountingClientsOptions): Promise<JsonValue> {
+export async function fetchAccountingClients(
+  options: FetchAccountingClientsOptions,
+): Promise<JsonValue> {
   const { select, filter, top, skip, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -1597,13 +1705,17 @@ export async function fetchAccountingClients(options: FetchAccountingClientsOpti
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting clients payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting clients payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingClient(options: FetchAccountingClientOptions): Promise<JsonValue> {
+export async function fetchAccountingClient(
+  options: FetchAccountingClientOptions,
+): Promise<JsonValue> {
   const { clientId, select, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -1617,13 +1729,17 @@ export async function fetchAccountingClient(options: FetchAccountingClientOption
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting client payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting client payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchFiscalYears(options: FetchFiscalYearsOptions): Promise<JsonValue> {
+export async function fetchFiscalYears(
+  options: FetchFiscalYearsOptions,
+): Promise<JsonValue> {
   const { clientId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1645,7 +1761,9 @@ export async function fetchFiscalYears(options: FetchFiscalYearsOptions): Promis
   return body;
 }
 
-export async function fetchFiscalYear(options: FetchFiscalYearOptions): Promise<JsonValue> {
+export async function fetchFiscalYear(
+  options: FetchFiscalYearOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -1664,7 +1782,9 @@ export async function fetchFiscalYear(options: FetchFiscalYearOptions): Promise<
   return body;
 }
 
-export async function fetchAccountsReceivable(options: FetchAccountsReceivableOptions): Promise<JsonValue> {
+export async function fetchAccountsReceivable(
+  options: FetchAccountsReceivableOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -1681,13 +1801,17 @@ export async function fetchAccountsReceivable(options: FetchAccountsReceivableOp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounts receivable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounts receivable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountsReceivableCondensed(options: FetchAccountsReceivableCondensedOptions): Promise<JsonValue> {
+export async function fetchAccountsReceivableCondensed(
+  options: FetchAccountsReceivableCondensedOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1703,14 +1827,19 @@ export async function fetchAccountsReceivableCondensed(options: FetchAccountsRec
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected condensed accounts receivable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected condensed accounts receivable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountReceivable(options: FetchAccountReceivableOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, accountsReceivableId, select, expand } = options;
+export async function fetchAccountReceivable(
+  options: FetchAccountReceivableOptions,
+): Promise<JsonValue> {
+  const { clientId, fiscalYearId, accountsReceivableId, select, expand } =
+    options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -1723,13 +1852,17 @@ export async function fetchAccountReceivable(options: FetchAccountReceivableOpti
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected account receivable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected account receivable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountsPayable(options: FetchAccountsPayableOptions): Promise<JsonValue> {
+export async function fetchAccountsPayable(
+  options: FetchAccountsPayableOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -1746,13 +1879,17 @@ export async function fetchAccountsPayable(options: FetchAccountsPayableOptions)
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounts payable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounts payable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountsPayableCondensed(options: FetchAccountsPayableCondensedOptions): Promise<JsonValue> {
+export async function fetchAccountsPayableCondensed(
+  options: FetchAccountsPayableCondensedOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1768,13 +1905,17 @@ export async function fetchAccountsPayableCondensed(options: FetchAccountsPayabl
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected condensed accounts payable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected condensed accounts payable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountPayable(options: FetchAccountPayableOptions): Promise<JsonValue> {
+export async function fetchAccountPayable(
+  options: FetchAccountPayableOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, accountsPayableId, select, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -1788,13 +1929,17 @@ export async function fetchAccountPayable(options: FetchAccountPayableOptions): 
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected account payable payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected account payable payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountPostings(options: FetchAccountPostingsOptions): Promise<JsonValue> {
+export async function fetchAccountPostings(
+  options: FetchAccountPostingsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, expand } = options;
 
   const query: Record<string, string> = {};
@@ -1810,13 +1955,17 @@ export async function fetchAccountPostings(options: FetchAccountPostingsOptions)
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected account postings payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected account postings payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountPosting(options: FetchAccountPostingOptions): Promise<JsonValue> {
+export async function fetchAccountPosting(
+  options: FetchAccountPostingOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, accountPostingId, select, expand } = options;
 
   const query: Record<string, string> = {};
@@ -1831,13 +1980,17 @@ export async function fetchAccountPosting(options: FetchAccountPostingOptions): 
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected account posting payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected account posting payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingSequences(options: FetchAccountingSequencesOptions): Promise<JsonValue> {
+export async function fetchAccountingSequences(
+  options: FetchAccountingSequencesOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1852,13 +2005,17 @@ export async function fetchAccountingSequences(options: FetchAccountingSequences
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting sequences payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting sequences payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingSequence(options: FetchAccountingSequenceOptions): Promise<JsonValue> {
+export async function fetchAccountingSequence(
+  options: FetchAccountingSequenceOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, accountingSequenceId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -1871,13 +2028,17 @@ export async function fetchAccountingSequence(options: FetchAccountingSequenceOp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting sequence payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting sequence payload.`,
+    );
   }
 
   return body;
 }
 
-export async function createAccountingSequence(options: CreateAccountingSequenceOptions): Promise<JsonValue | undefined> {
+export async function createAccountingSequence(
+  options: CreateAccountingSequenceOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, accountingSequence } = options;
 
   return sendAccountingRequest({
@@ -1888,8 +2049,18 @@ export async function createAccountingSequence(options: CreateAccountingSequence
   });
 }
 
-export async function fetchAccountingRecords(options: FetchAccountingRecordsOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, accountingSequenceId, select, filter, top, skip } = options;
+export async function fetchAccountingRecords(
+  options: FetchAccountingRecordsOptions,
+): Promise<JsonValue> {
+  const {
+    clientId,
+    fiscalYearId,
+    accountingSequenceId,
+    select,
+    filter,
+    top,
+    skip,
+  } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -1904,14 +2075,24 @@ export async function fetchAccountingRecords(options: FetchAccountingRecordsOpti
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting records payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting records payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingRecord(options: FetchAccountingRecordOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, accountingSequenceId, accountingRecordId, select } = options;
+export async function fetchAccountingRecord(
+  options: FetchAccountingRecordOptions,
+): Promise<JsonValue> {
+  const {
+    clientId,
+    fiscalYearId,
+    accountingSequenceId,
+    accountingRecordId,
+    select,
+  } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -1923,13 +2104,17 @@ export async function fetchAccountingRecord(options: FetchAccountingRecordOption
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting record payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting record payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRulesIncoming(options: FetchPostingProposalRulesIncomingOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRulesIncoming(
+  options: FetchPostingProposalRulesIncomingOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1944,13 +2129,17 @@ export async function fetchPostingProposalRulesIncoming(options: FetchPostingPro
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules incoming payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules incoming payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRulesOutgoing(options: FetchPostingProposalRulesOutgoingOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRulesOutgoing(
+  options: FetchPostingProposalRulesOutgoingOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1965,13 +2154,17 @@ export async function fetchPostingProposalRulesOutgoing(options: FetchPostingPro
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules outgoing payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules outgoing payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRulesCashRegister(options: FetchPostingProposalRulesCashRegisterOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRulesCashRegister(
+  options: FetchPostingProposalRulesCashRegisterOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -1986,13 +2179,17 @@ export async function fetchPostingProposalRulesCashRegister(options: FetchPostin
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules cash register payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rules cash register payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRuleIncoming(options: FetchPostingProposalRuleIncomingOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRuleIncoming(
+  options: FetchPostingProposalRuleIncomingOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, ruleId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2005,13 +2202,17 @@ export async function fetchPostingProposalRuleIncoming(options: FetchPostingProp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule incoming payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule incoming payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRuleOutgoing(options: FetchPostingProposalRuleOutgoingOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRuleOutgoing(
+  options: FetchPostingProposalRuleOutgoingOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, ruleId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2024,13 +2225,17 @@ export async function fetchPostingProposalRuleOutgoing(options: FetchPostingProp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule outgoing payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule outgoing payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchPostingProposalRuleCashRegister(options: FetchPostingProposalRuleCashRegisterOptions): Promise<JsonValue> {
+export async function fetchPostingProposalRuleCashRegister(
+  options: FetchPostingProposalRuleCashRegisterOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, ruleId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2043,13 +2248,17 @@ export async function fetchPostingProposalRuleCashRegister(options: FetchPosting
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule cash register payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected posting proposal rule cash register payload.`,
+    );
   }
 
   return body;
 }
 
-export async function batchPostingProposalsIncoming(options: BatchPostingProposalsIncomingOptions): Promise<JsonValue | undefined> {
+export async function batchPostingProposalsIncoming(
+  options: BatchPostingProposalsIncomingOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, postingProposals } = options;
 
   return sendAccountingRequest({
@@ -2060,7 +2269,9 @@ export async function batchPostingProposalsIncoming(options: BatchPostingProposa
   });
 }
 
-export async function batchPostingProposalsOutgoing(options: BatchPostingProposalsOutgoingOptions): Promise<JsonValue | undefined> {
+export async function batchPostingProposalsOutgoing(
+  options: BatchPostingProposalsOutgoingOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, postingProposals } = options;
 
   return sendAccountingRequest({
@@ -2071,7 +2282,9 @@ export async function batchPostingProposalsOutgoing(options: BatchPostingProposa
   });
 }
 
-export async function batchPostingProposalsCashRegister(options: BatchPostingProposalsCashRegisterOptions): Promise<JsonValue | undefined> {
+export async function batchPostingProposalsCashRegister(
+  options: BatchPostingProposalsCashRegisterOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, postingProposals } = options;
 
   return sendAccountingRequest({
@@ -2082,7 +2295,9 @@ export async function batchPostingProposalsCashRegister(options: BatchPostingPro
   });
 }
 
-export async function fetchAccountingSumsAndBalances(options: FetchAccountingSumsAndBalancesOptions): Promise<JsonValue> {
+export async function fetchAccountingSumsAndBalances(
+  options: FetchAccountingSumsAndBalancesOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -2098,13 +2313,17 @@ export async function fetchAccountingSumsAndBalances(options: FetchAccountingSum
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting sums and balances payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting sums and balances payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingSumsAndBalance(options: FetchAccountingSumsAndBalanceOptions): Promise<JsonValue> {
+export async function fetchAccountingSumsAndBalance(
+  options: FetchAccountingSumsAndBalanceOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, accountingSumsAndBalancesId } = options;
 
   const body = await sendAccountingRequest({
@@ -2114,13 +2333,17 @@ export async function fetchAccountingSumsAndBalance(options: FetchAccountingSums
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting sums and balance payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting sums and balance payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchDebitors(options: FetchDebitorsOptions): Promise<JsonValue> {
+export async function fetchDebitors(
+  options: FetchDebitorsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -2143,7 +2366,9 @@ export async function fetchDebitors(options: FetchDebitorsOptions): Promise<Json
   return body;
 }
 
-export async function fetchDebitor(options: FetchDebitorOptions): Promise<JsonValue> {
+export async function fetchDebitor(
+  options: FetchDebitorOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, debitorId, select, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -2163,7 +2388,9 @@ export async function fetchDebitor(options: FetchDebitorOptions): Promise<JsonVa
   return body;
 }
 
-export async function createDebitor(options: CreateDebitorOptions): Promise<JsonValue | undefined> {
+export async function createDebitor(
+  options: CreateDebitorOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, debitor } = options;
 
   return sendAccountingRequest({
@@ -2174,7 +2401,9 @@ export async function createDebitor(options: CreateDebitorOptions): Promise<Json
   });
 }
 
-export async function updateDebitor(options: UpdateDebitorOptions): Promise<JsonValue | undefined> {
+export async function updateDebitor(
+  options: UpdateDebitorOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, debitorId, debitor } = options;
 
   return sendAccountingRequest({
@@ -2185,7 +2414,9 @@ export async function updateDebitor(options: UpdateDebitorOptions): Promise<Json
   });
 }
 
-export async function fetchNextAvailableDebitor(options: FetchNextAvailableDebitorOptions): Promise<JsonValue> {
+export async function fetchNextAvailableDebitor(
+  options: FetchNextAvailableDebitorOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, startAt } = options;
 
   const body = await sendAccountingRequest({
@@ -2198,13 +2429,17 @@ export async function fetchNextAvailableDebitor(options: FetchNextAvailableDebit
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected next available debitor payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected next available debitor payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchCreditors(options: FetchCreditorsOptions): Promise<JsonValue> {
+export async function fetchCreditors(
+  options: FetchCreditorsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -2227,7 +2462,9 @@ export async function fetchCreditors(options: FetchCreditorsOptions): Promise<Js
   return body;
 }
 
-export async function fetchCreditor(options: FetchCreditorOptions): Promise<JsonValue> {
+export async function fetchCreditor(
+  options: FetchCreditorOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, creditorId, select, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -2247,7 +2484,9 @@ export async function fetchCreditor(options: FetchCreditorOptions): Promise<Json
   return body;
 }
 
-export async function createCreditor(options: CreateCreditorOptions): Promise<JsonValue | undefined> {
+export async function createCreditor(
+  options: CreateCreditorOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, creditor } = options;
 
   return sendAccountingRequest({
@@ -2258,7 +2497,9 @@ export async function createCreditor(options: CreateCreditorOptions): Promise<Js
   });
 }
 
-export async function updateCreditor(options: UpdateCreditorOptions): Promise<JsonValue | undefined> {
+export async function updateCreditor(
+  options: UpdateCreditorOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, creditorId, creditor } = options;
 
   return sendAccountingRequest({
@@ -2269,7 +2510,9 @@ export async function updateCreditor(options: UpdateCreditorOptions): Promise<Js
   });
 }
 
-export async function fetchNextAvailableCreditor(options: FetchNextAvailableCreditorOptions): Promise<JsonValue> {
+export async function fetchNextAvailableCreditor(
+  options: FetchNextAvailableCreditorOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, startAt } = options;
 
   const body = await sendAccountingRequest({
@@ -2282,13 +2525,17 @@ export async function fetchNextAvailableCreditor(options: FetchNextAvailableCred
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected next available creditor payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected next available creditor payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchGeneralLedgerAccounts(options: FetchGeneralLedgerAccountsOptions): Promise<JsonValue> {
+export async function fetchGeneralLedgerAccounts(
+  options: FetchGeneralLedgerAccountsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -2304,13 +2551,17 @@ export async function fetchGeneralLedgerAccounts(options: FetchGeneralLedgerAcco
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected general ledger accounts payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected general ledger accounts payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchGeneralLedgerAccount(options: FetchGeneralLedgerAccountOptions): Promise<JsonValue> {
+export async function fetchGeneralLedgerAccount(
+  options: FetchGeneralLedgerAccountOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, generalLedgerAccountId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2323,13 +2574,17 @@ export async function fetchGeneralLedgerAccount(options: FetchGeneralLedgerAccou
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected general ledger account payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected general ledger account payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchUtilizedGeneralLedgerAccounts(options: FetchUtilizedGeneralLedgerAccountsOptions): Promise<JsonValue> {
+export async function fetchUtilizedGeneralLedgerAccounts(
+  options: FetchUtilizedGeneralLedgerAccountsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -2344,14 +2599,18 @@ export async function fetchUtilizedGeneralLedgerAccounts(options: FetchUtilizedG
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected utilized general ledger accounts payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected utilized general ledger accounts payload.`,
+    );
   }
 
   return body;
 }
 
 // Terms of Payment functions
-export async function fetchTermsOfPayment(options: FetchTermsOfPaymentOptions): Promise<JsonValue> {
+export async function fetchTermsOfPayment(
+  options: FetchTermsOfPaymentOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2367,13 +2626,17 @@ export async function fetchTermsOfPayment(options: FetchTermsOfPaymentOptions): 
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected terms of payment payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected terms of payment payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchTermOfPayment(options: FetchTermOfPaymentOptions): Promise<JsonValue> {
+export async function fetchTermOfPayment(
+  options: FetchTermOfPaymentOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, termOfPaymentId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2386,13 +2649,17 @@ export async function fetchTermOfPayment(options: FetchTermOfPaymentOptions): Pr
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected term of payment payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected term of payment payload.`,
+    );
   }
 
   return body;
 }
 
-export async function createTermOfPayment(options: CreateTermOfPaymentOptions): Promise<JsonValue | undefined> {
+export async function createTermOfPayment(
+  options: CreateTermOfPaymentOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, termOfPaymentData } = options;
 
   return sendAccountingRequest({
@@ -2403,8 +2670,11 @@ export async function createTermOfPayment(options: CreateTermOfPaymentOptions): 
   });
 }
 
-export async function updateTermOfPayment(options: UpdateTermOfPaymentOptions): Promise<JsonValue | undefined> {
-  const { clientId, fiscalYearId, termOfPaymentId, termOfPaymentData } = options;
+export async function updateTermOfPayment(
+  options: UpdateTermOfPaymentOptions,
+): Promise<JsonValue | undefined> {
+  const { clientId, fiscalYearId, termOfPaymentId, termOfPaymentData } =
+    options;
 
   return sendAccountingRequest({
     ...options,
@@ -2415,7 +2685,9 @@ export async function updateTermOfPayment(options: UpdateTermOfPaymentOptions): 
 }
 
 // Stocktaking Data functions
-export async function fetchStocktakingData(options: FetchStocktakingDataOptions): Promise<JsonValue> {
+export async function fetchStocktakingData(
+  options: FetchStocktakingDataOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, filter, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2431,13 +2703,17 @@ export async function fetchStocktakingData(options: FetchStocktakingDataOptions)
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected stocktaking data payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected stocktaking data payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchStocktakingDataByAsset(options: FetchStocktakingDataByAssetOptions): Promise<JsonValue> {
+export async function fetchStocktakingDataByAsset(
+  options: FetchStocktakingDataByAssetOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, assetId, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2452,13 +2728,17 @@ export async function fetchStocktakingDataByAsset(options: FetchStocktakingDataB
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected stocktaking data by asset payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected stocktaking data by asset payload.`,
+    );
   }
 
   return body;
 }
 
-export async function updateStocktakingData(options: UpdateStocktakingDataOptions): Promise<JsonValue | undefined> {
+export async function updateStocktakingData(
+  options: UpdateStocktakingDataOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, assetId, stocktakingData } = options;
 
   return sendAccountingRequest({
@@ -2470,7 +2750,9 @@ export async function updateStocktakingData(options: UpdateStocktakingDataOption
 }
 
 // Cost Systems functions
-export async function fetchCostSystems(options: FetchCostSystemsOptions): Promise<JsonValue> {
+export async function fetchCostSystems(
+  options: FetchCostSystemsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2491,7 +2773,9 @@ export async function fetchCostSystems(options: FetchCostSystemsOptions): Promis
   return body;
 }
 
-export async function fetchCostSystem(options: FetchCostSystemOptions): Promise<JsonValue> {
+export async function fetchCostSystem(
+  options: FetchCostSystemOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, costSystemId, select } = options;
 
   const body = await sendAccountingRequest({
@@ -2511,7 +2795,9 @@ export async function fetchCostSystem(options: FetchCostSystemOptions): Promise<
 }
 
 // Cost Centers functions
-export async function fetchCostCenters(options: FetchCostCentersOptions): Promise<JsonValue> {
+export async function fetchCostCenters(
+  options: FetchCostCentersOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, costSystemId, select, top, skip } = options;
 
   const body = await sendAccountingRequest({
@@ -2532,8 +2818,11 @@ export async function fetchCostCenters(options: FetchCostCentersOptions): Promis
   return body;
 }
 
-export async function fetchCostCenter(options: FetchCostCenterOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, costSystemId, costCenterId, select } = options;
+export async function fetchCostCenter(
+  options: FetchCostCenterOptions,
+): Promise<JsonValue> {
+  const { clientId, fiscalYearId, costSystemId, costCenterId, select } =
+    options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2552,7 +2841,9 @@ export async function fetchCostCenter(options: FetchCostCenterOptions): Promise<
 }
 
 // Cost Center Properties functions
-export async function fetchCostCenterProperties(options: FetchCostCenterPropertiesOptions): Promise<JsonValue> {
+export async function fetchCostCenterProperties(
+  options: FetchCostCenterPropertiesOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, costSystemId, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2567,14 +2858,19 @@ export async function fetchCostCenterProperties(options: FetchCostCenterProperti
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected cost center properties payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected cost center properties payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchCostCenterProperty(options: FetchCostCenterPropertyOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, costSystemId, costCenterPropertyId, select } = options;
+export async function fetchCostCenterProperty(
+  options: FetchCostCenterPropertyOptions,
+): Promise<JsonValue> {
+  const { clientId, fiscalYearId, costSystemId, costCenterPropertyId, select } =
+    options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2586,15 +2882,20 @@ export async function fetchCostCenterProperty(options: FetchCostCenterPropertyOp
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected cost center property payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected cost center property payload.`,
+    );
   }
 
   return body;
 }
 
 // Internal Cost Services functions
-export async function createInternalCostService(options: CreateInternalCostServiceOptions): Promise<JsonValue | undefined> {
-  const { clientId, fiscalYearId, costSystemId, internalCostServiceData } = options;
+export async function createInternalCostService(
+  options: CreateInternalCostServiceOptions,
+): Promise<JsonValue | undefined> {
+  const { clientId, fiscalYearId, costSystemId, internalCostServiceData } =
+    options;
 
   return sendAccountingRequest({
     ...options,
@@ -2605,7 +2906,9 @@ export async function createInternalCostService(options: CreateInternalCostServi
 }
 
 // Cost Sequences functions
-export async function fetchCostSequences(options: FetchCostSequencesOptions): Promise<JsonValue> {
+export async function fetchCostSequences(
+  options: FetchCostSequencesOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, costSystemId, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2620,14 +2923,19 @@ export async function fetchCostSequences(options: FetchCostSequencesOptions): Pr
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected cost sequences payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected cost sequences payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchCostSequence(options: FetchCostSequenceOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, costSystemId, costSequenceId, select } = options;
+export async function fetchCostSequence(
+  options: FetchCostSequenceOptions,
+): Promise<JsonValue> {
+  const { clientId, fiscalYearId, costSystemId, costSequenceId, select } =
+    options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2645,8 +2953,16 @@ export async function fetchCostSequence(options: FetchCostSequenceOptions): Prom
   return body;
 }
 
-export async function createCostSequence(options: CreateCostSequenceOptions): Promise<JsonValue | undefined> {
-  const { clientId, fiscalYearId, costSystemId, costSequenceId, costSequenceData } = options;
+export async function createCostSequence(
+  options: CreateCostSequenceOptions,
+): Promise<JsonValue | undefined> {
+  const {
+    clientId,
+    fiscalYearId,
+    costSystemId,
+    costSequenceId,
+    costSequenceData,
+  } = options;
 
   return sendAccountingRequest({
     ...options,
@@ -2656,8 +2972,18 @@ export async function createCostSequence(options: CreateCostSequenceOptions): Pr
   });
 }
 
-export async function fetchCostAccountingRecords(options: FetchCostAccountingRecordsOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, costSystemId, costSequenceId, select, skip, top } = options;
+export async function fetchCostAccountingRecords(
+  options: FetchCostAccountingRecordsOptions,
+): Promise<JsonValue> {
+  const {
+    clientId,
+    fiscalYearId,
+    costSystemId,
+    costSequenceId,
+    select,
+    skip,
+    top,
+  } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2671,14 +2997,18 @@ export async function fetchCostAccountingRecords(options: FetchCostAccountingRec
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected cost accounting records payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected cost accounting records payload.`,
+    );
   }
 
   return body;
 }
 
 // Accounting Statistics functions
-export async function fetchAccountingStatistics(options: FetchAccountingStatisticsOptions): Promise<JsonValue> {
+export async function fetchAccountingStatistics(
+  options: FetchAccountingStatisticsOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, filter, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2694,14 +3024,18 @@ export async function fetchAccountingStatistics(options: FetchAccountingStatisti
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting statistics payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting statistics payload.`,
+    );
   }
 
   return body;
 }
 
 // Accounting Transaction Keys functions
-export async function fetchAccountingTransactionKeys(options: FetchAccountingTransactionKeysOptions): Promise<JsonValue> {
+export async function fetchAccountingTransactionKeys(
+  options: FetchAccountingTransactionKeysOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, skip, top } = options;
 
   const body = await sendAccountingRequest({
@@ -2716,14 +3050,26 @@ export async function fetchAccountingTransactionKeys(options: FetchAccountingTra
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting transaction keys payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting transaction keys payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchAccountingTransactionKey(options: FetchAccountingTransactionKeyOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, accountingTransactionKeyId, select, filter, skip, top } = options;
+export async function fetchAccountingTransactionKey(
+  options: FetchAccountingTransactionKeyOptions,
+): Promise<JsonValue> {
+  const {
+    clientId,
+    fiscalYearId,
+    accountingTransactionKeyId,
+    select,
+    filter,
+    skip,
+    top,
+  } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2738,14 +3084,18 @@ export async function fetchAccountingTransactionKey(options: FetchAccountingTran
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected accounting transaction key payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected accounting transaction key payload.`,
+    );
   }
 
   return body;
 }
 
 // Various Addresses functions
-export async function fetchVariousAddresses(options: FetchVariousAddressesOptions): Promise<JsonValue> {
+export async function fetchVariousAddresses(
+  options: FetchVariousAddressesOptions,
+): Promise<JsonValue> {
   const { clientId, fiscalYearId, select, skip, top, expand } = options;
 
   const body = await sendAccountingRequest({
@@ -2761,14 +3111,26 @@ export async function fetchVariousAddresses(options: FetchVariousAddressesOption
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected various addresses payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected various addresses payload.`,
+    );
   }
 
   return body;
 }
 
-export async function fetchVariousAddress(options: FetchVariousAddressOptions): Promise<JsonValue> {
-  const { clientId, fiscalYearId, variousAddressId, select, skip, top, expand } = options;
+export async function fetchVariousAddress(
+  options: FetchVariousAddressOptions,
+): Promise<JsonValue> {
+  const {
+    clientId,
+    fiscalYearId,
+    variousAddressId,
+    select,
+    skip,
+    top,
+    expand,
+  } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -2783,13 +3145,17 @@ export async function fetchVariousAddress(options: FetchVariousAddressOptions): 
   });
 
   if (body === undefined) {
-    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected various address payload.`);
+    throw new Error(
+      `${DEFAULT_ERROR_PREFIX}: Expected various address payload.`,
+    );
   }
 
   return body;
 }
 
-export async function createVariousAddress(options: CreateVariousAddressOptions): Promise<JsonValue | undefined> {
+export async function createVariousAddress(
+  options: CreateVariousAddressOptions,
+): Promise<JsonValue | undefined> {
   const { clientId, fiscalYearId, variousAddressData } = options;
 
   return sendAccountingRequest({

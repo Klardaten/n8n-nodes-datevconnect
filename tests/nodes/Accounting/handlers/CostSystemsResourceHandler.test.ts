@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test, beforeEach, afterEach, spyOn, mock } from "bun:test";
+import {
+  describe,
+  expect,
+  test,
+  beforeEach,
+  afterEach,
+  spyOn,
+  mock,
+} from "bun:test";
 import { CostSystemsResourceHandler } from "../../../../nodes/Accounting/handlers/CostSystemsResourceHandler";
 import type { AuthContext } from "../../../../nodes/Accounting/types";
 import { datevConnectClient } from "../../../../src/services/accountingClient";
@@ -22,10 +30,10 @@ const mockCostSystemsData: any = [
     created_date: "2023-01-01T00:00:00Z",
     cost_center_count: 25,
     cost_sequence_count: 15,
-    total_budget: 2500000.00,
+    total_budget: 2500000.0,
     actual_costs: 2350000.75,
     variance: -149999.25,
-    variance_percentage: -6.0
+    variance_percentage: -6.0,
   },
   {
     id: "CS02",
@@ -39,10 +47,10 @@ const mockCostSystemsData: any = [
     created_date: "2023-02-01T00:00:00Z",
     cost_center_count: 12,
     cost_sequence_count: 8,
-    total_budget: 1000000.00,
-    actual_costs: 950000.50,
-    variance: -49999.50,
-    variance_percentage: -5.0
+    total_budget: 1000000.0,
+    actual_costs: 950000.5,
+    variance: -49999.5,
+    variance_percentage: -5.0,
   },
   {
     id: "CS03",
@@ -56,12 +64,12 @@ const mockCostSystemsData: any = [
     created_date: "2023-01-15T00:00:00Z",
     cost_center_count: 30,
     cost_sequence_count: 20,
-    total_budget: 3000000.00,
-    actual_costs: 0.00,
-    variance: 0.00,
+    total_budget: 3000000.0,
+    actual_costs: 0.0,
+    variance: 0.0,
     variance_percentage: 0.0,
-    deactivated_date: "2023-06-30T00:00:00Z"
-  } as any
+    deactivated_date: "2023-06-30T00:00:00Z",
+  } as any,
 ];
 
 const mockSingleCostSystem: any = {
@@ -76,7 +84,7 @@ const mockSingleCostSystem: any = {
   created_date: "2023-01-01T00:00:00Z",
   cost_center_count: 25,
   cost_sequence_count: 15,
-  total_budget: 2500000.00,
+  total_budget: 2500000.0,
   actual_costs: 2350000.75,
   variance: -149999.25,
   variance_percentage: -6.0,
@@ -84,15 +92,15 @@ const mockSingleCostSystem: any = {
     {
       id: "CC001",
       name: "Administration",
-      budget: 100000.00,
-      actual: 95000.50
+      budget: 100000.0,
+      actual: 95000.5,
     },
     {
       id: "CC002",
       name: "Production",
-      budget: 800000.00,
-      actual: 785000.25
-    }
+      budget: 800000.0,
+      actual: 785000.25,
+    },
   ],
   allocation_rules: [
     {
@@ -100,25 +108,25 @@ const mockSingleCostSystem: any = {
       source_center: "CC001",
       target_centers: ["CC002", "CC003"],
       allocation_basis: "headcount",
-      percentage: 0.15
+      percentage: 0.15,
     },
     {
       rule_id: "AR002",
       source_center: "CC002",
       target_centers: ["CC004"],
       allocation_basis: "machine_hours",
-      percentage: 0.25
-    }
+      percentage: 0.25,
+    },
   ],
   configuration: {
     auto_allocation: true,
     variance_analysis: true,
     budget_control: true,
     approval_workflow: false,
-    reporting_frequency: "monthly"
+    reporting_frequency: "monthly",
   },
   last_calculation: "2023-10-31T23:59:59Z",
-  last_modified: "2023-11-01T09:30:00Z"
+  last_modified: "2023-11-01T09:30:00Z",
 };
 
 // Mock IExecuteFunctions
@@ -130,23 +138,27 @@ const createMockContext = (overrides: any = {}) => ({
     clientInstanceId: "instance-1",
     ...overrides.credentials,
   }),
-  getNodeParameter: mock((name: string, itemIndex: number, defaultValue?: unknown) => {
-    const mockParams: Record<string, unknown> = {
-      "costSystemId": "CS01",
-      "top": 50,
-      "skip": 10,
-      "select": "id,name,description,system_type,is_active,cost_method",
-      "filter": "is_active eq true",
-      "expand": "cost_centers,allocation_rules",
-      ...overrides.parameters,
-    };
-    return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
-  }),
+  getNodeParameter: mock(
+    (name: string, itemIndex: number, defaultValue?: unknown) => {
+      const mockParams: Record<string, unknown> = {
+        costSystemId: "CS01",
+        top: 50,
+        skip: 10,
+        select: "id,name,description,system_type,is_active,cost_method",
+        filter: "is_active eq true",
+        expand: "cost_centers,allocation_rules",
+        ...overrides.parameters,
+      };
+      return mockParams[name] !== undefined ? mockParams[name] : defaultValue;
+    },
+  ),
   getNode: mock(() => ({ name: "TestNode" })),
   helpers: {
-    returnJsonArray: mock((data: any[]) => data.map(entry => ({ json: entry }))),
-    constructExecutionMetaData: mock((data: any[], meta: any) => 
-      data.map(entry => ({ ...entry, pairedItem: meta.itemData }))
+    returnJsonArray: mock((data: any[]) =>
+      data.map((entry) => ({ json: entry })),
+    ),
+    constructExecutionMetaData: mock((data: any[], meta: any) =>
+      data.map((entry) => ({ ...entry, pairedItem: meta.itemData })),
     ),
   },
   continueOnFail: mock(() => false),
@@ -158,13 +170,19 @@ const mockAuthContext: AuthContext = {
   token: "test-token",
   clientInstanceId: "instance-1",
   clientId: "client-123",
-  fiscalYearId: "FY2023"
+  fiscalYearId: "FY2023",
 };
 
 describe("CostSystemsResourceHandler", () => {
   beforeEach(() => {
-    getCostSystemsSpy = spyOn(datevConnectClient.accounting, "getCostSystems").mockResolvedValue(mockCostSystemsData);
-    getCostSystemSpy = spyOn(datevConnectClient.accounting, "getCostSystem").mockResolvedValue(mockSingleCostSystem);
+    getCostSystemsSpy = spyOn(
+      datevConnectClient.accounting,
+      "getCostSystems",
+    ).mockResolvedValue(mockCostSystemsData);
+    getCostSystemSpy = spyOn(
+      datevConnectClient.accounting,
+      "getCostSystem",
+    ).mockResolvedValue(mockSingleCostSystem);
   });
 
   afterEach(() => {
@@ -189,8 +207,8 @@ describe("CostSystemsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,system_type,is_active,cost_method",
           filter: "is_active eq true",
-          expand: "cost_centers,allocation_rules"
-        }
+          expand: "cost_centers,allocation_rules",
+        },
       );
 
       expect(returnData).toHaveLength(3);
@@ -206,10 +224,10 @@ describe("CostSystemsResourceHandler", () => {
         created_date: "2023-01-01T00:00:00Z",
         cost_center_count: 25,
         cost_sequence_count: 15,
-        total_budget: 2500000.00,
+        total_budget: 2500000.0,
         actual_costs: 2350000.75,
         variance: -149999.25,
-        variance_percentage: -6.0
+        variance_percentage: -6.0,
       });
     });
 
@@ -243,30 +261,37 @@ describe("CostSystemsResourceHandler", () => {
       const invalidAuthContext = { ...mockAuthContext, clientId: undefined };
 
       await expect(
-        handler.execute("getAll", invalidAuthContext, returnData)
-      ).rejects.toThrow("Client ID and Fiscal Year ID are required for this operation");
+        handler.execute("getAll", invalidAuthContext, returnData),
+      ).rejects.toThrow(
+        "Client ID and Fiscal Year ID are required for this operation",
+      );
     });
 
     test("requires fiscalYearId parameter", async () => {
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
-      const invalidAuthContext = { ...mockAuthContext, fiscalYearId: undefined };
+      const invalidAuthContext = {
+        ...mockAuthContext,
+        fiscalYearId: undefined,
+      };
 
       await expect(
-        handler.execute("getAll", invalidAuthContext, returnData)
-      ).rejects.toThrow("Client ID and Fiscal Year ID are required for this operation");
+        handler.execute("getAll", invalidAuthContext, returnData),
+      ).rejects.toThrow(
+        "Client ID and Fiscal Year ID are required for this operation",
+      );
     });
 
     test("handles parameters with default values", async () => {
       const context = createMockContext({
         parameters: {
-          "top": undefined,
-          "skip": undefined,
-          "select": undefined,
-          "filter": undefined,
-          "expand": undefined,
-        }
+          top: undefined,
+          skip: undefined,
+          select: undefined,
+          filter: undefined,
+          expand: undefined,
+        },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -278,8 +303,8 @@ describe("CostSystemsResourceHandler", () => {
         "client-123",
         "FY2023",
         {
-          top: 100  // Default value when top is undefined
-        }
+          top: 100, // Default value when top is undefined
+        },
       );
     });
   });
@@ -302,8 +327,8 @@ describe("CostSystemsResourceHandler", () => {
           skip: 10,
           select: "id,name,description,system_type,is_active,cost_method",
           filter: "is_active eq true",
-          expand: "cost_centers,allocation_rules"
-        }
+          expand: "cost_centers,allocation_rules",
+        },
       );
 
       expect(returnData).toHaveLength(1);
@@ -319,7 +344,7 @@ describe("CostSystemsResourceHandler", () => {
         created_date: "2023-01-01T00:00:00Z",
         cost_center_count: 25,
         cost_sequence_count: 15,
-        total_budget: 2500000.00,
+        total_budget: 2500000.0,
         actual_costs: 2350000.75,
         variance: -149999.25,
         variance_percentage: -6.0,
@@ -327,15 +352,15 @@ describe("CostSystemsResourceHandler", () => {
           {
             id: "CC001",
             name: "Administration",
-            budget: 100000.00,
-            actual: 95000.50
+            budget: 100000.0,
+            actual: 95000.5,
           },
           {
             id: "CC002",
             name: "Production",
-            budget: 800000.00,
-            actual: 785000.25
-          }
+            budget: 800000.0,
+            actual: 785000.25,
+          },
         ],
         allocation_rules: [
           {
@@ -343,25 +368,25 @@ describe("CostSystemsResourceHandler", () => {
             source_center: "CC001",
             target_centers: ["CC002", "CC003"],
             allocation_basis: "headcount",
-            percentage: 0.15
+            percentage: 0.15,
           },
           {
             rule_id: "AR002",
             source_center: "CC002",
             target_centers: ["CC004"],
             allocation_basis: "machine_hours",
-            percentage: 0.25
-          }
+            percentage: 0.25,
+          },
         ],
         configuration: {
           auto_allocation: true,
           variance_analysis: true,
           budget_control: true,
           approval_workflow: false,
-          reporting_frequency: "monthly"
+          reporting_frequency: "monthly",
         },
         last_calculation: "2023-10-31T23:59:59Z",
-        last_modified: "2023-11-01T09:30:00Z"
+        last_modified: "2023-11-01T09:30:00Z",
       });
     });
 
@@ -379,33 +404,39 @@ describe("CostSystemsResourceHandler", () => {
 
     test("requires costSystemId parameter", async () => {
       const context = createMockContext({
-        parameters: { costSystemId: undefined }
+        parameters: { costSystemId: undefined },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"costSystemId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "costSystemId" is required');
     });
 
     test("requires both clientId and fiscalYearId parameters for get", async () => {
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
-      const invalidAuthContext = { ...mockAuthContext, clientId: undefined, fiscalYearId: undefined };
+      const invalidAuthContext = {
+        ...mockAuthContext,
+        clientId: undefined,
+        fiscalYearId: undefined,
+      };
 
       await expect(
-        handler.execute("get", invalidAuthContext, returnData)
-      ).rejects.toThrow("Client ID and Fiscal Year ID are required for this operation");
+        handler.execute("get", invalidAuthContext, returnData),
+      ).rejects.toThrow(
+        "Client ID and Fiscal Year ID are required for this operation",
+      );
     });
 
     test("handles get with custom select parameter", async () => {
       const context = createMockContext({
         parameters: {
           costSystemId: "CS01",
-          select: "id,name,system_type"
-        }
+          select: "id,name,system_type",
+        },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -417,7 +448,7 @@ describe("CostSystemsResourceHandler", () => {
         "client-123",
         "FY2023",
         "CS01",
-        expect.objectContaining({ select: "id,name,system_type" })
+        expect.objectContaining({ select: "id,name,system_type" }),
       );
     });
   });
@@ -429,7 +460,11 @@ describe("CostSystemsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("unsupportedOperation" as any, mockAuthContext, returnData)
+        handler.execute(
+          "unsupportedOperation" as any,
+          mockAuthContext,
+          returnData,
+        ),
       ).rejects.toThrow("Unknown operation: unsupportedOperation");
     });
 
@@ -437,10 +472,10 @@ describe("CostSystemsResourceHandler", () => {
       getCostSystemsSpy.mockRejectedValueOnce(new Error("API Error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -457,30 +492,30 @@ describe("CostSystemsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("API Error");
     });
 
     test("handles missing costSystemId parameter error", async () => {
       const context = createMockContext({
-        parameters: { costSystemId: "" }
+        parameters: { costSystemId: "" },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("get", mockAuthContext, returnData)
-      ).rejects.toThrow("Parameter \"costSystemId\" is required");
+        handler.execute("get", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "costSystemId" is required');
     });
 
     test("handles network timeout errors in get operation", async () => {
       getCostSystemSpy.mockRejectedValueOnce(new Error("Network timeout"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
 
@@ -497,7 +532,7 @@ describe("CostSystemsResourceHandler", () => {
       const returnData: any[] = [];
 
       await expect(
-        handler.execute("getAll", mockAuthContext, returnData)
+        handler.execute("getAll", mockAuthContext, returnData),
       ).rejects.toThrow("Unauthorized");
     });
   });
@@ -514,7 +549,7 @@ describe("CostSystemsResourceHandler", () => {
         context,
         expect.any(String),
         expect.any(String),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -532,10 +567,10 @@ describe("CostSystemsResourceHandler", () => {
       getCostSystemsSpy.mockRejectedValueOnce(new Error("Test error"));
       const context = createMockContext({
         context: {
-          continueOnFail: mock(() => true)
-        }
+          continueOnFail: mock(() => true),
+        },
       });
-      
+
       const handler = new CostSystemsResourceHandler(context, 2);
       const returnData: any[] = [];
 
@@ -553,14 +588,14 @@ describe("CostSystemsResourceHandler", () => {
 
       // Verify that the handler constructs data properly through BaseResourceHandler
       expect(returnData).toHaveLength(3);
-      expect(returnData.every(item => item.json !== undefined)).toBe(true);
+      expect(returnData.every((item) => item.json !== undefined)).toBe(true);
     });
   });
 
   describe("parameter handling", () => {
     test("correctly retrieves costSystemId parameter", async () => {
       const context = createMockContext({
-        parameters: { costSystemId: "TEST_CS" }
+        parameters: { costSystemId: "TEST_CS" },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -572,13 +607,13 @@ describe("CostSystemsResourceHandler", () => {
         "client-123",
         "FY2023",
         "TEST_CS",
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
     test("correctly retrieves select parameter for getAll", async () => {
       const context = createMockContext({
-        parameters: { select: "id,name,system_type" }
+        parameters: { select: "id,name,system_type" },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -589,13 +624,13 @@ describe("CostSystemsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        expect.objectContaining({ select: "id,name,system_type" })
+        expect.objectContaining({ select: "id,name,system_type" }),
       );
     });
 
     test("correctly retrieves filter parameter", async () => {
       const context = createMockContext({
-        parameters: { filter: "system_type eq 'standard'" }
+        parameters: { filter: "system_type eq 'standard'" },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -606,13 +641,13 @@ describe("CostSystemsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        expect.objectContaining({ filter: "system_type eq 'standard'" })
+        expect.objectContaining({ filter: "system_type eq 'standard'" }),
       );
     });
 
     test("correctly retrieves top and skip parameters", async () => {
       const context = createMockContext({
-        parameters: { top: 25, skip: 5 }
+        parameters: { top: 25, skip: 5 },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -623,13 +658,13 @@ describe("CostSystemsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        expect.objectContaining({ top: 25, skip: 5 })
+        expect.objectContaining({ top: 25, skip: 5 }),
       );
     });
 
     test("correctly retrieves expand parameter", async () => {
       const context = createMockContext({
-        parameters: { expand: "cost_centers" }
+        parameters: { expand: "cost_centers" },
       });
       const handler = new CostSystemsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -640,7 +675,7 @@ describe("CostSystemsResourceHandler", () => {
         context,
         "client-123",
         "FY2023",
-        expect.objectContaining({ expand: "cost_centers" })
+        expect.objectContaining({ expand: "cost_centers" }),
       );
     });
   });
@@ -653,24 +688,24 @@ describe("CostSystemsResourceHandler", () => {
           name: "Standard System",
           system_type: "standard",
           is_active: true,
-          cost_method: "standard_costing"
+          cost_method: "standard_costing",
         },
         {
           id: "CS02",
           name: "Project System",
           system_type: "project_based",
           is_active: true,
-          cost_method: "actual_costing"
+          cost_method: "actual_costing",
         },
         {
           id: "CS03",
           name: "Manufacturing System",
           system_type: "manufacturing",
           is_active: false,
-          cost_method: "target_costing"
-        }
+          cost_method: "target_costing",
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithVariousTypes);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -689,15 +724,15 @@ describe("CostSystemsResourceHandler", () => {
         {
           id: "CS01",
           name: "Primary System",
-          total_budget: 2500000.00,
+          total_budget: 2500000.0,
           actual_costs: 2350000.75,
           variance: -149999.25,
           variance_percentage: -6.0,
           cost_center_count: 25,
-          cost_sequence_count: 15
-        }
+          cost_sequence_count: 15,
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithFinancials);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -705,7 +740,7 @@ describe("CostSystemsResourceHandler", () => {
 
       await handler.execute("getAll", mockAuthContext, returnData);
 
-      expect(returnData[0].json.total_budget).toBe(2500000.00);
+      expect(returnData[0].json.total_budget).toBe(2500000.0);
       expect(returnData[0].json.actual_costs).toBe(2350000.75);
       expect(returnData[0].json.variance).toBe(-149999.25);
       expect(returnData[0].json.variance_percentage).toBe(-6.0);
@@ -719,22 +754,22 @@ describe("CostSystemsResourceHandler", () => {
           id: "CS01",
           name: "Activity Based System",
           allocation_method: "activity_based",
-          cost_method: "standard_costing"
+          cost_method: "standard_costing",
         },
         {
           id: "CS02",
           name: "Direct Allocation System",
           allocation_method: "direct_allocation",
-          cost_method: "actual_costing"
+          cost_method: "actual_costing",
         },
         {
           id: "CS03",
           name: "Process Based System",
           allocation_method: "process_based",
-          cost_method: "target_costing"
-        }
+          cost_method: "target_costing",
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithAllocations);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -755,7 +790,7 @@ describe("CostSystemsResourceHandler", () => {
           is_active: true,
           auto_allocation: true,
           variance_analysis: true,
-          budget_control: false
+          budget_control: false,
         },
         {
           id: "CS02",
@@ -763,10 +798,10 @@ describe("CostSystemsResourceHandler", () => {
           is_active: false,
           auto_allocation: false,
           variance_analysis: false,
-          budget_control: true
-        }
+          budget_control: true,
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithBooleans);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -790,11 +825,11 @@ describe("CostSystemsResourceHandler", () => {
           id: "CS01",
           name: "Basic System",
           system_type: "standard",
-          is_active: true
+          is_active: true,
           // missing description, dates, financial data, etc.
-        }
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithMissingFields);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -806,7 +841,7 @@ describe("CostSystemsResourceHandler", () => {
         id: "CS01",
         name: "Basic System",
         system_type: "standard",
-        is_active: true
+        is_active: true,
       });
     });
 
@@ -816,22 +851,22 @@ describe("CostSystemsResourceHandler", () => {
           id: "CS01",
           name: "EUR System",
           default_currency: "EUR",
-          exchange_rate: 1.0
+          exchange_rate: 1.0,
         },
         {
           id: "CS02",
           name: "USD System",
           default_currency: "USD",
-          exchange_rate: 1.1
+          exchange_rate: 1.1,
         },
         {
           id: "CS03",
           name: "GBP System",
           default_currency: "GBP",
-          exchange_rate: 0.85
-        }
+          exchange_rate: 0.85,
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithCurrency);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);
@@ -854,17 +889,17 @@ describe("CostSystemsResourceHandler", () => {
           name: "Active System",
           created_date: "2023-01-01T00:00:00Z",
           last_modified: "2023-11-01T09:30:00Z",
-          last_calculation: "2023-10-31T23:59:59Z"
+          last_calculation: "2023-10-31T23:59:59Z",
         },
         {
           id: "CS02",
           name: "Deactivated System",
           created_date: "2023-01-15T00:00:00Z",
           last_modified: "2023-06-30T00:00:00Z",
-          deactivated_date: "2023-06-30T00:00:00Z"
-        }
+          deactivated_date: "2023-06-30T00:00:00Z",
+        },
       ];
-      
+
       getCostSystemsSpy.mockResolvedValueOnce(mockDataWithDates);
       const context = createMockContext();
       const handler = new CostSystemsResourceHandler(context, 0);

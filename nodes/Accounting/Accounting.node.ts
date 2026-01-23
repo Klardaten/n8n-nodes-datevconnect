@@ -35,7 +35,7 @@ import {
 
 /**
  * DATEV Accounting node for n8n
- * 
+ *
  * This node provides access to DATEV Accounting API endpoints including:
  * - Clients management
  * - Fiscal years
@@ -70,17 +70,18 @@ export class Accounting implements INodeType {
     const returnData: INodeExecutionData[] = [];
 
     // Get and validate credentials
-    const credentials = (await this.getCredentials("datevConnectApi")) as
-      | {
-        host: string;
-        email: string;
-        password: string;
-        clientInstanceId: string;
-      }
-      | null;
+    const credentials = (await this.getCredentials("datevConnectApi")) as {
+      host: string;
+      email: string;
+      password: string;
+      clientInstanceId: string;
+    } | null;
 
     if (!credentials) {
-      throw new NodeOperationError(this.getNode(), "DATEVconnect credentials are missing");
+      throw new NodeOperationError(
+        this.getNode(),
+        "DATEVconnect credentials are missing",
+      );
     }
 
     const { host, email, password, clientInstanceId } = credentials;
@@ -88,7 +89,7 @@ export class Accounting implements INodeType {
     if (!host || !email || !password || !clientInstanceId) {
       throw new NodeOperationError(
         this.getNode(),
-        "All DATEVconnect credential fields must be provided"
+        "All DATEVconnect credential fields must be provided",
       );
     }
 
@@ -104,7 +105,7 @@ export class Accounting implements INodeType {
       token = authResponse.access_token;
     } catch (error) {
       throw new NodeApiError(this.getNode(), {
-        message: error instanceof Error ? error.message : String(error)
+        message: error instanceof Error ? error.message : String(error),
       });
     }
 
@@ -112,9 +113,17 @@ export class Accounting implements INodeType {
       try {
         // Get resource and operation from node parameters
         const resource = this.getNodeParameter("resource", itemIndex) as string;
-        const operation = this.getNodeParameter("operation", itemIndex) as string;
-        const paramClientInstanceId = this.getNodeParameter("clientInstanceId", itemIndex, "") as string;
-        const effectiveClientInstanceId = paramClientInstanceId || clientInstanceId;
+        const operation = this.getNodeParameter(
+          "operation",
+          itemIndex,
+        ) as string;
+        const paramClientInstanceId = this.getNodeParameter(
+          "clientInstanceId",
+          itemIndex,
+          "",
+        ) as string;
+        const effectiveClientInstanceId =
+          paramClientInstanceId || clientInstanceId;
 
         // Create request context with auth data and operation parameters
         const requestContext: RequestContext = {
@@ -126,12 +135,15 @@ export class Accounting implements INodeType {
 
         // Add clientId if needed (all operations except /clients getAll)
         if (!(resource === "client" && operation === "getAll")) {
-          const clientId = this.getNodeParameter("clientId", itemIndex) as string;
+          const clientId = this.getNodeParameter(
+            "clientId",
+            itemIndex,
+          ) as string;
           if (!clientId) {
             throw new NodeOperationError(
               this.getNode(),
               "clientId is required for this operation",
-              { itemIndex }
+              { itemIndex },
             );
           }
           requestContext.clientId = clientId;
@@ -139,13 +151,19 @@ export class Accounting implements INodeType {
 
         // Add fiscalYearId if needed (only for operations that require both client and fiscal year)
         // Note: fiscalYear resource needs clientId but not fiscalYearId for getAll operation
-        if (resource !== "client" && !(resource === "fiscalYear" && operation === "getAll")) {
-          const fiscalYearId = this.getNodeParameter("fiscalYearId", itemIndex) as string;
+        if (
+          resource !== "client" &&
+          !(resource === "fiscalYear" && operation === "getAll")
+        ) {
+          const fiscalYearId = this.getNodeParameter(
+            "fiscalYearId",
+            itemIndex,
+          ) as string;
           if (!fiscalYearId) {
             throw new NodeOperationError(
               this.getNode(),
               "fiscalYearId is required for this operation",
-              { itemIndex }
+              { itemIndex },
             );
           }
           requestContext.fiscalYearId = fiscalYearId;
@@ -176,7 +194,10 @@ export class Accounting implements INodeType {
             handler = new PostingProposalsResourceHandler(this, itemIndex);
             break;
           case "accountingSumsAndBalances":
-            handler = new AccountingSumsAndBalancesResourceHandler(this, itemIndex);
+            handler = new AccountingSumsAndBalancesResourceHandler(
+              this,
+              itemIndex,
+            );
             break;
           case "businessPartners":
             handler = new BusinessPartnersResourceHandler(this, itemIndex);
@@ -209,25 +230,34 @@ export class Accounting implements INodeType {
             handler = new AccountingStatisticsResourceHandler(this, itemIndex);
             break;
           case "accountingTransactionKeys":
-            handler = new AccountingTransactionKeysResourceHandler(this, itemIndex);
+            handler = new AccountingTransactionKeysResourceHandler(
+              this,
+              itemIndex,
+            );
             break;
           case "variousAddresses":
             handler = new VariousAddressesResourceHandler(this, itemIndex);
             break;
           default:
-            throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`, {
-              itemIndex,
-            });
+            throw new NodeOperationError(
+              this.getNode(),
+              `Unknown resource: ${resource}`,
+              {
+                itemIndex,
+              },
+            );
         }
 
         // Execute the handler and get results
         await handler.execute(operation, requestContext, returnData);
-
       } catch (error) {
         if (this.continueOnFail()) {
           returnData.push({
             json: {
-              error: error instanceof Error ? error.message : "Unknown error occurred",
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Unknown error occurred",
             },
             pairedItem: { item: itemIndex },
           });

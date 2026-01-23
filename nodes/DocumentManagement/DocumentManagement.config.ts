@@ -198,7 +198,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Get many domains',
+          description: "Get many domains",
           action: "Get many domains",
         },
       ],
@@ -220,7 +220,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Get many document states',
+          description: "Get many document states",
           action: "Get many document states",
         },
         {
@@ -254,7 +254,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve many secure areas',
+          description: "Retrieve many secure areas",
           action: "Get many secure areas",
         },
       ],
@@ -276,7 +276,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve many property templates',
+          description: "Retrieve many property templates",
           action: "Get many property templates",
         },
       ],
@@ -298,7 +298,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve many individual properties',
+          description: "Retrieve many individual properties",
           action: "Get many individual properties",
         },
       ],
@@ -320,7 +320,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve many individual references 1',
+          description: "Retrieve many individual references 1",
           action: "Get many individual references 1",
         },
         {
@@ -348,7 +348,7 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         {
           name: "Get Many",
           value: "getAll",
-          description: 'Retrieve many individual references 2',
+          description: "Retrieve many individual references 2",
           action: "Get many individual references 2",
         },
         {
@@ -482,7 +482,8 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
         },
       },
       default: "",
-      description: "The binary file data to upload (application/octet-stream format)",
+      description:
+        "The binary file data to upload (application/octet-stream format)",
       placeholder: "Binary file content",
     },
 
@@ -570,7 +571,11 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["document", "individualReference1", "individualReference2"],
+          resource: [
+            "document",
+            "individualReference1",
+            "individualReference2",
+          ],
           operation: ["getAll", "getStructureItems"],
         },
       },
@@ -587,7 +592,11 @@ export const documentManagementNodeDescription: INodeTypeDescription = {
       },
       displayOptions: {
         show: {
-          resource: ["document", "individualReference1", "individualReference2"],
+          resource: [
+            "document",
+            "individualReference1",
+            "individualReference2",
+          ],
           operation: ["getAll", "getStructureItems"],
         },
       },

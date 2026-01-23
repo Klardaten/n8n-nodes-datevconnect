@@ -20,7 +20,8 @@ describe("OrderResourceHandler", () => {
       continueOnFail: mock(() => false),
       getNode: mock(() => ({ type: "test-node" })),
       helpers: {
-        returnJsonArray: (data: Array<Record<string, unknown>>) => data.map((json) => ({ json })),
+        returnJsonArray: (data: Array<Record<string, unknown>>) =>
+          data.map((json) => ({ json })),
         constructExecutionMetaData: (
           data: Array<{ json: Record<string, unknown> }>,
           { itemData }: { itemData: { item: number } },
@@ -29,16 +30,33 @@ describe("OrderResourceHandler", () => {
     };
     handler = new OrderResourceHandler(mockContext, 0);
 
-    spyOn(orderManagementClient, "fetchOrders").mockResolvedValue([{ orderid: 1 }]);
-    spyOn(orderManagementClient, "fetchOrder").mockResolvedValue({ orderid: 2 });
+    spyOn(orderManagementClient, "fetchOrders").mockResolvedValue([
+      { orderid: 1 },
+    ]);
+    spyOn(orderManagementClient, "fetchOrder").mockResolvedValue({
+      orderid: 2,
+    });
     spyOn(orderManagementClient, "updateOrder").mockResolvedValue(undefined);
-    spyOn(orderManagementClient, "fetchOrdersMonthlyValues").mockResolvedValue([{ month: "2024-01" }]);
-    spyOn(orderManagementClient, "fetchOrderCostItems").mockResolvedValue([{ costitem: 1 }]);
-    spyOn(orderManagementClient, "fetchOrdersStateWork").mockResolvedValue([{ state: "done" }]);
-    spyOn(orderManagementClient, "fetchSubordersStateBillingAll").mockResolvedValue([{ billing: "ok" }]);
-    spyOn(orderManagementClient, "fetchExpensePostings").mockResolvedValue([{ expenseposting_id: "ep1" }]);
+    spyOn(orderManagementClient, "fetchOrdersMonthlyValues").mockResolvedValue([
+      { month: "2024-01" },
+    ]);
+    spyOn(orderManagementClient, "fetchOrderCostItems").mockResolvedValue([
+      { costitem: 1 },
+    ]);
+    spyOn(orderManagementClient, "fetchOrdersStateWork").mockResolvedValue([
+      { state: "done" },
+    ]);
+    spyOn(
+      orderManagementClient,
+      "fetchSubordersStateBillingAll",
+    ).mockResolvedValue([{ billing: "ok" }]);
+    spyOn(orderManagementClient, "fetchExpensePostings").mockResolvedValue([
+      { expenseposting_id: "ep1" },
+    ]);
     spyOn(orderManagementClient, "updateSuborder").mockResolvedValue(undefined);
-    spyOn(orderManagementClient, "createExpensePosting").mockResolvedValue({ id: "exp-1" });
+    spyOn(orderManagementClient, "createExpensePosting").mockResolvedValue({
+      id: "exp-1",
+    });
   });
 
   test("getAll operation fetches orders with parameters", async () => {
@@ -78,7 +96,9 @@ describe("OrderResourceHandler", () => {
     );
 
     const returnData: any[] = [];
-    await expect(handler.execute("getAll", authContext, returnData)).rejects.toThrow(/suborders/);
+    await expect(
+      handler.execute("getAll", authContext, returnData),
+    ).rejects.toThrow(/suborders/);
     expect(returnData).toHaveLength(0);
   });
 
@@ -91,7 +111,9 @@ describe("OrderResourceHandler", () => {
     );
 
     const returnData: any[] = [];
-    await expect(handler.execute("getAll", authContext, returnData)).rejects.toThrow(/between 1 and 9/);
+    await expect(
+      handler.execute("getAll", authContext, returnData),
+    ).rejects.toThrow(/between 1 and 9/);
     expect(returnData).toHaveLength(0);
   });
 
@@ -126,7 +148,9 @@ describe("OrderResourceHandler", () => {
     );
 
     const returnData: any[] = [];
-    await expect(handler.execute("get", authContext, returnData)).rejects.toThrow(/suborders/);
+    await expect(
+      handler.execute("get", authContext, returnData),
+    ).rejects.toThrow(/suborders/);
     expect(returnData).toHaveLength(0);
   });
 
@@ -140,14 +164,17 @@ describe("OrderResourceHandler", () => {
     );
 
     const returnData: any[] = [];
-    await expect(handler.execute("get", authContext, returnData)).rejects.toThrow(/between 1 and 9/);
+    await expect(
+      handler.execute("get", authContext, returnData),
+    ).rejects.toThrow(/between 1 and 9/);
     expect(returnData).toHaveLength(0);
   });
 
   test("update operation passes payload", async () => {
     mockContext.getNodeParameter.mockImplementation((name: string) => {
       if (name === "orderId") return 99;
-      if (name === "orderData") return JSON.stringify({ planned_turnover: 1000 });
+      if (name === "orderData")
+        return JSON.stringify({ planned_turnover: 1000 });
       return undefined;
     });
 

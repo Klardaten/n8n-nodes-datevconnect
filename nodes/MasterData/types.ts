@@ -1,5 +1,8 @@
 import type { IDataObject } from "n8n-workflow";
-import type { JsonValue, HttpRequestHelper } from "../../src/services/datevConnectClient";
+import type {
+  JsonValue,
+  HttpRequestHelper,
+} from "../../src/services/datevConnectClient";
 
 /**
  * Credentials interface for DATEVconnect API
@@ -191,12 +194,24 @@ export interface UpdateAddresseeParams extends AddresseeOperationParams {
 /**
  * Supported resources
  */
-export type Resource = "client" | "taxAuthority" | "relationship" | "legalForm" | "corporateStructure" | "employee" | "countryCode" | "clientGroupType" | "clientCategoryType" | "bank" | "areaOfResponsibility" | "addressee";
+export type Resource =
+  | "client"
+  | "taxAuthority"
+  | "relationship"
+  | "legalForm"
+  | "corporateStructure"
+  | "employee"
+  | "countryCode"
+  | "clientGroupType"
+  | "clientCategoryType"
+  | "bank"
+  | "areaOfResponsibility"
+  | "addressee";
 
 /**
  * Supported client operations
  */
-export type ClientOperation = 
+export type ClientOperation =
   | "getAll"
   | "get"
   | "create"
@@ -248,7 +263,11 @@ export type ClientGroupTypeOperation = "getAll" | "get" | "create" | "update";
 /**
  * Supported client category type operations
  */
-export type ClientCategoryTypeOperation = "getAll" | "get" | "create" | "update";
+export type ClientCategoryTypeOperation =
+  | "getAll"
+  | "get"
+  | "create"
+  | "update";
 
 /**
  * Supported bank operations
@@ -263,12 +282,29 @@ export type AreaOfResponsibilityOperation = "getAll";
 /**
  * Supported addressee operations
  */
-export type AddresseeOperation = "getAll" | "get" | "create" | "update" | "getDeletionLog";
+export type AddresseeOperation =
+  | "getAll"
+  | "get"
+  | "create"
+  | "update"
+  | "getDeletionLog";
 
 /**
  * All supported operations
  */
-export type Operation = ClientOperation | TaxAuthorityOperation | RelationshipOperation | LegalFormOperation | CorporateStructureOperation | EmployeeOperation | CountryCodeOperation | ClientGroupTypeOperation | ClientCategoryTypeOperation | BankOperation | AreaOfResponsibilityOperation | AddresseeOperation;
+export type Operation =
+  | ClientOperation
+  | TaxAuthorityOperation
+  | RelationshipOperation
+  | LegalFormOperation
+  | CorporateStructureOperation
+  | EmployeeOperation
+  | CountryCodeOperation
+  | ClientGroupTypeOperation
+  | ClientCategoryTypeOperation
+  | BankOperation
+  | AreaOfResponsibilityOperation
+  | AddresseeOperation;
 
 /**
  * Success response format

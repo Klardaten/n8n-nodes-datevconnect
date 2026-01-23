@@ -1,6 +1,10 @@
 import { NodeOperationError, type INodeExecutionData } from "n8n-workflow";
 import { fetchOrderManagementCostCenters } from "../../../src/services/orderManagementClient";
-import type { AuthContext, CostCenterOperation, SendSuccessFunction } from "../types";
+import type {
+  AuthContext,
+  CostCenterOperation,
+  SendSuccessFunction,
+} from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 
 export class CostCenterResourceHandler extends BaseResourceHandler {

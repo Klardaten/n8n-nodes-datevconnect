@@ -4,14 +4,10 @@ import { NodeOperationError, NodeApiError } from "n8n-workflow";
 import * as datevConnectClientModule from "../../src/services/datevConnectClient";
 import { OrderResourceHandler } from "../../nodes/OrderManagement/handlers/OrderResourceHandler";
 import { OrderTypeResourceHandler } from "../../nodes/OrderManagement/handlers/OrderTypeResourceHandler";
-import { ClientGroupResourceHandler } from "../../nodes/OrderManagement/handlers/ClientGroupResourceHandler";
 import { InvoiceResourceHandler } from "../../nodes/OrderManagement/handlers/InvoiceResourceHandler";
-import { EmployeeResourceHandler } from "../../nodes/OrderManagement/handlers/EmployeeResourceHandler";
-import { FeeResourceHandler } from "../../nodes/OrderManagement/handlers/FeeResourceHandler";
-import { CostCenterResourceHandler } from "../../nodes/OrderManagement/handlers/CostCenterResourceHandler";
-import { SelfClientResourceHandler } from "../../nodes/OrderManagement/handlers/SelfClientResourceHandler";
 
-const { OrderManagement } = await import("../../nodes/OrderManagement/OrderManagement.node");
+const { OrderManagement } =
+  await import("../../nodes/OrderManagement/OrderManagement.node");
 
 type InputItem = { json: Record<string, unknown> };
 
@@ -82,7 +78,10 @@ let authenticateSpy: ReturnType<typeof spyOn>;
 
 describe("OrderManagement node integration", () => {
   beforeEach(() => {
-    authenticateSpy = spyOn(datevConnectClientModule, "authenticate").mockResolvedValue({
+    authenticateSpy = spyOn(
+      datevConnectClientModule,
+      "authenticate",
+    ).mockResolvedValue({
       access_token: "test-token-123",
     });
   });
@@ -104,7 +103,7 @@ describe("OrderManagement node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeOperationError);
     });
 
@@ -115,7 +114,7 @@ describe("OrderManagement node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow("DATEVconnect credentials are missing");
     });
   });
@@ -131,8 +130,14 @@ describe("OrderManagement node integration", () => {
         },
       });
 
-      const orderHandlerSpy = spyOn(OrderResourceHandler.prototype, "execute").mockResolvedValue();
-      const orderTypeHandlerSpy = spyOn(OrderTypeResourceHandler.prototype, "execute").mockResolvedValue();
+      const orderHandlerSpy = spyOn(
+        OrderResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const orderTypeHandlerSpy = spyOn(
+        OrderTypeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       await node.execute.call(context as unknown as IExecuteFunctions);
 
@@ -159,14 +164,17 @@ describe("OrderManagement node integration", () => {
       const context = createExecuteContext();
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeApiError);
     });
   });
 
   describe("resource handler orchestration", () => {
     test("creates correct handler for order resource", async () => {
-      const orderHandlerSpy = spyOn(OrderResourceHandler.prototype, "execute").mockResolvedValue();
+      const orderHandlerSpy = spyOn(
+        OrderResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new OrderManagement();
       const context = createExecuteContext({
@@ -192,7 +200,10 @@ describe("OrderManagement node integration", () => {
     });
 
     test("creates correct handler for invoice resource", async () => {
-      const invoiceHandlerSpy = spyOn(InvoiceResourceHandler.prototype, "execute").mockResolvedValue();
+      const invoiceHandlerSpy = spyOn(
+        InvoiceResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
 
       const node = new OrderManagement();
       const context = createExecuteContext({
@@ -225,7 +236,7 @@ describe("OrderManagement node integration", () => {
       });
 
       await expect(
-        node.execute.call(context as unknown as IExecuteFunctions)
+        node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeOperationError);
     });
   });
