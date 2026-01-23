@@ -170,14 +170,12 @@ async function sendRequest(
   return responseBody;
 }
 
-export interface FetchOrderTypesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderTypesOptions extends BaseOrderManagementRequestOptions {
   top?: number;
   skip?: number;
 }
 
-export interface FetchClientGroupOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchClientGroupOptions extends BaseOrderManagementRequestOptions {
   clientId: string;
 }
 
@@ -202,15 +200,13 @@ export interface UpdateOrderOptions extends BaseOrderManagementRequestOptions {
   order: JsonValue;
 }
 
-export interface FetchOrderMonthlyValuesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderMonthlyValuesOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   select?: string;
   costRate?: number;
 }
 
-export interface FetchOrdersMonthlyValuesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrdersMonthlyValuesOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   costRate?: number;
@@ -218,71 +214,61 @@ export interface FetchOrdersMonthlyValuesOptions
   skip?: number;
 }
 
-export interface FetchOrderCostItemsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderCostItemsOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   select?: string;
 }
 
-export interface FetchOrdersCostItemsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrdersCostItemsOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchOrderStateWorkOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderStateWorkOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   select?: string;
 }
 
-export interface FetchOrdersStateWorkOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrdersStateWorkOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchSubordersStateBillingOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchSubordersStateBillingOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   select?: string;
 }
 
-export interface FetchSubordersStateBillingAllOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchSubordersStateBillingAllOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface UpdateSuborderOptions
-  extends BaseOrderManagementRequestOptions {
+export interface UpdateSuborderOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   suborderId: number;
   suborder: JsonValue;
 }
 
-export interface FetchOrderExpensePostingsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderExpensePostingsOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   select?: string;
 }
 
-export interface FetchExpensePostingsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchExpensePostingsOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface CreateExpensePostingOptions
-  extends BaseOrderManagementRequestOptions {
+export interface CreateExpensePostingOptions extends BaseOrderManagementRequestOptions {
   orderId: number;
   suborderId: number;
   automaticIntegration?: boolean;
@@ -294,56 +280,49 @@ export interface FetchInvoiceOptions extends BaseOrderManagementRequestOptions {
   invoiceId: number;
 }
 
-export interface FetchInvoicesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchInvoicesOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchEmployeeCapacitiesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchEmployeeCapacitiesOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchEmployeesWithGroupOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchEmployeesWithGroupOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchEmployeeQualificationsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchEmployeeQualificationsOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchEmployeeCostRatesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchEmployeeCostRatesOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchChargeRatesOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchChargeRatesOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchOrderManagementCostCentersOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchOrderManagementCostCentersOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
@@ -357,16 +336,14 @@ export interface FetchFeesOptions extends BaseOrderManagementRequestOptions {
   skip?: number;
 }
 
-export interface FetchFeePlansOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchFeePlansOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchSelfClientsOptions
-  extends BaseOrderManagementRequestOptions {
+export interface FetchSelfClientsOptions extends BaseOrderManagementRequestOptions {
   select?: string;
   top?: number;
   skip?: number;

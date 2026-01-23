@@ -101,8 +101,7 @@ export interface CorporateStructureOperationParams extends BaseOperationParams {
 /**
  * Parameters for establishment operations
  */
-export interface EstablishmentOperationParams
-  extends CorporateStructureOperationParams {
+export interface EstablishmentOperationParams extends CorporateStructureOperationParams {
   establishmentId: string;
 }
 
@@ -144,8 +143,7 @@ export interface CreateClientGroupTypeParams {
 /**
  * Parameters for client group type updates
  */
-export interface UpdateClientGroupTypeParams
-  extends ClientGroupTypeOperationParams {
+export interface UpdateClientGroupTypeParams extends ClientGroupTypeOperationParams {
   clientGroupTypeData: JsonValue;
 }
 
@@ -166,8 +164,7 @@ export interface CreateClientCategoryTypeParams {
 /**
  * Parameters for client category type updates
  */
-export interface UpdateClientCategoryTypeParams
-  extends ClientCategoryTypeOperationParams {
+export interface UpdateClientCategoryTypeParams extends ClientCategoryTypeOperationParams {
   clientCategoryTypeData: JsonValue;
 }
 

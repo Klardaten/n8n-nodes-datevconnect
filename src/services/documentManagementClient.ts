@@ -10,8 +10,10 @@ export interface DocumentManagementAuthenticateOptions {
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
-export interface DocumentManagementAuthenticateResponse
-  extends Record<string, JsonValue> {
+export interface DocumentManagementAuthenticateResponse extends Record<
+  string,
+  JsonValue
+> {
   access_token: string;
 }
 
@@ -24,64 +26,53 @@ interface BaseDocumentManagementRequestOptions {
 }
 
 // Documents endpoint interfaces
-export interface FetchDocumentsOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDocumentsOptions extends BaseDocumentManagementRequestOptions {
   filter?: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchDocumentOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDocumentOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
 }
 
-export interface CreateDocumentOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface CreateDocumentOptions extends BaseDocumentManagementRequestOptions {
   document: JsonValue;
 }
 
-export interface UpdateDocumentOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface UpdateDocumentOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   document: JsonValue;
 }
 
-export interface DeleteDocumentOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface DeleteDocumentOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
 }
 
 // Document Files endpoint interfaces
-export interface FetchDocumentFileOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDocumentFileOptions extends BaseDocumentManagementRequestOptions {
   fileId: string;
 }
 
-export interface UploadDocumentFileOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface UploadDocumentFileOptions extends BaseDocumentManagementRequestOptions {
   binaryData: BodyInit;
 }
 
 // Domains endpoint interfaces
-export interface FetchDomainsOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDomainsOptions extends BaseDocumentManagementRequestOptions {
   filter?: string;
 }
 
 // Document States endpoint interfaces
-export interface FetchDocumentStatesOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDocumentStatesOptions extends BaseDocumentManagementRequestOptions {
   filter?: string;
 }
 
-export interface FetchDocumentStateOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchDocumentStateOptions extends BaseDocumentManagementRequestOptions {
   stateId: string;
 }
 
-export interface CreateDocumentStateOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface CreateDocumentStateOptions extends BaseDocumentManagementRequestOptions {
   state: JsonValue;
 }
 
@@ -92,8 +83,7 @@ export type FetchInfoOptions = BaseDocumentManagementRequestOptions;
 export type FetchSecureAreasOptions = BaseDocumentManagementRequestOptions;
 
 // Property Templates endpoint interfaces
-export interface FetchPropertyTemplatesOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchPropertyTemplatesOptions extends BaseDocumentManagementRequestOptions {
   filter?: string;
 }
 
@@ -102,60 +92,51 @@ export type FetchIndividualPropertiesOptions =
   BaseDocumentManagementRequestOptions;
 
 // Individual References1 endpoint interfaces
-export interface FetchIndividualReferences1Options
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchIndividualReferences1Options extends BaseDocumentManagementRequestOptions {
   top?: number;
   skip?: number;
 }
 
-export interface CreateIndividualReference1Options
-  extends BaseDocumentManagementRequestOptions {
+export interface CreateIndividualReference1Options extends BaseDocumentManagementRequestOptions {
   individualReference: JsonValue;
 }
 
 // Individual References2 endpoint interfaces
-export interface FetchIndividualReferences2Options
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchIndividualReferences2Options extends BaseDocumentManagementRequestOptions {
   top?: number;
   skip?: number;
 }
 
-export interface CreateIndividualReference2Options
-  extends BaseDocumentManagementRequestOptions {
+export interface CreateIndividualReference2Options extends BaseDocumentManagementRequestOptions {
   individualReference: JsonValue;
 }
 
 // Structure Items endpoint interfaces
-export interface FetchStructureItemsOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchStructureItemsOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   top?: number;
   skip?: number;
 }
 
-export interface FetchStructureItemOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface FetchStructureItemOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   structureItemId: string;
 }
 
-export interface AddStructureItemOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface AddStructureItemOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   structureItem: JsonValue;
   insertPosition?: string;
 }
 
-export interface UpdateStructureItemOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface UpdateStructureItemOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   structureItemId: string;
   structureItem: JsonValue;
 }
 
 // Dispatcher Information endpoint interfaces
-export interface CreateDispatcherInformationOptions
-  extends BaseDocumentManagementRequestOptions {
+export interface CreateDispatcherInformationOptions extends BaseDocumentManagementRequestOptions {
   documentId: string;
   dispatcherInformation: JsonValue;
 }

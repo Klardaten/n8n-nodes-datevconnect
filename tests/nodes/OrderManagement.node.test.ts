@@ -11,9 +11,8 @@ import { FeeResourceHandler } from "../../nodes/OrderManagement/handlers/FeeReso
 import { CostCenterResourceHandler } from "../../nodes/OrderManagement/handlers/CostCenterResourceHandler";
 import { SelfClientResourceHandler } from "../../nodes/OrderManagement/handlers/SelfClientResourceHandler";
 
-const { OrderManagement } = await import(
-  "../../nodes/OrderManagement/OrderManagement.node"
-);
+const { OrderManagement } =
+  await import("../../nodes/OrderManagement/OrderManagement.node");
 
 type InputItem = { json: Record<string, unknown> };
 

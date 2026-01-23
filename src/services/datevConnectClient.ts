@@ -47,8 +47,7 @@ export interface FetchClientResponsibilitiesOptions extends BaseRequestOptions {
   select?: string;
 }
 
-export interface UpdateClientResponsibilitiesOptions
-  extends BaseRequestOptions {
+export interface UpdateClientResponsibilitiesOptions extends BaseRequestOptions {
   clientId: string;
   responsibilities: JsonValue;
 }
@@ -1160,8 +1159,7 @@ export interface FetchAccountsReceivableOptions extends BaseRequestOptions {
   expand?: string;
 }
 
-export interface FetchAccountsReceivableCondensedOptions
-  extends BaseRequestOptions {
+export interface FetchAccountsReceivableCondensedOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1188,8 +1186,7 @@ export interface FetchAccountsPayableOptions extends BaseRequestOptions {
   expand?: string;
 }
 
-export interface FetchAccountsPayableCondensedOptions
-  extends BaseRequestOptions {
+export interface FetchAccountsPayableCondensedOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1261,8 +1258,7 @@ export interface FetchAccountingRecordOptions extends BaseRequestOptions {
   select?: string;
 }
 
-export interface FetchPostingProposalRulesIncomingOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRulesIncomingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1270,8 +1266,7 @@ export interface FetchPostingProposalRulesIncomingOptions
   skip?: number;
 }
 
-export interface FetchPostingProposalRulesOutgoingOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRulesOutgoingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1279,8 +1274,7 @@ export interface FetchPostingProposalRulesOutgoingOptions
   skip?: number;
 }
 
-export interface FetchPostingProposalRulesCashRegisterOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRulesCashRegisterOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1288,53 +1282,46 @@ export interface FetchPostingProposalRulesCashRegisterOptions
   skip?: number;
 }
 
-export interface FetchPostingProposalRuleIncomingOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRuleIncomingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   ruleId: string;
   select?: string;
 }
 
-export interface FetchPostingProposalRuleOutgoingOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRuleOutgoingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   ruleId: string;
   select?: string;
 }
 
-export interface FetchPostingProposalRuleCashRegisterOptions
-  extends BaseRequestOptions {
+export interface FetchPostingProposalRuleCashRegisterOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   ruleId: string;
   select?: string;
 }
 
-export interface BatchPostingProposalsIncomingOptions
-  extends BaseRequestOptions {
+export interface BatchPostingProposalsIncomingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   postingProposals: JsonValue;
 }
 
-export interface BatchPostingProposalsOutgoingOptions
-  extends BaseRequestOptions {
+export interface BatchPostingProposalsOutgoingOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   postingProposals: JsonValue;
 }
 
-export interface BatchPostingProposalsCashRegisterOptions
-  extends BaseRequestOptions {
+export interface BatchPostingProposalsCashRegisterOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   postingProposals: JsonValue;
 }
 
-export interface FetchAccountingSumsAndBalancesOptions
-  extends BaseRequestOptions {
+export interface FetchAccountingSumsAndBalancesOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1343,8 +1330,7 @@ export interface FetchAccountingSumsAndBalancesOptions
   skip?: number;
 }
 
-export interface FetchAccountingSumsAndBalanceOptions
-  extends BaseRequestOptions {
+export interface FetchAccountingSumsAndBalanceOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   accountingSumsAndBalancesId: string;
@@ -1440,8 +1426,7 @@ export interface FetchGeneralLedgerAccountOptions extends BaseRequestOptions {
   select?: string;
 }
 
-export interface FetchUtilizedGeneralLedgerAccountsOptions
-  extends BaseRequestOptions {
+export interface FetchUtilizedGeneralLedgerAccountsOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1612,8 +1597,7 @@ export interface FetchAccountingStatisticsOptions extends BaseRequestOptions {
 }
 
 // Accounting Transaction Keys interfaces
-export interface FetchAccountingTransactionKeysOptions
-  extends BaseRequestOptions {
+export interface FetchAccountingTransactionKeysOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   select?: string;
@@ -1621,8 +1605,7 @@ export interface FetchAccountingTransactionKeysOptions
   top?: number;
 }
 
-export interface FetchAccountingTransactionKeyOptions
-  extends BaseRequestOptions {
+export interface FetchAccountingTransactionKeyOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
   accountingTransactionKeyId: string;
