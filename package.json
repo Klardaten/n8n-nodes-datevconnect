@@ -34,7 +34,8 @@
     "lint:fix": "npx n8n-node lint --fix",
     "release": "npx n8n-node release",
     "prepublishOnly": "npx n8n-node prerelease",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "format": "npm run prettier && npm run lint:fix"
   },
   "files": [
     "README.md",
