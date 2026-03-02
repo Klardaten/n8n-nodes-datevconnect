@@ -15,7 +15,7 @@ export type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
-export { type HttpRequestHelper } from "./httpHelpers";
+export type { HttpRequestHelper } from "./httpHelpers";
 
 export interface AuthenticateOptions {
   host: string;
@@ -186,4 +186,131 @@ export async function authenticate(
   }
 
   return body as AuthenticateResponse;
+}
+
+const USER_API_KEY_PREFIX = "uk-";
+const USER_API_KEY_TOTAL_LENGTH = 64;
+
+export function isUserApiKeyFormat(token: string): boolean {
+  return (
+    typeof token === "string" &&
+    token.startsWith(USER_API_KEY_PREFIX) &&
+    token.length === USER_API_KEY_TOTAL_LENGTH
+  );
+}
+
+export interface DatevConnectCredentialFields {
+  host?: string;
+  clientInstanceId?: string;
+  email?: string;
+  password?: string;
+  apiKey?: string;
+}
+
+const CREDENTIAL_ERROR = "Provide either email and password or a user API key.";
+
+export interface ResolveTokenOptions {
+  httpHelper?: HttpRequestHelper;
+  fetchImpl?: typeof fetch;
+}
+
+export interface DatevConnectAuthContext {
+  host: string;
+  token: string;
+  clientInstanceId: string;
+  httpHelper?: HttpRequestHelper;
+}
+
+const CREDENTIALS_MISSING = "DATEVconnect credentials are missing";
+
+/**
+ * Validates credentials, resolves the Bearer token, and returns the auth context.
+ * Use this in nodes to get host, token, and clientInstanceId in one call.
+ * - Throws if credentials are null, invalid, or auth fails.
+ */
+export async function getDatevConnectAuthContext(
+  credentials: DatevConnectCredentialFields | null,
+  options?: ResolveTokenOptions,
+): Promise<DatevConnectAuthContext> {
+  if (!credentials) {
+    throw new Error(CREDENTIALS_MISSING);
+  }
+  validateDatevConnectCredentials(credentials);
+  const host = credentials.host;
+  const clientInstanceId = credentials.clientInstanceId;
+  if (!host || !clientInstanceId) {
+    throw new Error(CREDENTIAL_ERROR);
+  }
+  const token = await resolveTokenFromCredentials(credentials, options);
+  return {
+    host,
+    token,
+    clientInstanceId,
+    httpHelper: options?.httpHelper,
+  };
+}
+
+/**
+ * Resolves the Bearer token from DATEVconnect credentials.
+ * Use after validateDatevConnectCredentials().
+ * - If valid apiKey is set, returns it as the token (no HTTP call).
+ * - Otherwise calls authenticate() with email/password and returns access_token.
+ */
+export async function resolveTokenFromCredentials(
+  credentials: DatevConnectCredentialFields,
+  options?: ResolveTokenOptions,
+): Promise<string> {
+  const trimmedApiKey = credentials.apiKey?.trim();
+  if (
+    trimmedApiKey != null &&
+    trimmedApiKey !== "" &&
+    isUserApiKeyFormat(trimmedApiKey)
+  ) {
+    return trimmedApiKey;
+  }
+
+  const email = credentials.email?.trim();
+  const password = credentials.password?.trim();
+  if (!email || !password) {
+    throw new Error(CREDENTIAL_ERROR);
+  }
+
+  const host = credentials.host;
+  if (!host) {
+    throw new Error(CREDENTIAL_ERROR);
+  }
+
+  const authResponse = await authenticate({
+    host,
+    email,
+    password,
+    httpHelper: options?.httpHelper,
+    fetchImpl: options?.fetchImpl,
+  });
+  return authResponse.access_token;
+}
+
+export function validateDatevConnectCredentials(
+  creds: DatevConnectCredentialFields | null,
+): void {
+  if (!creds?.host || !creds?.clientInstanceId) {
+    throw new Error(CREDENTIAL_ERROR);
+  }
+  const hasApiKey =
+    creds.apiKey != null &&
+    String(creds.apiKey).trim() !== "" &&
+    isUserApiKeyFormat(creds.apiKey.trim());
+  const hasEmailPassword =
+    creds.email != null &&
+    String(creds.email).trim() !== "" &&
+    creds.password != null &&
+    String(creds.password).trim() !== "";
+
+  if (hasApiKey && !hasEmailPassword) {
+    return;
+  }
+  if (hasEmailPassword && !hasApiKey) {
+    return;
+  }
+  throw new Error(CREDENTIAL_ERROR);
 }

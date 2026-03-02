@@ -103,7 +103,43 @@ describe("IdentityAndAccessManagement node", () => {
 
     await expect(
       node.execute.call(context as unknown as IExecuteFunctions),
-    ).rejects.toThrow(NodeOperationError);
+    ).rejects.toThrow("Provide either email and password or a user API key");
+  });
+
+  test("uses API key as token when apiKey is provided and does not call authenticate", async () => {
+    const apiKey = "uk-" + "x".repeat(61);
+    const node = new IdentityAndAccessManagement();
+    const context = createExecuteContext({
+      credentials: {
+        host: "https://localhost:58452",
+        clientInstanceId: "instance-123",
+        apiKey,
+      },
+      parameters: {
+        resource: "currentUser",
+        operation: "get",
+      },
+    });
+
+    const currentUserHandlerSpy = spyOn(
+      CurrentUserResourceHandler.prototype,
+      "execute",
+    ).mockResolvedValue();
+
+    await node.execute.call(context as unknown as IExecuteFunctions);
+
+    expect(authenticateSpy).not.toHaveBeenCalled();
+    expect(currentUserHandlerSpy).toHaveBeenCalledWith(
+      "get",
+      expect.objectContaining({
+        host: "https://localhost:58452",
+        token: apiKey,
+        clientInstanceId: "instance-123",
+      }),
+      expect.any(Array),
+    );
+
+    currentUserHandlerSpy.mockRestore();
   });
 
   test("throws when credentials are missing", async () => {

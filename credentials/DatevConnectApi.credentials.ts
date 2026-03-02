@@ -27,7 +27,7 @@ export class DatevConnectApi implements ICredentialType {
       name: "email",
       type: "string",
       default: "",
-      required: true,
+      required: false,
       description: "Klardaten user login",
     },
     {
@@ -35,7 +35,7 @@ export class DatevConnectApi implements ICredentialType {
       name: "password",
       type: "string",
       default: "",
-      required: true,
+      required: false,
       typeOptions: {
         password: true,
       },
@@ -48,6 +48,18 @@ export class DatevConnectApi implements ICredentialType {
       default: "",
       required: true,
       description: "Klardaten client instance identifier",
+    },
+    {
+      displayName: "User API Key",
+      name: "apiKey",
+      type: "string",
+      default: "",
+      required: false,
+      typeOptions: {
+        password: true,
+      },
+      description:
+        "User API key (uk-...). If set, email and password are not required.",
     },
   ];
 

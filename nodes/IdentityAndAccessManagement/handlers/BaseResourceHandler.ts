@@ -4,12 +4,12 @@ import {
   type IExecuteFunctions,
   type INodeExecutionData,
 } from "n8n-workflow";
-import type { JsonValue } from "../../../src/services/datevConnectClient";
-import type {
-  AuthContext,
-  IdentityAndAccessManagementCredentials,
-  SendSuccessFunction,
-} from "../types";
+import type { DatevConnectCredentials } from "../../common/datevConnectAuth";
+import {
+  validateDatevConnectCredentials,
+  type JsonValue,
+} from "../../../src/services/datevConnectClient";
+import type { AuthContext, SendSuccessFunction } from "../types";
 import {
   buildQueryParams,
   getNumberParameter,
@@ -81,10 +81,10 @@ export abstract class BaseResourceHandler {
     sendSuccess: SendSuccessFunction,
   ): Promise<void>;
 
-  protected async getCredentials(): Promise<IdentityAndAccessManagementCredentials> {
+  protected async getCredentials(): Promise<DatevConnectCredentials> {
     const credentials = (await this.context.getCredentials(
       "datevConnectApi",
-    )) as IdentityAndAccessManagementCredentials | null;
+    )) as DatevConnectCredentials | null;
 
     if (!credentials) {
       throw new NodeOperationError(
@@ -93,12 +93,12 @@ export abstract class BaseResourceHandler {
       );
     }
 
-    const { host, email, password, clientInstanceId } = credentials;
-
-    if (!host || !email || !password || !clientInstanceId) {
+    try {
+      validateDatevConnectCredentials(credentials);
+    } catch (error) {
       throw new NodeOperationError(
         this.context.getNode(),
-        "All DATEVconnect credential fields must be provided",
+        error instanceof Error ? error.message : "Invalid credentials",
       );
     }
 
@@ -106,7 +106,7 @@ export abstract class BaseResourceHandler {
   }
 
   protected createAuthContext(
-    credentials: IdentityAndAccessManagementCredentials,
+    credentials: DatevConnectCredentials,
     token: string,
   ): AuthContext {
     return {
