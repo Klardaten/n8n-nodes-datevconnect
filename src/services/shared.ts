@@ -306,10 +306,7 @@ export function validateDatevConnectCredentials(
     creds.password != null &&
     String(creds.password).trim() !== "";
 
-  if (hasApiKey && !hasEmailPassword) {
-    return;
-  }
-  if (hasEmailPassword && !hasApiKey) {
+  if (hasApiKey || hasEmailPassword) {
     return;
   }
   throw new Error(CREDENTIAL_ERROR);
