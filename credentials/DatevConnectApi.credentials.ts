@@ -70,7 +70,7 @@ export class DatevConnectApi implements ICredentialType {
       method:
         "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? 'GET' : 'POST' }}" as import("n8n-workflow").IHttpRequestMethods,
       headers:
-        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? { Authorization: 'Bearer ' + $credentials.apiKey } : {} }}" as unknown as import("n8n-workflow").IDataObject,
+        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? { Authorization: 'Bearer ' + String($credentials.apiKey).trim() } : {} }}" as unknown as import("n8n-workflow").IDataObject,
       json: true,
       body: "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? undefined : { email: $credentials.email, password: $credentials.password } }}",
     },
