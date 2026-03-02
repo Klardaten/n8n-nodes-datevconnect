@@ -66,21 +66,20 @@ export class DatevConnectApi implements ICredentialType {
   test: ICredentialTestRequest = {
     request: {
       baseURL: "={{ $credentials.host }}",
-      url: "/api/auth/login",
-      method: "POST",
+      url: "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? '/api/users/me' : '/api/auth/login' }}",
+      method:
+        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? 'GET' : 'POST' }}" as import("n8n-workflow").IHttpRequestMethods,
+      headers:
+        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? { Authorization: 'Bearer ' + $credentials.apiKey } : {} }}" as unknown as import("n8n-workflow").IDataObject,
       json: true,
-      body: {
-        email: "={{ $credentials.email }}",
-        password: "={{ $credentials.password }}",
-      },
+      body: "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? undefined : { email: $credentials.email, password: $credentials.password } }}",
     },
     rules: [
       {
-        type: "responseSuccessBody",
+        type: "responseCode",
         properties: {
-          key: "access_token",
-          value: undefined,
-          message: "Login successful response must include a access_token.",
+          value: 200,
+          message: "Request must return 200 OK.",
         },
       },
     ],
