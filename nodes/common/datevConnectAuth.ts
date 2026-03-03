@@ -14,8 +14,8 @@ export interface DatevConnectCredentials {
   host: string;
   email?: string;
   password?: string;
-  clientInstanceId: string;
   apiKey?: string;
+  clientInstanceId: string;
 }
 
 const CREDENTIAL_TYPE = "datevConnectApi";

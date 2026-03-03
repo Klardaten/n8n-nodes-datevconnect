@@ -201,10 +201,10 @@ export function isUserApiKeyFormat(token: string): boolean {
 
 export interface DatevConnectCredentialFields {
   host?: string;
-  clientInstanceId?: string;
   email?: string;
   password?: string;
   apiKey?: string;
+  clientInstanceId?: string;
 }
 
 const CREDENTIAL_ERROR = "Provide either email and password or a user API key.";
