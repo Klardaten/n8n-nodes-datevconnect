@@ -6,10 +6,8 @@ import {
   type INodeExecutionData,
 } from "n8n-workflow";
 import { BaseResourceHandler } from "../../../../nodes/MasterData/handlers/BaseResourceHandler";
-import type {
-  AuthContext,
-  MasterDataCredentials,
-} from "../../../../nodes/MasterData/types";
+import type { AuthContext } from "../../../../nodes/MasterData/types";
+import type { DatevConnectCredentials } from "../../../../nodes/common/datevConnectAuth";
 
 // Create a concrete implementation for testing the abstract class
 class TestResourceHandler extends BaseResourceHandler {
@@ -27,7 +25,7 @@ class TestResourceHandler extends BaseResourceHandler {
 // Mock IExecuteFunctions
 const createMockContext = (
   overrides: {
-    credentials?: Partial<MasterDataCredentials>;
+    credentials?: Partial<DatevConnectCredentials>;
     parameters?: Record<string, unknown>;
     context?: Partial<IExecuteFunctions>;
   } = {},
@@ -105,7 +103,7 @@ describe("BaseResourceHandler", () => {
       );
     });
 
-    test("throws NodeOperationError when credential fields are missing", async () => {
+    test("throws NodeOperationError when credential fields are invalid", async () => {
       const context = createMockContext({
         credentials: {
           host: "",
@@ -120,8 +118,27 @@ describe("BaseResourceHandler", () => {
         NodeOperationError,
       );
       await expect(handler["getCredentials"]()).rejects.toThrow(
-        "All DATEVconnect credential fields must be provided",
+        "Provide either email and password or a user API key",
       );
+    });
+
+    test("returns credentials when valid apiKey is provided", async () => {
+      const apiKey = "uk-" + "a".repeat(61);
+      const context = createMockContext();
+      context.getCredentials = mock(async () => ({
+        host: "https://api.example.com",
+        clientInstanceId: "instance-1",
+        apiKey,
+      }));
+      const handler = new TestResourceHandler(context as any, 0);
+
+      const credentials = await handler["getCredentials"]();
+
+      expect(credentials).toMatchObject({
+        host: "https://api.example.com",
+        clientInstanceId: "instance-1",
+        apiKey,
+      });
     });
   });
 
@@ -130,7 +147,7 @@ describe("BaseResourceHandler", () => {
       const context = createMockContext();
       const handler = new TestResourceHandler(context as any, 0);
 
-      const credentials: MasterDataCredentials = {
+      const credentials: DatevConnectCredentials = {
         host: "https://api.example.com",
         email: "user@example.com",
         password: "secret",

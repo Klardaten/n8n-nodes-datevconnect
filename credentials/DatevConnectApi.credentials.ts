@@ -27,7 +27,7 @@ export class DatevConnectApi implements ICredentialType {
       name: "email",
       type: "string",
       default: "",
-      required: true,
+      required: false,
       description: "Klardaten user login",
     },
     {
@@ -35,11 +35,23 @@ export class DatevConnectApi implements ICredentialType {
       name: "password",
       type: "string",
       default: "",
-      required: true,
+      required: false,
       typeOptions: {
         password: true,
       },
       description: "Klardaten user password",
+    },
+    {
+      displayName: "User API Key",
+      name: "apiKey",
+      type: "string",
+      default: "",
+      required: false,
+      typeOptions: {
+        password: true,
+      },
+      description:
+        "User API key (uk-...). If set, email and password are not required.",
     },
     {
       displayName: "Client Instance ID",
@@ -54,21 +66,20 @@ export class DatevConnectApi implements ICredentialType {
   test: ICredentialTestRequest = {
     request: {
       baseURL: "={{ $credentials.host }}",
-      url: "/api/auth/login",
-      method: "POST",
+      url: "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? '/api/users/me' : '/api/auth/login' }}",
+      method:
+        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? 'GET' : 'POST' }}" as import("n8n-workflow").IHttpRequestMethods,
+      headers:
+        "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? { Authorization: 'Bearer ' + String($credentials.apiKey).trim() } : {} }}" as unknown as import("n8n-workflow").IDataObject,
       json: true,
-      body: {
-        email: "={{ $credentials.email }}",
-        password: "={{ $credentials.password }}",
-      },
+      body: "={{ ($credentials.apiKey && String($credentials.apiKey).trim()) ? undefined : { email: $credentials.email, password: $credentials.password } }}",
     },
     rules: [
       {
-        type: "responseSuccessBody",
+        type: "responseCode",
         properties: {
-          key: "access_token",
-          value: undefined,
-          message: "Login successful response must include a access_token.",
+          value: 200,
+          message: "Request must return 200 OK.",
         },
       },
     ],

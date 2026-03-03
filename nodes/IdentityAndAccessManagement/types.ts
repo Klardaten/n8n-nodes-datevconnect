@@ -1,22 +1,9 @@
 import type { IDataObject } from "n8n-workflow";
-import type {
-  JsonValue,
-  HttpRequestHelper,
-} from "../../src/services/datevConnectClient";
+import type { JsonValue } from "../../src/services/datevConnectClient";
+import type { DatevConnectAuthContext } from "../common/datevConnectAuth";
 
-export interface IdentityAndAccessManagementCredentials {
-  host: string;
-  email: string;
-  password: string;
-  clientInstanceId: string;
-}
-
-export interface AuthContext {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  httpHelper?: HttpRequestHelper;
-}
+/** Auth context for API calls (host, token, clientInstanceId, httpHelper). */
+export type AuthContext = DatevConnectAuthContext;
 
 export type Resource =
   | "serviceProviderConfig"

@@ -4,8 +4,8 @@ import type {
   INodeType,
   INodeTypeDescription,
 } from "n8n-workflow";
-import { NodeOperationError, NodeApiError } from "n8n-workflow";
-import { authenticate } from "../../src/services/datevConnectClient";
+import { NodeOperationError } from "n8n-workflow";
+import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
 
 import { accountingNodeDescription } from "./Accounting.config";
 import type { BaseResourceHandler } from "./handlers";
@@ -69,49 +69,10 @@ export class Accounting implements INodeType {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
 
-    // Get and validate credentials
-    const credentials = (await this.getCredentials("datevConnectApi")) as {
-      host: string;
-      email: string;
-      password: string;
-      clientInstanceId: string;
-    } | null;
-
-    if (!credentials) {
-      throw new NodeOperationError(
-        this.getNode(),
-        "DATEVconnect credentials are missing",
-      );
-    }
-
-    const { host, email, password, clientInstanceId } = credentials;
-
-    if (!host || !email || !password || !clientInstanceId) {
-      throw new NodeOperationError(
-        this.getNode(),
-        "All DATEVconnect credential fields must be provided",
-      );
-    }
-
-    // Authenticate once for all items
-    let token: string;
-    try {
-      const authResponse = await authenticate({
-        host,
-        email,
-        password,
-        httpHelper: this.helpers.httpRequest,
-      });
-      token = authResponse.access_token;
-    } catch (error) {
-      throw new NodeApiError(this.getNode(), {
-        message: error instanceof Error ? error.message : String(error),
-      });
-    }
+    const auth = await getDatevConnectAuthContextForNode(this);
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
-        // Get resource and operation from node parameters
         const resource = this.getNodeParameter("resource", itemIndex) as string;
         const operation = this.getNodeParameter(
           "operation",
@@ -123,14 +84,11 @@ export class Accounting implements INodeType {
           "",
         ) as string;
         const effectiveClientInstanceId =
-          paramClientInstanceId || clientInstanceId;
+          paramClientInstanceId || auth.clientInstanceId;
 
-        // Create request context with auth data and operation parameters
         const requestContext: RequestContext = {
-          host,
-          token,
+          ...auth,
           clientInstanceId: effectiveClientInstanceId,
-          httpHelper: this.helpers.httpRequest,
         };
 
         // Add clientId if needed (all operations except /clients getAll)

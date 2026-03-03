@@ -98,7 +98,7 @@ describe("MasterData node integration", () => {
   });
 
   describe("credential validation", () => {
-    test("requires all credential fields", async () => {
+    test("rejects when neither email+password nor apiKey is provided", async () => {
       const node = new MasterData();
       const context = createExecuteContext({
         credentials: {
@@ -112,6 +112,9 @@ describe("MasterData node integration", () => {
       await expect(
         node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeOperationError);
+      await expect(
+        node.execute.call(context as unknown as IExecuteFunctions),
+      ).rejects.toThrow("Provide either email and password or a user API key.");
     });
 
     test("handles missing credentials", async () => {
@@ -185,6 +188,42 @@ describe("MasterData node integration", () => {
       await expect(
         node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeApiError);
+    });
+
+    test("uses API key as token when apiKey is provided and does not call authenticate", async () => {
+      const apiKey = "uk-" + "x".repeat(61);
+      const node = new MasterData();
+      const context = createExecuteContext({
+        credentials: {
+          host: "https://api.example.com",
+          clientInstanceId: "instance-1",
+          apiKey,
+        },
+        parameters: {
+          resource: "client",
+          operation: "getAll",
+        },
+      });
+
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(authenticateSpy).not.toHaveBeenCalled();
+      expect(clientHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({
+          host: "https://api.example.com",
+          token: apiKey,
+          clientInstanceId: "instance-1",
+        }),
+        expect.any(Array),
+      );
+
+      clientHandlerSpy.mockRestore();
     });
   });
 
