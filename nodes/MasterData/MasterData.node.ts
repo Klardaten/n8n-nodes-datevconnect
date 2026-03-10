@@ -1,5 +1,4 @@
 import {
-  NodeApiError,
   NodeOperationError,
   type IExecuteFunctions,
   type INodeExecutionData,
@@ -7,7 +6,7 @@ import {
   type INodeTypeDescription,
 } from "n8n-workflow";
 
-import { authenticate } from "../../src/services/datevConnectClient";
+import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
 import { masterDataNodeDescription } from "./MasterData.config";
 import { ClientResourceHandler } from "./handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "./handlers/TaxAuthorityResourceHandler";
@@ -22,8 +21,7 @@ import { BankResourceHandler } from "./handlers/BankResourceHandler";
 import { AreaOfResponsibilityResourceHandler } from "./handlers/AreaOfResponsibilityResourceHandler";
 import { AddresseeResourceHandler } from "./handlers/AddresseeResourceHandler";
 import type { BaseResourceHandler } from "./handlers/BaseResourceHandler";
-import { toErrorObject } from "./utils";
-import type { Resource, MasterDataCredentials } from "./types";
+import type { Resource } from "./types";
 
 export class MasterData implements INodeType {
   description: INodeTypeDescription = {
@@ -36,42 +34,8 @@ export class MasterData implements INodeType {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
 
-    // Get and validate credentials
-    const credentials = (await this.getCredentials(
-      "datevConnectApi",
-    )) as MasterDataCredentials | null;
+    const auth = await getDatevConnectAuthContextForNode(this);
 
-    if (!credentials) {
-      throw new NodeOperationError(
-        this.getNode(),
-        "DATEVconnect credentials are missing",
-      );
-    }
-
-    const { host, email, password, clientInstanceId } = credentials;
-
-    if (!host || !email || !password || !clientInstanceId) {
-      throw new NodeOperationError(
-        this.getNode(),
-        "All DATEVconnect credential fields must be provided",
-      );
-    }
-
-    // Authenticate once for all items
-    let token: string;
-    try {
-      const authResponse = await authenticate({
-        host,
-        email,
-        password,
-        httpHelper: this.helpers.httpRequest,
-      });
-      token = authResponse.access_token;
-    } catch (error) {
-      throw new NodeApiError(this.getNode(), toErrorObject(error));
-    }
-
-    // Process each input item
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       const paramClientInstanceId = this.getNodeParameter(
         "clientInstanceId",
@@ -79,13 +43,11 @@ export class MasterData implements INodeType {
         "",
       ) as string;
       const effectiveClientInstanceId =
-        paramClientInstanceId || clientInstanceId;
+        paramClientInstanceId || auth.clientInstanceId;
 
       const authContext = {
-        host,
-        token,
+        ...auth,
         clientInstanceId: effectiveClientInstanceId,
-        httpHelper: this.helpers.httpRequest,
       };
       const resource = this.getNodeParameter("resource", itemIndex) as Resource;
       const operation = this.getNodeParameter("operation", itemIndex) as string;

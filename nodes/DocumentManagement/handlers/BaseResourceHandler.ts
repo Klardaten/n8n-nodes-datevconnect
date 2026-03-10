@@ -4,12 +4,11 @@ import {
   type IExecuteFunctions,
   type INodeExecutionData,
 } from "n8n-workflow";
-import type { JsonValue } from "../../../src/services/datevConnectClient";
-import type {
-  AuthContext,
-  DocumentManagementCredentials,
-  SendSuccessFunction,
-} from "../types";
+import {
+  validateDatevConnectCredentials,
+  type JsonValue,
+} from "../../../src/services/datevConnectClient";
+import type { AuthContext, SendSuccessFunction } from "../types";
 import {
   normaliseToObjects,
   parseJsonParameter,
@@ -21,6 +20,7 @@ import {
   buildQueryParams,
   getRequiredJsonData,
 } from "../utils";
+import type { DatevConnectCredentials } from "../../common/datevConnectAuth";
 
 /**
  * Abstract base class for resource handlers
@@ -91,10 +91,10 @@ export abstract class BaseResourceHandler {
   /**
    * Gets DATEVconnect credentials and validates them
    */
-  protected async getCredentials(): Promise<DocumentManagementCredentials> {
+  protected async getCredentials(): Promise<DatevConnectCredentials> {
     const credentials = (await this.context.getCredentials(
       "datevConnectApi",
-    )) as DocumentManagementCredentials | null;
+    )) as DatevConnectCredentials | null;
 
     if (!credentials) {
       throw new NodeOperationError(
@@ -103,12 +103,12 @@ export abstract class BaseResourceHandler {
       );
     }
 
-    const { host, email, password, clientInstanceId } = credentials;
-
-    if (!host || !email || !password || !clientInstanceId) {
+    try {
+      validateDatevConnectCredentials(credentials);
+    } catch (error) {
       throw new NodeOperationError(
         this.context.getNode(),
-        "All DATEVconnect credential fields must be provided",
+        error instanceof Error ? error.message : "Invalid credentials",
       );
     }
 
@@ -119,7 +119,7 @@ export abstract class BaseResourceHandler {
    * Creates an authentication context with token
    */
   protected createAuthContext(
-    credentials: DocumentManagementCredentials,
+    credentials: DatevConnectCredentials,
     token: string,
   ): AuthContext {
     return {

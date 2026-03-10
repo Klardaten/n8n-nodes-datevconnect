@@ -17,8 +17,17 @@ export type {
   AuthenticateOptions,
   AuthenticateResponse,
   BaseRequestOptions,
+  DatevConnectAuthContext,
+  DatevConnectCredentialFields,
+  ResolveTokenOptions,
 } from "./shared";
-export { authenticate } from "./shared";
+export {
+  authenticate,
+  getDatevConnectAuthContext,
+  isUserApiKeyFormat,
+  resolveTokenFromCredentials,
+  validateDatevConnectCredentials,
+} from "./shared";
 
 export interface FetchClientsOptions extends BaseRequestOptions {
   top?: number;
