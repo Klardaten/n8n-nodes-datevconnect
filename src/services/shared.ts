@@ -83,6 +83,126 @@ export async function readResponseBody(
   }
 }
 
+function safeStringify(value: JsonValue): string | undefined {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return undefined;
+  }
+}
+
+type DatevAdditionalMessage = {
+  id?: string;
+  description?: string;
+  severity?: string;
+  help_uri?: string;
+};
+
+type DatevErrorBody = {
+  error?: string;
+  error_description?: string;
+  error_uri?: string;
+  request_id?: string;
+  additional_messages?: DatevAdditionalMessage[];
+};
+
+function isRecord(value: JsonValue | undefined): value is Record<string, JsonValue> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function readString(
+  value: Record<string, JsonValue>,
+  key: string,
+): string | undefined {
+  const candidate = value[key];
+  if (typeof candidate !== "string") {
+    return undefined;
+  }
+
+  const trimmed = candidate.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function parseDatevAdditionalMessage(
+  value: JsonValue | undefined,
+): DatevAdditionalMessage | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const message = {
+    id: readString(value, "id"),
+    description: readString(value, "description"),
+    severity: readString(value, "severity"),
+    help_uri: readString(value, "help_uri"),
+  };
+
+  return Object.values(message).some(Boolean) ? message : undefined;
+}
+
+function parseDatevErrorBody(
+  value: JsonValue | undefined,
+): DatevErrorBody | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const errorBody: DatevErrorBody = {
+    error: readString(value, "error"),
+    error_description: readString(value, "error_description"),
+    error_uri: readString(value, "error_uri"),
+    request_id: readString(value, "request_id"),
+  };
+
+  if (Array.isArray(value.additional_messages)) {
+    const additionalMessages = value.additional_messages
+      .map(parseDatevAdditionalMessage)
+      .filter((message): message is DatevAdditionalMessage => Boolean(message));
+
+    if (additionalMessages.length > 0) {
+      errorBody.additional_messages = additionalMessages;
+    }
+  }
+
+  return Object.values(errorBody).some(Boolean) ? errorBody : undefined;
+}
+
+function formatAdditionalMessage(message: DatevAdditionalMessage): string {
+  const mainPart =
+    [message.severity ? `[${message.severity}]` : undefined, message.description]
+      .filter((part): part is string => Boolean(part))
+      .join(" ") || "Additional message";
+
+  const details = [
+    message.id ? `ID: ${message.id}` : undefined,
+    message.help_uri ? `Help: ${message.help_uri}` : undefined,
+  ].filter((part): part is string => Boolean(part));
+
+  return details.length > 0 ? `${mainPart} (${details.join(", ")})` : mainPart;
+}
+
+function formatDatevErrorBody(body: DatevErrorBody): string {
+  const details = [
+    body.error ? `Error ID: ${body.error}` : undefined,
+    body.request_id ? `Request ID: ${body.request_id}` : undefined,
+    body.error_uri ? `More info: ${body.error_uri}` : undefined,
+    body.additional_messages?.length
+      ? `Additional messages: ${body.additional_messages
+          .map(formatAdditionalMessage)
+          .join("; ")}`
+      : undefined,
+  ].filter((part): part is string => Boolean(part));
+
+  const mainMessage =
+    body.error_description ||
+    body.error ||
+    "DATEVconnect returned an error response";
+
+  return details.length > 0
+    ? `${mainMessage} | ${details.join(" | ")}`
+    : mainMessage;
+}
+
 export function extractErrorMessage(
   response: Response,
   body: JsonValue | string | undefined,
@@ -95,21 +215,15 @@ export function extractErrorMessage(
     return `${prefix}: ${body.trim()}`;
   }
 
-  if (body && typeof body === "object") {
-    const errorDescription =
-      "error_description" in body && typeof body.error_description === "string"
-        ? body.error_description
-        : undefined;
+  const datevError = parseDatevErrorBody(body);
+  if (datevError) {
+    return `${prefix}: ${formatDatevErrorBody(datevError)}`;
+  }
 
-    const message =
-      ("message" in body && typeof body.message === "string"
-        ? body.message
-        : undefined) ||
-      ("error" in body && typeof body.error === "string"
-        ? body.error
-        : undefined);
-    if (message) {
-      return `${prefix}: ${message}${errorDescription ? `: ${errorDescription}` : ""}`;
+  if (body && typeof body === "object") {
+    const serializedBody = safeStringify(body);
+    if (serializedBody) {
+      return `${prefix}: ${serializedBody}`;
     }
   }
 

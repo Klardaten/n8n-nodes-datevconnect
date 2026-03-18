@@ -2,6 +2,7 @@ import { describe, expect, spyOn, test, beforeEach, afterEach } from "bun:test";
 import type { IExecuteFunctions } from "n8n-workflow";
 import { NodeOperationError, NodeApiError } from "n8n-workflow";
 import * as datevConnectClientModule from "../../src/services/datevConnectClient";
+import { DEFAULT_ERROR_PREFIX } from "../../src/services/shared";
 import { ClientResourceHandler } from "../../nodes/MasterData/handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "../../nodes/MasterData/handlers/TaxAuthorityResourceHandler";
 import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/RelationshipResourceHandler";
@@ -25,6 +26,7 @@ type ExecuteContextOptions = {
   credentials?: Record<string, string> | null;
   parameters?: Record<string, Array<unknown> | unknown>;
   continueOnFail?: boolean;
+  httpRequest?: (options: unknown) => Promise<unknown>;
 };
 
 function createExecuteContext(options: ExecuteContextOptions = {}) {
@@ -38,6 +40,9 @@ function createExecuteContext(options: ExecuteContextOptions = {}) {
     },
     parameters = {},
     continueOnFail = false,
+    httpRequest = async () => {
+      throw new Error("httpRequest mock not implemented");
+    },
   } = options;
 
   const parameterValues = new Map<string, Array<unknown>>();
@@ -64,6 +69,7 @@ function createExecuteContext(options: ExecuteContextOptions = {}) {
       return { name: "MasterData" };
     },
     helpers: {
+      httpRequest,
       returnJsonArray(data: Array<Record<string, unknown>>) {
         return data.map((entry) => ({ json: entry }));
       },
@@ -157,20 +163,22 @@ describe("MasterData node integration", () => {
       await node.execute.call(context as unknown as IExecuteFunctions);
 
       expect(authenticateSpy).toHaveBeenCalledTimes(1);
-      expect(authenticateSpy).toHaveBeenCalledWith({
-        host: "https://api.example.com",
-        email: "user@example.com",
-        password: "secret",
-      });
+      expect(authenticateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          host: "https://api.example.com",
+          email: "user@example.com",
+          password: "secret",
+        }),
+      );
 
       // Verify handlers were called with auth context
       expect(clientHandlerSpy).toHaveBeenCalledWith(
         "getAll",
-        {
+        expect.objectContaining({
           host: "https://api.example.com",
           token: "test-token-123",
           clientInstanceId: "instance-1",
-        },
+        }),
         expect.any(Array),
       );
 
@@ -603,6 +611,58 @@ describe("MasterData node integration", () => {
       );
 
       addresseeHandlerSpy.mockRestore();
+    });
+  });
+
+  describe("error handling", () => {
+    test("surfaces DATEV error details for create client when n8n httpRequest throws a generic transport wrapper", async () => {
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        new Response(
+          JSON.stringify({
+            error: "validation_fault",
+            error_description: "Validation failed",
+            request_id: "req-node-1",
+          }),
+          {
+            status: 400,
+            statusText: "Bad Request",
+            headers: {
+              "content-type": "application/json",
+            },
+          },
+        )) as typeof fetch;
+
+      const node = new MasterData();
+      const context = createExecuteContext({
+        credentials: {
+          host: "https://api.example.com",
+          clientInstanceId: "instance-1",
+          apiKey: "uk-" + "x".repeat(61),
+        },
+        parameters: {
+          resource: "client",
+          operation: "create",
+          clientData: '{"name":"Broken Client"}',
+          maxNumber: 0,
+        },
+        httpRequest: async () => {
+          throw {
+            statusCode: 500,
+            message: "Request failed with status code 400",
+          };
+        },
+      });
+
+      try {
+        await expect(
+          node.execute.call(context as unknown as IExecuteFunctions),
+        ).rejects.toThrow(
+          `${DEFAULT_ERROR_PREFIX} (400 Bad Request): Validation failed | Error ID: validation_fault | Request ID: req-node-1`,
+        );
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 });
