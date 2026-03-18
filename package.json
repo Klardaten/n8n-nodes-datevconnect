@@ -1,8 +1,40 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect",
   "version": "1.0.11",
+  "author": {
+    "name": "Klardaten",
+    "email": "info@klardaten.com",
+    "url": "https://klardaten.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git"
+  },
+  "main": "./dist/index.js",
+  "devDependencies": {
+    "@n8n/node-cli": "^0.23.0",
+    "@types/node": "^24.10.2",
+    "bun": "^1.3.2",
+    "bun-types": "^1.3.2",
+    "eslint": "9.39.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "nock": "14.0.10",
+    "prettier": "^3.7.4",
+    "release-it": "^19.0.4",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "bugs": {
+    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
+  },
   "description": "n8n community node for DATEVconnect API via Klardaten Gateway",
-  "license": "MIT",
+  "files": [
+    "README.md",
+    "dist"
+  ],
   "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
   "keywords": [
     "n8n",
@@ -14,14 +46,31 @@
     "document-management",
     "iam"
   ],
-  "author": {
-    "name": "Klardaten",
-    "email": "info@klardaten.com",
-    "url": "https://klardaten.com"
+  "license": "MIT",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git"
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/MasterData/MasterData.node.js",
+      "dist/nodes/Accounting/Accounting.node.js",
+      "dist/nodes/DocumentManagement/DocumentManagement.node.js",
+      "dist/nodes/IdentityAndAccessManagement/IdentityAndAccessManagement.node.js",
+      "dist/nodes/OrderManagement/OrderManagement.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/DatevConnectApi.credentials.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "test": "bun test",
@@ -37,54 +86,5 @@
     "prettier": "npx prettier --write .",
     "format": "npm run prettier && npm run lint:fix"
   },
-  "files": [
-    "README.md",
-    "dist"
-  ],
-  "n8n": {
-    "n8nNodesApiVersion": 1,
-    "nodes": [
-      "dist/nodes/MasterData/MasterData.node.js",
-      "dist/nodes/Accounting/Accounting.node.js",
-      "dist/nodes/DocumentManagement/DocumentManagement.node.js",
-      "dist/nodes/IdentityAndAccessManagement/IdentityAndAccessManagement.node.js",
-      "dist/nodes/OrderManagement/OrderManagement.node.js"
-    ],
-    "credentials": [
-      "dist/credentials/DatevConnectApi.credentials.js"
-    ]
-  },
-  "bugs": {
-    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "devDependencies": {
-    "@n8n/node-cli": "^0.17.0",
-    "@types/node": "^24.10.2",
-    "bun": "^1.3.2",
-    "bun-types": "^1.3.2",
-    "eslint": "9.39.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^15.2.11",
-    "nock": "14.0.10",
-    "prettier": "^3.7.4",
-    "release-it": "^19.0.4",
-    "typescript": "5.9.3"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
-  "peerDependencies": {
-    "n8n-workflow": "*"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+  "types": "./dist/index.d.ts"
 }
