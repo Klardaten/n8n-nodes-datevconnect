@@ -264,6 +264,32 @@ describe("fetchClients", () => {
     );
   });
 
+  test("does not duplicate error when error_description is absent", async () => {
+    const fetchMock = createFetchMock(async () =>
+      createJsonResponse(
+        {
+          error: "validation_fault",
+          request_id: "req-456",
+        },
+        {
+          status: 400,
+          statusText: "Bad Request",
+        },
+      ),
+    );
+
+    await expect(
+      fetchClients({
+        host: "https://api.example.com",
+        token: "token-123",
+        clientInstanceId: "instance-1",
+        fetchImpl: fetchMock,
+      }),
+    ).rejects.toThrowError(
+      "DATEVconnect request failed (400 Bad Request): validation_fault | Request ID: req-456",
+    );
+  });
+
   test("stringifies non-DATEV error objects as plain text", async () => {
     const fetchMock = createFetchMock(async () =>
       createJsonResponse(

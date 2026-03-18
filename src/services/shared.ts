@@ -182,8 +182,13 @@ function formatAdditionalMessage(message: DatevAdditionalMessage): string {
 }
 
 function formatDatevErrorBody(body: DatevErrorBody): string {
+  const mainMessage =
+    body.error_description ||
+    body.error ||
+    "DATEVconnect returned an error response";
+
   const details = [
-    body.error ? `Error ID: ${body.error}` : undefined,
+    body.error && body.error_description ? `Error ID: ${body.error}` : undefined,
     body.request_id ? `Request ID: ${body.request_id}` : undefined,
     body.error_uri ? `More info: ${body.error_uri}` : undefined,
     body.additional_messages?.length
@@ -192,11 +197,6 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
           .join("; ")}`
       : undefined,
   ].filter((part): part is string => Boolean(part));
-
-  const mainMessage =
-    body.error_description ||
-    body.error ||
-    "DATEVconnect returned an error response";
 
   return details.length > 0
     ? `${mainMessage} | ${details.join(" | ")}`
