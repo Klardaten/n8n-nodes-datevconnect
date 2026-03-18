@@ -2,7 +2,6 @@ import { describe, expect, spyOn, test, beforeEach, afterEach } from "bun:test";
 import type { IExecuteFunctions } from "n8n-workflow";
 import { NodeOperationError, NodeApiError } from "n8n-workflow";
 import * as datevConnectClientModule from "../../src/services/datevConnectClient";
-import { DEFAULT_ERROR_PREFIX } from "../../src/services/shared";
 import { ClientResourceHandler } from "../../nodes/MasterData/handlers/ClientResourceHandler";
 import { TaxAuthorityResourceHandler } from "../../nodes/MasterData/handlers/TaxAuthorityResourceHandler";
 import { RelationshipResourceHandler } from "../../nodes/MasterData/handlers/RelationshipResourceHandler";
@@ -614,55 +613,4 @@ describe("MasterData node integration", () => {
     });
   });
 
-  describe("error handling", () => {
-    test("surfaces DATEV error details for create client when n8n httpRequest throws a generic transport wrapper", async () => {
-      const originalFetch = globalThis.fetch;
-      globalThis.fetch = (async () =>
-        new Response(
-          JSON.stringify({
-            error: "validation_fault",
-            error_description: "Validation failed",
-            request_id: "req-node-1",
-          }),
-          {
-            status: 400,
-            statusText: "Bad Request",
-            headers: {
-              "content-type": "application/json",
-            },
-          },
-        )) as typeof fetch;
-
-      const node = new MasterData();
-      const context = createExecuteContext({
-        credentials: {
-          host: "https://api.example.com",
-          clientInstanceId: "instance-1",
-          apiKey: "uk-" + "x".repeat(61),
-        },
-        parameters: {
-          resource: "client",
-          operation: "create",
-          clientData: '{"name":"Broken Client"}',
-          maxNumber: 0,
-        },
-        httpRequest: async () => {
-          throw {
-            statusCode: 500,
-            message: "Request failed with status code 400",
-          };
-        },
-      });
-
-      try {
-        await expect(
-          node.execute.call(context as unknown as IExecuteFunctions),
-        ).rejects.toThrow(
-          `${DEFAULT_ERROR_PREFIX} (400 Bad Request): Validation failed | Error ID: validation_fault | Request ID: req-node-1`,
-        );
-      } finally {
-        globalThis.fetch = originalFetch;
-      }
-    });
-  });
 });

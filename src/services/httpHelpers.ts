@@ -246,10 +246,6 @@ export function createFetchFromHttpHelper(
       const errorObj = error as Record<string, unknown>;
       const response = errorObj.response as Record<string, unknown> | undefined;
 
-      if (shouldRetryWithNativeFetch(response, errorObj)) {
-        return fetch(input, init);
-      }
-
       const body =
         response?.body ??
         response?.data ??
@@ -292,20 +288,4 @@ function withJsonContentType(
   }
 
   return headers;
-}
-
-function shouldRetryWithNativeFetch(
-  response: Record<string, unknown> | undefined,
-  error: Record<string, unknown>,
-): boolean {
-  const message =
-    typeof error.message === "string" ? error.message : undefined;
-  const hasStructuredBody = Boolean(response && ("body" in response || "data" in response));
-
-  return (
-    typeof fetch === "function" &&
-    !hasStructuredBody &&
-    typeof message === "string" &&
-    /^Request failed with status code \d{3}$/.test(message.trim())
-  );
 }

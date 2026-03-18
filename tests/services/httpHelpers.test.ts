@@ -63,7 +63,7 @@ describe("createFetchFromHttpHelper", () => {
     );
   });
 
-  test("falls back to native fetch when n8n exposes only a generic transport error", async () => {
+  test("keeps generic transport errors generic when no structured response is available", async () => {
     const httpHelper = async () => {
       throw {
         statusCode: 500,
@@ -71,35 +71,17 @@ describe("createFetchFromHttpHelper", () => {
       };
     };
 
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = (async () =>
-      new Response(
-        JSON.stringify({
-          error: "validation_fault",
-          error_description: "Validation failed",
-          request_id: "req-999",
-        }),
-        {
-          status: 400,
-          statusText: "Bad Request",
-          headers: {
-            "content-type": "application/json",
-          },
-        },
-      )) as typeof fetch;
+    const fetchImpl = createFetchFromHttpHelper(httpHelper as any);
+    const response = await fetchImpl("https://api.example.com/test", {
+      method: "POST",
+      body: '{"name":"test"}',
+    });
 
-    try {
-      const fetchImpl = createFetchFromHttpHelper(httpHelper as any);
-      const response = await fetchImpl("https://api.example.com/test");
+    expect(response.status).toBe(500);
+    expect(response.statusText).toBe("");
 
-      expect(response.status).toBe(400);
-      expect(response.statusText).toBe("Bad Request");
-
-      await expect(ensureSuccess(response)).rejects.toThrow(
-        `${DEFAULT_ERROR_PREFIX} (400 Bad Request): Validation failed | Error ID: validation_fault | Request ID: req-999`,
-      );
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    await expect(ensureSuccess(response)).rejects.toThrow(
+      `${DEFAULT_ERROR_PREFIX} (500): Request failed with status code 400`,
+    );
   });
 });
