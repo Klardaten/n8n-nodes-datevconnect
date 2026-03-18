@@ -227,15 +227,16 @@ export function createFetchFromHttpHelper(
 
       // n8n's httpRequest returns { body, headers, statusCode, statusMessage }
       const responseObj = response as Record<string, unknown>;
+      const responseBody = responseObj.body;
       const status = (responseObj.statusCode || 200) as number;
       const statusText = (responseObj.statusMessage || "") as string;
-      const responseHeaders = (responseObj.headers || {}) as Record<
-        string,
-        string
-      >;
+      const responseHeaders = withJsonContentType(
+        (responseObj.headers || {}) as Record<string, string>,
+        responseBody,
+      );
 
       return new HttpResponse(
-        responseObj.body,
+        responseBody,
         status,
         statusText,
         responseHeaders,
@@ -244,21 +245,61 @@ export function createFetchFromHttpHelper(
       // Handle errors from n8n httpRequest
       const errorObj = error as Record<string, unknown>;
       const response = errorObj.response as Record<string, unknown> | undefined;
-      const status = (errorObj.statusCode ||
-        response?.statusCode ||
+
+      const body =
+        response?.body ??
+        response?.data ??
+        errorObj.body ??
+        errorObj.message;
+      const status = (response?.statusCode ||
+        response?.status ||
+        errorObj.statusCode ||
         500) as number;
-      const statusText = (errorObj.statusMessage ||
-        errorObj.message ||
-        "Internal Server Error") as string;
-      const body = response?.body || errorObj.body || errorObj.message;
-      const headers = (response?.headers || errorObj.headers || {}) as Record<
-        string,
-        string
-      >;
+      const statusText = (response?.statusMessage ||
+        response?.statusText ||
+        errorObj.statusMessage ||
+        "") as string;
+      const headers = withJsonContentType(
+        ((response?.headers || errorObj.headers || {}) as Record<string, string>),
+        body,
+      );
 
       return new HttpResponse(body, status, statusText, headers) as Response;
     }
   };
 
   return fetchFunction as typeof fetch;
+}
+
+function withJsonContentType(
+  headers: Record<string, string>,
+  body: unknown,
+): Record<string, string> {
+  if (
+    isJsonLikeObject(body) &&
+    !Object.keys(headers).some((key) => key.toLowerCase() === "content-type")
+  ) {
+    return {
+      ...headers,
+      "content-type": "application/json",
+    };
+  }
+
+  return headers;
+}
+
+function isJsonLikeObject(body: unknown): body is Record<string, unknown> {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return false;
+  }
+
+  if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+    return false;
+  }
+
+  if (typeof Blob !== "undefined" && body instanceof Blob) {
+    return false;
+  }
+
+  return true;
 }

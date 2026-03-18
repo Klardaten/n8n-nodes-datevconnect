@@ -25,6 +25,7 @@ type ExecuteContextOptions = {
   credentials?: Record<string, string> | null;
   parameters?: Record<string, Array<unknown> | unknown>;
   continueOnFail?: boolean;
+  httpRequest?: (options: unknown) => Promise<unknown>;
 };
 
 function createExecuteContext(options: ExecuteContextOptions = {}) {
@@ -38,6 +39,9 @@ function createExecuteContext(options: ExecuteContextOptions = {}) {
     },
     parameters = {},
     continueOnFail = false,
+    httpRequest = async () => {
+      throw new Error("httpRequest mock not implemented");
+    },
   } = options;
 
   const parameterValues = new Map<string, Array<unknown>>();
@@ -64,6 +68,7 @@ function createExecuteContext(options: ExecuteContextOptions = {}) {
       return { name: "MasterData" };
     },
     helpers: {
+      httpRequest,
       returnJsonArray(data: Array<Record<string, unknown>>) {
         return data.map((entry) => ({ json: entry }));
       },
@@ -157,20 +162,22 @@ describe("MasterData node integration", () => {
       await node.execute.call(context as unknown as IExecuteFunctions);
 
       expect(authenticateSpy).toHaveBeenCalledTimes(1);
-      expect(authenticateSpy).toHaveBeenCalledWith({
-        host: "https://api.example.com",
-        email: "user@example.com",
-        password: "secret",
-      });
+      expect(authenticateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          host: "https://api.example.com",
+          email: "user@example.com",
+          password: "secret",
+        }),
+      );
 
       // Verify handlers were called with auth context
       expect(clientHandlerSpy).toHaveBeenCalledWith(
         "getAll",
-        {
+        expect.objectContaining({
           host: "https://api.example.com",
           token: "test-token-123",
           clientInstanceId: "instance-1",
-        },
+        }),
         expect.any(Array),
       );
 
@@ -605,4 +612,5 @@ describe("MasterData node integration", () => {
       addresseeHandlerSpy.mockRestore();
     });
   });
+
 });

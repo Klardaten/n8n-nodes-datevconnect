@@ -224,7 +224,95 @@ describe("fetchClients", () => {
         fetchImpl: fetchMock,
       }),
     ).rejects.toThrowError(
-      "DATEVconnect request failed (401 Unauthorized): Something went wrong",
+      'DATEVconnect request failed (401 Unauthorized): {"message":"Something went wrong"}',
+    );
+  });
+
+  test("formats documented DATEV error payloads with all available fields", async () => {
+    const fetchMock = createFetchMock(async () =>
+      createJsonResponse(
+        {
+          error: "validation_fault",
+          error_description: "Validation failed",
+          error_uri: "https://docs.example.com/errors/validation_fault",
+          request_id: "req-123",
+          additional_messages: [
+            {
+              id: "name_required",
+              description: "Name is required",
+              severity: "ValidationFault",
+              help_uri: "https://docs.example.com/messages/name_required",
+            },
+          ],
+        },
+        {
+          status: 400,
+          statusText: "Bad Request",
+        },
+      ),
+    );
+
+    await expect(
+      fetchClients({
+        host: "https://api.example.com",
+        token: "token-123",
+        clientInstanceId: "instance-1",
+        fetchImpl: fetchMock,
+      }),
+    ).rejects.toThrowError(
+      "DATEVconnect request failed (400 Bad Request): Validation failed | Error ID: validation_fault | Request ID: req-123 | More info: https://docs.example.com/errors/validation_fault | Additional messages: [ValidationFault] Name is required (ID: name_required, Help: https://docs.example.com/messages/name_required)",
+    );
+  });
+
+  test("does not duplicate error when error_description is absent", async () => {
+    const fetchMock = createFetchMock(async () =>
+      createJsonResponse(
+        {
+          error: "validation_fault",
+          request_id: "req-456",
+        },
+        {
+          status: 400,
+          statusText: "Bad Request",
+        },
+      ),
+    );
+
+    await expect(
+      fetchClients({
+        host: "https://api.example.com",
+        token: "token-123",
+        clientInstanceId: "instance-1",
+        fetchImpl: fetchMock,
+      }),
+    ).rejects.toThrowError(
+      "DATEVconnect request failed (400 Bad Request): validation_fault | Request ID: req-456",
+    );
+  });
+
+  test("stringifies non-DATEV error objects as plain text", async () => {
+    const fetchMock = createFetchMock(async () =>
+      createJsonResponse(
+        {
+          message: "Something went wrong",
+          details: [{ field: "name" }],
+        },
+        {
+          status: 500,
+          statusText: "Internal Server Error",
+        },
+      ),
+    );
+
+    await expect(
+      fetchClients({
+        host: "https://api.example.com",
+        token: "token-123",
+        clientInstanceId: "instance-1",
+        fetchImpl: fetchMock,
+      }),
+    ).rejects.toThrowError(
+      'DATEVconnect request failed (500 Internal Server Error): {"message":"Something went wrong","details":[{"field":"name"}]}',
     );
   });
 });
