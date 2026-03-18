@@ -63,6 +63,23 @@ describe("createFetchFromHttpHelper", () => {
     );
   });
 
+  test("does not synthesize JSON content-type for binary bodies", async () => {
+    const httpHelper = async () => ({
+      body: new Uint8Array([1, 2, 3, 4]),
+      statusCode: 200,
+      statusMessage: "OK",
+      headers: {},
+    });
+
+    const fetchImpl = createFetchFromHttpHelper(httpHelper as any);
+    const response = await fetchImpl("https://api.example.com/test");
+
+    expect(response.headers.get("content-type")).toBeNull();
+    expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual([
+      1, 2, 3, 4,
+    ]);
+  });
+
   test("keeps generic transport errors generic when no structured response is available", async () => {
     const httpHelper = async () => {
       throw {

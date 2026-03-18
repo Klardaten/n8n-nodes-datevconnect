@@ -276,9 +276,7 @@ function withJsonContentType(
   body: unknown,
 ): Record<string, string> {
   if (
-    body &&
-    typeof body === "object" &&
-    !Array.isArray(body) &&
+    isJsonLikeObject(body) &&
     !Object.keys(headers).some((key) => key.toLowerCase() === "content-type")
   ) {
     return {
@@ -288,4 +286,20 @@ function withJsonContentType(
   }
 
   return headers;
+}
+
+function isJsonLikeObject(body: unknown): body is Record<string, unknown> {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return false;
+  }
+
+  if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+    return false;
+  }
+
+  if (typeof Blob !== "undefined" && body instanceof Blob) {
+    return false;
+  }
+
+  return true;
 }
