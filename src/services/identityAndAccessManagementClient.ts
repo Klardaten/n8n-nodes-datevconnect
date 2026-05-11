@@ -1,5 +1,10 @@
-import type { JsonValue, HttpRequestHelper } from "./shared";
-import { createFetchFromHttpHelper } from "./httpHelpers";
+import type {
+  BaseRequestOptions,
+  DatevConnectRequestMethod,
+  JsonValue,
+  QueryParams,
+} from "./shared";
+import { sendDatevConnectJsonRequest } from "./shared";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV IAM request failed";
@@ -12,21 +17,17 @@ const USERS_PATH = `${IAM_BASE_PATH}/Users`;
 const CURRENT_USER_PATH = `${USERS_PATH}/me`;
 const GROUPS_PATH = `${IAM_BASE_PATH}/Groups`;
 
-type RequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+type RequestMethod = Extract<
+  DatevConnectRequestMethod,
+  "GET" | "POST" | "PUT" | "DELETE"
+>;
 
-interface BaseIamRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  profileId?: string;
-  httpHelper?: HttpRequestHelper;
-  fetchImpl?: typeof fetch; // Backward compatibility for tests
-}
+type BaseIamRequestOptions = BaseRequestOptions;
 
 interface SendRequestOptions extends BaseIamRequestOptions {
   path: string;
   method: RequestMethod;
-  query?: Record<string, string | number | undefined | null>;
+  query?: QueryParams;
   body?: JsonValue;
 }
 
@@ -88,62 +89,9 @@ export interface DeleteGroupOptions extends BaseIamRequestOptions {
 
 export type FetchCurrentUserOptions = BaseIamRequestOptions;
 
-function normaliseBaseUrl(host: string): string {
-  if (!host) {
-    throw new Error("DATEVconnect host must be provided");
-  }
-
-  return host.endsWith("/") ? host : `${host}/`;
-}
-
-function buildUrl(
-  host: string,
-  path: string,
-  query?: Record<string, string | number | undefined | null>,
-): URL {
-  const baseUrl = normaliseBaseUrl(host);
-  const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  const url = new URL(trimmedPath, baseUrl);
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined || value === null || value === "") {
-        continue;
-      }
-      url.searchParams.set(key, String(value));
-    }
-  }
-
-  return url;
-}
-
-async function readResponseBody(
-  response: Response,
-): Promise<JsonValue | undefined> {
-  if (response.status === 204 || response.status === 205) {
-    return undefined;
-  }
-
-  const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.toLowerCase().includes("application/json")) {
-    try {
-      return (await response.json()) as JsonValue;
-    } catch {
-      return undefined;
-    }
-  }
-
-  try {
-    const text = await response.text();
-    return text.length > 0 ? text : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function buildErrorMessage(
   response: Response,
-  body: JsonValue | undefined,
+  body: JsonValue | string | undefined,
 ): string {
   const statusPart = `${response.status}${
     response.statusText ? ` ${response.statusText}` : ""
@@ -177,52 +125,16 @@ function buildErrorMessage(
 async function sendRequest(
   options: SendRequestOptions,
 ): Promise<RequestResult> {
-  const {
-    host,
-    token,
-    clientInstanceId,
-    profileId: rawProfileId,
-    path,
-    method,
-    query,
-    body,
-    httpHelper,
-    fetchImpl: providedFetchImpl,
-  } = options;
-  const profileId = rawProfileId?.trim();
-  const url = buildUrl(host, path, query);
+  const result = await sendDatevConnectJsonRequest({
+    ...options,
+    accept: JSON_CONTENT_TYPE,
+    contentType: JSON_CONTENT_TYPE,
+    headerCase: "standard",
+    skipEmptyQueryValues: true,
+    errorMessageBuilder: buildErrorMessage,
+  });
 
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
-    "x-client-instance-id": clientInstanceId,
-    Accept: JSON_CONTENT_TYPE,
-  };
-  if (profileId) {
-    headers["x-profile-id"] = profileId;
-  }
-
-  const requestInit: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body !== undefined) {
-    headers["content-type"] = JSON_CONTENT_TYPE;
-    requestInit.body = JSON.stringify(body);
-  }
-
-  const fetchImpl = httpHelper
-    ? createFetchFromHttpHelper(httpHelper)
-    : providedFetchImpl || fetch;
-
-  const response = await fetchImpl(url, requestInit);
-  const responseBody = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(buildErrorMessage(response, responseBody));
-  }
-
-  return { data: responseBody, response };
+  return { data: result.data, response: result.response };
 }
 
 function extractLocationHeader(response: Response): string | undefined {
