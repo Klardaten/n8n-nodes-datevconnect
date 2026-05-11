@@ -8,7 +8,10 @@ import {
   type JsonObject,
 } from "n8n-workflow";
 
-import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
+import {
+  getDatevConnectAuthContextForNode,
+  getDatevConnectRequestContextForNode,
+} from "../common/datevConnectAuth";
 import { identityAndAccessManagementNodeDescription } from "./IdentityAndAccessManagement.config";
 import { ServiceProviderConfigResourceHandler } from "./handlers/ServiceProviderConfigResourceHandler";
 import { ResourceTypeResourceHandler } from "./handlers/ResourceTypeResourceHandler";
@@ -37,18 +40,11 @@ export class IdentityAndAccessManagement implements INodeType {
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
       try {
-        const paramClientInstanceId = this.getNodeParameter(
-          "clientInstanceId",
+        const authContext = getDatevConnectRequestContextForNode(
+          this,
+          auth,
           itemIndex,
-          "",
-        ) as string;
-        const effectiveClientInstanceId =
-          paramClientInstanceId || auth.clientInstanceId;
-
-        const authContext = {
-          ...auth,
-          clientInstanceId: effectiveClientInstanceId,
-        };
+        );
 
         const resource = this.getNodeParameter(
           "resource",

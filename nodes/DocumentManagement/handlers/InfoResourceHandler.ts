@@ -31,9 +31,7 @@ export class InfoResourceHandler extends BaseResourceHandler {
     sendSuccess: SendSuccessFunction,
   ): Promise<void> {
     const response = await DocumentManagementClient.fetchInfo({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
     });
 
     sendSuccess(response);

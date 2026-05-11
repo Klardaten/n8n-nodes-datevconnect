@@ -65,9 +65,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const skip = this.getNumberParameter("skip", 0);
 
     const response = await DocumentManagementClient.fetchDocuments({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       filter,
       top: top || undefined,
       skip: skip || undefined,
@@ -83,9 +81,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentId = this.getRequiredString("documentId");
 
     const response = await DocumentManagementClient.fetchDocument({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
     });
 
@@ -99,9 +95,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentData = this.getRequiredJsonData("documentData");
 
     const response = await DocumentManagementClient.createDocument({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       document: documentData,
     });
 
@@ -116,9 +110,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentData = this.getRequiredJsonData("documentData");
 
     const response = await DocumentManagementClient.updateDocument({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
       document: documentData,
     });
@@ -133,9 +125,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentId = this.getRequiredString("documentId");
 
     await DocumentManagementClient.deleteDocument({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
     });
 
@@ -149,9 +139,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const documentId = this.getRequiredString("documentId");
 
     await DocumentManagementClient.deleteDocumentPermanently({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
     });
 
@@ -167,9 +155,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const skip = this.getNumberParameter("skip", 0);
 
     const response = await DocumentManagementClient.fetchStructureItems({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
       top: top || undefined,
       skip: skip || undefined,
@@ -187,9 +173,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const insertPosition = this.getOptionalString("insertPosition") || "last";
 
     const response = await DocumentManagementClient.addStructureItem({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
       structureItem: structureItemData,
       insertPosition,
@@ -206,9 +190,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const structureItemId = this.getRequiredString("structureItemId");
 
     const response = await DocumentManagementClient.fetchStructureItem({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
       structureItemId,
     });
@@ -225,9 +207,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
     const structureItemData = this.getRequiredJsonData("structureItemData");
 
     const response = await DocumentManagementClient.updateStructureItem({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       documentId,
       structureItemId,
       structureItem: structureItemData,
@@ -245,9 +225,7 @@ export class DocumentResourceHandler extends BaseResourceHandler {
 
     const response = await DocumentManagementClient.createDispatcherInformation(
       {
-        host: authContext.host,
-        token: authContext.token,
-        clientInstanceId: authContext.clientInstanceId,
+        ...authContext,
         documentId,
         dispatcherInformation: dispatcherData,
       },

@@ -39,6 +39,26 @@ describe("DocumentManagementClient - All Endpoints", () => {
     expect(result).toEqual([{ id: "doc-123", description: "Test document" }]);
   });
 
+  test("adds x-profile-id when profileId is provided", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => [{ id: "doc-123" }],
+    } as Response);
+
+    await DocumentManagementClient.fetchDocuments({
+      host: "https://localhost:58452",
+      token: "test-token",
+      clientInstanceId: "test-client-id",
+      profileId: " dms-profile ",
+    });
+
+    const [, options] = mockFetch.mock.calls[0];
+    expect(options?.headers).toMatchObject({
+      "x-client-instance-id": "test-client-id",
+      "x-profile-id": "dms-profile",
+    });
+  });
+
   test("2. POST /documents - createDocument", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

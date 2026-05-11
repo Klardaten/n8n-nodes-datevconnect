@@ -90,6 +90,16 @@ describe("IdentityAndAccessManagement node", () => {
     authenticateSpy?.mockRestore();
   });
 
+  test("exposes profileId parameter", () => {
+    const node = new IdentityAndAccessManagement();
+    const profileIdParam = node.description.properties?.find(
+      (property) => property.name === "profileId",
+    );
+
+    expect(profileIdParam).toBeDefined();
+    expect(profileIdParam?.type).toBe("string");
+  });
+
   test("validates credential fields", async () => {
     const node = new IdentityAndAccessManagement();
     const context = createExecuteContext({
@@ -160,6 +170,50 @@ describe("IdentityAndAccessManagement node", () => {
     await expect(
       node.execute.call(context as unknown as IExecuteFunctions),
     ).rejects.toThrow(NodeApiError);
+  });
+
+  test("passes credential profileId and lets node profileId override it", async () => {
+    const node = new IdentityAndAccessManagement();
+    const context = createExecuteContext({
+      items: [{ json: {} }, { json: {} }],
+      credentials: {
+        host: "https://localhost:58452",
+        email: "user@example.com",
+        password: "secret",
+        clientInstanceId: "instance-123",
+        profileId: "credential-profile",
+      },
+      parameters: {
+        resource: ["currentUser", "serviceProviderConfig"],
+        operation: ["get", "get"],
+        profileId: ["", "node-profile"],
+      },
+    });
+
+    const currentUserHandlerSpy = spyOn(
+      CurrentUserResourceHandler.prototype,
+      "execute",
+    ).mockResolvedValue();
+    const serviceProviderConfigHandlerSpy = spyOn(
+      ServiceProviderConfigResourceHandler.prototype,
+      "execute",
+    ).mockResolvedValue();
+
+    await node.execute.call(context as unknown as IExecuteFunctions);
+
+    expect(currentUserHandlerSpy).toHaveBeenCalledWith(
+      "get",
+      expect.objectContaining({ profileId: "credential-profile" }),
+      expect.any(Array),
+    );
+    expect(serviceProviderConfigHandlerSpy).toHaveBeenCalledWith(
+      "get",
+      expect.objectContaining({ profileId: "node-profile" }),
+      expect.any(Array),
+    );
+
+    currentUserHandlerSpy.mockRestore();
+    serviceProviderConfigHandlerSpy.mockRestore();
   });
 
   test("authenticates once and dispatches to resource handlers", async () => {

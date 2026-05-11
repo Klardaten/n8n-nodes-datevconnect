@@ -6,7 +6,10 @@ import type {
   JsonObject,
 } from "n8n-workflow";
 import { NodeApiError, NodeOperationError } from "n8n-workflow";
-import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
+import {
+  getDatevConnectAuthContextForNode,
+  getDatevConnectRequestContextForNode,
+} from "../common/datevConnectAuth";
 
 import { accountingNodeDescription } from "./Accounting.config";
 import type { BaseResourceHandler } from "./handlers";
@@ -33,6 +36,7 @@ import {
   AccountingTransactionKeysResourceHandler,
   VariousAddressesResourceHandler,
 } from "./handlers";
+import { withAccountingRequestOverrides } from "../../src/services/accountingClient";
 
 /**
  * DATEV Accounting node for n8n
@@ -80,18 +84,8 @@ export class Accounting implements INodeType {
           "operation",
           itemIndex,
         ) as string;
-        const paramClientInstanceId = this.getNodeParameter(
-          "clientInstanceId",
-          itemIndex,
-          "",
-        ) as string;
-        const effectiveClientInstanceId =
-          paramClientInstanceId || auth.clientInstanceId;
-
-        const requestContext: RequestContext = {
-          ...auth,
-          clientInstanceId: effectiveClientInstanceId,
-        };
+        const requestContext: RequestContext =
+          getDatevConnectRequestContextForNode(this, auth, itemIndex);
 
         // Add clientId if needed (all operations except /clients getAll)
         if (!(resource === "client" && operation === "getAll")) {
@@ -209,7 +203,14 @@ export class Accounting implements INodeType {
         }
 
         // Execute the handler and get results
-        await handler.execute(operation, requestContext, returnData);
+        await withAccountingRequestOverrides(
+          this,
+          {
+            clientInstanceId: requestContext.clientInstanceId,
+            profileId: requestContext.profileId,
+          },
+          () => handler.execute(operation, requestContext, returnData),
+        );
       } catch (error) {
         if (this.continueOnFail()) {
           returnData.push({

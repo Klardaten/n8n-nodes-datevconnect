@@ -1,5 +1,6 @@
 /* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import type { INodeTypeDescription } from "n8n-workflow";
+import { datevConnectExecutionProperties } from "../common/datevConnectProperties";
 
 export const identityAndAccessManagementNodeDescription: INodeTypeDescription =
   {
@@ -377,13 +378,6 @@ export const identityAndAccessManagementNodeDescription: INodeTypeDescription =
           },
         },
       },
-      {
-        displayName: "Client Instance ID",
-        name: "clientInstanceId",
-        type: "string",
-        default: "",
-        description:
-          "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
-      },
+      ...datevConnectExecutionProperties,
     ],
   };

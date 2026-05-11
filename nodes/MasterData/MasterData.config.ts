@@ -1,5 +1,6 @@
 /* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import type { INodeTypeDescription } from "n8n-workflow";
+import { datevConnectExecutionProperties } from "../common/datevConnectProperties";
 
 /**
  * Configuration for the MasterData node
@@ -951,13 +952,6 @@ export const masterDataNodeDescription: INodeTypeDescription = {
       default: "{}",
       description: "Client category type payload to send to the API",
     },
-    {
-      displayName: "Client Instance ID",
-      name: "clientInstanceId",
-      type: "string",
-      default: "",
-      description:
-        "Override the Client Instance ID from credentials. If provided, this value takes precedence over the credential value.",
-    },
+    ...datevConnectExecutionProperties,
   ],
 };

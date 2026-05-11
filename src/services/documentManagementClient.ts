@@ -21,6 +21,7 @@ interface BaseDocumentManagementRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
@@ -143,6 +144,19 @@ export interface CreateDispatcherInformationOptions extends BaseDocumentManageme
 
 const DOCUMENT_MANAGEMENT_BASE_PATH = "/datevconnect/dms/v2";
 
+function buildRequestHeaders(
+  options: BaseDocumentManagementRequestOptions,
+  headers: Record<string, string> = {},
+): Record<string, string> {
+  const profileId = options.profileId?.trim();
+  return {
+    Authorization: `Bearer ${options.token}`,
+    "x-client-instance-id": options.clientInstanceId,
+    ...(profileId ? { "x-profile-id": profileId } : {}),
+    ...headers,
+  };
+}
+
 /**
  * Document Management API Client for DATEV DMS
  */
@@ -177,11 +191,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -207,11 +219,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -238,12 +248,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/json;charset=utf-8",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.document),
       },
     );
@@ -277,12 +285,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/json;charset=utf-8",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.document),
       },
     );
@@ -315,11 +321,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files/${encodeURIComponent(options.fileId)}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/octet-stream",
-        },
+        }),
       },
     );
 
@@ -346,12 +350,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/octet-stream",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: options.binaryData,
       },
     );
@@ -380,11 +382,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -413,11 +413,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -443,11 +441,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates/${encodeURIComponent(options.stateId)}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -474,12 +470,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/json;charset=utf-8",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.state),
       },
     );
@@ -505,11 +499,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/info`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -534,10 +526,7 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
-        },
+        headers: buildRequestHeaders(options),
       },
     );
 
@@ -562,10 +551,7 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}/delete-permanently`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
-        },
+        headers: buildRequestHeaders(options),
       },
     );
 
@@ -590,11 +576,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/secure-areas`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -624,11 +608,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -654,11 +636,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-properties`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -689,11 +669,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -719,12 +697,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references1`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
           "Content-Type": "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.individualReference),
       },
     );
@@ -756,11 +732,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -786,12 +760,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references2`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
           "Content-Type": "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.individualReference),
       },
     );
@@ -823,11 +795,9 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         Accept: "application/json;charset=utf-8",
-      },
+      }),
     });
 
     if (!response.ok) {
@@ -853,11 +823,9 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           Accept: "application/json;charset=utf-8",
-        },
+        }),
       },
     );
 
@@ -888,12 +856,10 @@ export class DocumentManagementClient {
 
     const response = await fetchImpl(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${options.token}`,
-        "x-client-instance-id": options.clientInstanceId,
+      headers: buildRequestHeaders(options, {
         "Content-Type": "application/json;charset=utf-8",
         Accept: "application/json;charset=utf-8",
-      },
+      }),
       body: JSON.stringify(options.structureItem),
     });
 
@@ -926,12 +892,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/json;charset=utf-8",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.structureItem),
       },
     );
@@ -968,12 +932,10 @@ export class DocumentManagementClient {
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/dispatcher-information`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${options.token}`,
-          "x-client-instance-id": options.clientInstanceId,
+        headers: buildRequestHeaders(options, {
           "Content-Type": "application/json;charset=utf-8",
           Accept: "application/json;charset=utf-8",
-        },
+        }),
         body: JSON.stringify(options.dispatcherInformation),
       },
     );
