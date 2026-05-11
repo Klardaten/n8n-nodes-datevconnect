@@ -9,6 +9,7 @@ import {
   fetchClientGroups,
   fetchClientResponsibilities,
   fetchClients,
+  fetchAccountingClients,
   fetchNextFreeClientNumber,
   fetchTaxAuthorities,
   fetchRelationships,
@@ -202,6 +203,50 @@ describe("fetchClients", () => {
       authorization: "Bearer token-123",
       "content-type": "application/json",
       "x-client-instance-id": "instance-1",
+    });
+  });
+
+  test("adds x-profile-id when profileId is provided", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([{ id: 1 }], { status: 200 });
+    });
+
+    await fetchClients({
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      profileId: " user-profile ",
+      fetchImpl: fetchMock,
+    });
+
+    expect(calls[0].init?.headers).toMatchObject({
+      "x-client-instance-id": "instance-1",
+      "x-profile-id": "user-profile",
+    });
+  });
+
+  test("adds x-profile-id on accounting requests when profileId is provided", async () => {
+    const calls: FetchCall[] = [];
+
+    const fetchMock = createFetchMock(async (input, init) => {
+      calls.push({ url: new URL(String(input)), init });
+      return createJsonResponse([{ id: "client-1" }], { status: 200 });
+    });
+
+    await fetchAccountingClients({
+      host: "https://api.example.com",
+      token: "token-123",
+      clientInstanceId: "instance-1",
+      profileId: "accounting-profile",
+      fetchImpl: fetchMock,
+    });
+
+    expect(calls[0].init?.headers).toMatchObject({
+      "x-client-instance-id": "instance-1",
+      "x-profile-id": "accounting-profile",
     });
   });
 

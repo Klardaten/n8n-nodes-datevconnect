@@ -8,16 +8,69 @@ interface CredentialsData {
   password?: string;
   apiKey?: string;
   clientInstanceId?: string;
+  profileId?: string;
+}
+
+type RequestOverrides = {
+  clientInstanceId?: string;
+  profileId?: string;
+};
+
+const requestOverrides = new WeakMap<IExecuteFunctions, RequestOverrides>();
+
+function normalizeOptionalString(
+  value: string | undefined,
+): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+export async function withAccountingRequestOverrides<T>(
+  executeFunctions: IExecuteFunctions,
+  overrides: RequestOverrides,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const previousOverrides = requestOverrides.get(executeFunctions);
+  requestOverrides.set(executeFunctions, {
+    ...previousOverrides,
+    clientInstanceId:
+      normalizeOptionalString(overrides.clientInstanceId) ??
+      previousOverrides?.clientInstanceId,
+    profileId:
+      normalizeOptionalString(overrides.profileId) ??
+      previousOverrides?.profileId,
+  });
+
+  try {
+    return await operation();
+  } finally {
+    if (previousOverrides) {
+      requestOverrides.set(executeFunctions, previousOverrides);
+    } else {
+      requestOverrides.delete(executeFunctions);
+    }
+  }
 }
 
 async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
   const credentials = (await executeFunctions.getCredentials(
     "datevConnectApi",
   )) as CredentialsData | null;
+  const overrides = requestOverrides.get(executeFunctions);
 
-  return client.getDatevConnectAuthContext(credentials, {
+  const authContext = await client.getDatevConnectAuthContext(credentials, {
     httpHelper: executeFunctions.helpers.httpRequest,
   });
+  const profileId =
+    normalizeOptionalString(overrides?.profileId) ?? authContext.profileId;
+
+  return {
+    ...authContext,
+    clientInstanceId:
+      normalizeOptionalString(overrides?.clientInstanceId) ??
+      authContext.clientInstanceId,
+    ...(profileId ? { profileId } : {}),
+  };
 }
 
 export const datevConnectClient = {

@@ -61,6 +61,15 @@ export class DatevConnectApi implements ICredentialType {
       required: true,
       description: "Klardaten client instance identifier",
     },
+    {
+      displayName: "Profile ID",
+      name: "profileId",
+      type: "string",
+      default: "",
+      required: false,
+      description:
+        "Optional DATEVconnect profile ID to use by default. Leave empty to use the backend default profile.",
+    },
   ];
 
   test: ICredentialTestRequest = {

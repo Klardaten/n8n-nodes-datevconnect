@@ -179,6 +179,30 @@ describe("getDatevConnectAuthContext", () => {
     });
   });
 
+  test("returns trimmed profileId when configured", async () => {
+    const apiKey = "uk-" + "e".repeat(61);
+    const auth = await getDatevConnectAuthContext({
+      host: "https://api.example.com",
+      clientInstanceId: "inst-1",
+      apiKey,
+      profileId: "  user-profile  ",
+    });
+
+    expect(auth.profileId).toBe("user-profile");
+  });
+
+  test("omits profileId when configured as whitespace", async () => {
+    const apiKey = "uk-" + "f".repeat(61);
+    const auth = await getDatevConnectAuthContext({
+      host: "https://api.example.com",
+      clientInstanceId: "inst-1",
+      apiKey,
+      profileId: "   ",
+    });
+
+    expect(auth).not.toHaveProperty("profileId");
+  });
+
   test("returns auth context with httpHelper when provided", async () => {
     const apiKey = "uk-" + "d".repeat(61);
     const httpHelper = {};

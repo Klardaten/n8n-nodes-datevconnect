@@ -57,6 +57,27 @@ describe("OrderManagementClient - All Endpoints", () => {
     expect(result).toEqual([{ id: 1, ordertype: "110" }]);
   });
 
+  test("adds x-profile-id when profileId is provided", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => "application/json" } as any,
+      json: async () => [{ id: 1, ordertype: "110" }],
+    } as Response);
+
+    await fetchOrderTypes({
+      host: "https://localhost:58454",
+      token: "test-token",
+      clientInstanceId: "test-client-id",
+      profileId: " order-profile ",
+    });
+
+    const [, options] = mockFetch.mock.calls[0];
+    expect(options?.headers).toMatchObject({
+      "x-client-instance-id": "test-client-id",
+      "x-profile-id": "order-profile",
+    });
+  });
+
   test("GET /clientgroup - fetchClientGroup", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

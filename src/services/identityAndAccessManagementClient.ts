@@ -18,6 +18,7 @@ interface BaseIamRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
@@ -180,6 +181,7 @@ async function sendRequest(
     host,
     token,
     clientInstanceId,
+    profileId: rawProfileId,
     path,
     method,
     query,
@@ -187,6 +189,7 @@ async function sendRequest(
     httpHelper,
     fetchImpl: providedFetchImpl,
   } = options;
+  const profileId = rawProfileId?.trim();
   const url = buildUrl(host, path, query);
 
   const headers: Record<string, string> = {
@@ -194,6 +197,9 @@ async function sendRequest(
     "x-client-instance-id": clientInstanceId,
     Accept: JSON_CONTENT_TYPE,
   };
+  if (profileId) {
+    headers["x-profile-id"] = profileId;
+  }
 
   const requestInit: RequestInit = {
     method,

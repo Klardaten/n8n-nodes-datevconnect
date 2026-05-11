@@ -273,6 +273,7 @@ interface MasterDataRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   path: string;
   method: RequestMethod;
   query?: Record<string, string | number | undefined | null>;
@@ -288,6 +289,7 @@ async function sendMasterDataRequest(
     host,
     token,
     clientInstanceId,
+    profileId: rawProfileId,
     path,
     method,
     query,
@@ -295,6 +297,7 @@ async function sendMasterDataRequest(
     httpHelper,
     fetchImpl: providedFetchImpl,
   } = options;
+  const profileId = rawProfileId?.trim();
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -317,6 +320,7 @@ async function sendMasterDataRequest(
       authorization: `Bearer ${token}`,
       "content-type": JSON_CONTENT_TYPE,
       "x-client-instance-id": clientInstanceId,
+      "x-profile-id": profileId,
     }),
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -1659,6 +1663,7 @@ async function sendAccountingRequest(
     host,
     token,
     clientInstanceId,
+    profileId: rawProfileId,
     path,
     method,
     query,
@@ -1666,6 +1671,7 @@ async function sendAccountingRequest(
     httpHelper,
     fetchImpl: providedFetchImpl,
   } = options;
+  const profileId = rawProfileId?.trim();
   const url = buildApiUrl(host, path);
 
   if (query) {
@@ -1688,6 +1694,7 @@ async function sendAccountingRequest(
       authorization: `Bearer ${token}`,
       "content-type": JSON_CONTENT_TYPE,
       "x-client-instance-id": clientInstanceId,
+      "x-profile-id": profileId,
     }),
     body: body === undefined ? undefined : JSON.stringify(body),
   });

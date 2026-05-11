@@ -33,6 +33,7 @@ export interface BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
@@ -106,7 +107,9 @@ type DatevErrorBody = {
   additional_messages?: DatevAdditionalMessage[];
 };
 
-function isRecord(value: JsonValue | undefined): value is Record<string, JsonValue> {
+function isRecord(
+  value: JsonValue | undefined,
+): value is Record<string, JsonValue> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
@@ -169,7 +172,10 @@ function parseDatevErrorBody(
 
 function formatAdditionalMessage(message: DatevAdditionalMessage): string {
   const mainPart =
-    [message.severity ? `[${message.severity}]` : undefined, message.description]
+    [
+      message.severity ? `[${message.severity}]` : undefined,
+      message.description,
+    ]
       .filter((part): part is string => Boolean(part))
       .join(" ") || "Additional message";
 
@@ -188,7 +194,9 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
     "DATEVconnect returned an error response";
 
   const details = [
-    body.error && body.error_description ? `Error ID: ${body.error}` : undefined,
+    body.error && body.error_description
+      ? `Error ID: ${body.error}`
+      : undefined,
     body.request_id ? `Request ID: ${body.request_id}` : undefined,
     body.error_uri ? `More info: ${body.error_uri}` : undefined,
     body.additional_messages?.length
@@ -319,6 +327,7 @@ export interface DatevConnectCredentialFields {
   password?: string;
   apiKey?: string;
   clientInstanceId?: string;
+  profileId?: string;
 }
 
 const CREDENTIAL_ERROR = "Provide either email and password or a user API key.";
@@ -332,10 +341,18 @@ export interface DatevConnectAuthContext {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
 }
 
 const CREDENTIALS_MISSING = "DATEVconnect credentials are missing";
+
+function normalizeOptionalString(
+  value: string | undefined,
+): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
 
 /**
  * Validates credentials, resolves the Bearer token, and returns the auth context.
@@ -356,10 +373,12 @@ export async function getDatevConnectAuthContext(
     throw new Error(CREDENTIAL_ERROR);
   }
   const token = await resolveTokenFromCredentials(credentials, options);
+  const profileId = normalizeOptionalString(credentials.profileId);
   return {
     host,
     token,
     clientInstanceId,
+    ...(profileId ? { profileId } : {}),
     httpHelper: options?.httpHelper,
   };
 }

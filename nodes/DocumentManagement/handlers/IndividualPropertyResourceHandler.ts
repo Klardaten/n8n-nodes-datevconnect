@@ -34,9 +34,7 @@ export class IndividualPropertyResourceHandler extends BaseResourceHandler {
     sendSuccess: SendSuccessFunction,
   ): Promise<void> {
     const response = await DocumentManagementClient.fetchIndividualProperties({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
     });
 
     sendSuccess(response);
