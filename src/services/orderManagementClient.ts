@@ -1,55 +1,24 @@
-import type { JsonValue, HttpRequestHelper } from "./shared";
-import { createFetchFromHttpHelper } from "./httpHelpers";
+import type {
+  BaseRequestOptions,
+  DatevConnectRequestMethod,
+  JsonValue,
+  QueryParams,
+} from "./shared";
+import { sendDatevConnectJsonRequest } from "./shared";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV Order Management request failed";
 const ORDER_MANAGEMENT_BASE_PATH = "datevconnect/order-management/v1";
 
-type RequestMethod = "GET" | "PUT" | "POST";
+type RequestMethod = Extract<DatevConnectRequestMethod, "GET" | "PUT" | "POST">;
 
-interface BaseOrderManagementRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  profileId?: string;
-  httpHelper?: HttpRequestHelper;
-  fetchImpl?: typeof fetch; // Backward compatibility for tests
-}
+type BaseOrderManagementRequestOptions = BaseRequestOptions;
 
 interface SendRequestOptions extends BaseOrderManagementRequestOptions {
   path: string;
   method: RequestMethod;
-  query?: Record<string, string | number | boolean | undefined | null>;
+  query?: QueryParams;
   body?: JsonValue;
-}
-
-function normaliseBaseUrl(host: string): string {
-  if (!host) {
-    throw new Error("DATEVconnect host must be provided");
-  }
-
-  return host.endsWith("/") ? host : `${host}/`;
-}
-
-function buildUrl(
-  host: string,
-  path: string,
-  query?: Record<string, string | number | boolean | undefined | null>,
-): URL {
-  const baseUrl = normaliseBaseUrl(host);
-  const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  const url = new URL(trimmedPath, baseUrl);
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined || value === null || value === "") {
-        continue;
-      }
-      url.searchParams.set(key, String(value));
-    }
-  }
-
-  return url;
 }
 
 function validateCostRateUsage(
@@ -72,34 +41,9 @@ function validateCostRateUsage(
   }
 }
 
-async function readResponseBody(
-  response: Response,
-): Promise<JsonValue | undefined> {
-  if (response.status === 204 || response.status === 205) {
-    return undefined;
-  }
-
-  const contentType = response.headers.get("content-type") ?? "";
-
-  if (contentType.toLowerCase().includes("application/json")) {
-    try {
-      return (await response.json()) as JsonValue;
-    } catch {
-      return undefined;
-    }
-  }
-
-  try {
-    const text = await response.text();
-    return text.length > 0 ? (text as unknown as JsonValue) : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function buildErrorMessage(
   response: Response,
-  body: JsonValue | undefined,
+  body: JsonValue | string | undefined,
 ): string {
   const statusPart =
     `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
@@ -129,51 +73,16 @@ function buildErrorMessage(
 async function sendRequest(
   options: SendRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const {
-    host,
-    token,
-    clientInstanceId,
-    profileId: rawProfileId,
-    path,
-    method,
-    query,
-    body,
-    httpHelper,
-    fetchImpl: providedFetchImpl,
-  } = options;
-  const profileId = rawProfileId?.trim();
-  const url = buildUrl(host, path, query);
+  const result = await sendDatevConnectJsonRequest({
+    ...options,
+    accept: JSON_CONTENT_TYPE,
+    contentType: JSON_CONTENT_TYPE,
+    headerCase: "standard",
+    skipEmptyQueryValues: true,
+    errorMessageBuilder: buildErrorMessage,
+  });
 
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
-    "x-client-instance-id": clientInstanceId,
-    Accept: JSON_CONTENT_TYPE,
-  };
-  if (profileId) {
-    headers["x-profile-id"] = profileId;
-  }
-
-  const init: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body !== undefined) {
-    headers["content-type"] = JSON_CONTENT_TYPE;
-    init.body = JSON.stringify(body);
-  }
-
-  const fetchImpl = httpHelper
-    ? createFetchFromHttpHelper(httpHelper)
-    : providedFetchImpl || fetch;
-  const response = await fetchImpl(url, init);
-  const responseBody = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(buildErrorMessage(response, responseBody));
-  }
-
-  return responseBody;
+  return result.data;
 }
 
 export interface FetchOrderTypesOptions extends BaseOrderManagementRequestOptions {

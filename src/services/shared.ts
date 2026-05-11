@@ -41,6 +41,38 @@ export interface BaseRequestOptions {
 export const JSON_CONTENT_TYPE = "application/json";
 export const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
 
+export type QueryValue = string | number | boolean | undefined | null;
+export type QueryParams = Record<string, QueryValue>;
+export type DatevConnectRequestMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE";
+export type DatevConnectHeaderCase = "lower" | "standard";
+
+export interface DatevConnectJsonRequestResult {
+  data: JsonValue | string | undefined;
+  response: Response;
+}
+
+export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
+  path: string;
+  method: DatevConnectRequestMethod;
+  query?: QueryParams;
+  body?: JsonValue;
+  headers?: Record<string, string | undefined>;
+  accept?: string;
+  contentType?: string;
+  headerCase?: DatevConnectHeaderCase;
+  skipEmptyQueryValues?: boolean;
+  errorPrefix?: string;
+  errorMessageBuilder?: (
+    response: Response,
+    body: JsonValue | string | undefined,
+  ) => string;
+}
+
 export function normaliseBaseUrl(host: string): string {
   if (!host) {
     throw new Error("DATEVconnect host must be provided");
@@ -63,9 +95,61 @@ export function buildHeaders(
   );
 }
 
+export function resolveFetchImpl(
+  options: Pick<BaseRequestOptions, "httpHelper" | "fetchImpl">,
+): typeof fetch {
+  return options.httpHelper
+    ? createFetchFromHttpHelper(options.httpHelper)
+    : options.fetchImpl || fetch;
+}
+
+export function appendQueryParams(
+  url: URL,
+  query?: QueryParams,
+  options: { skipEmptyString?: boolean } = {},
+): URL {
+  if (!query) {
+    return url;
+  }
+
+  for (const [key, value] of Object.entries(query)) {
+    if (
+      value === undefined ||
+      value === null ||
+      (options.skipEmptyString && value === "")
+    ) {
+      continue;
+    }
+    url.searchParams.set(key, String(value));
+  }
+
+  return url;
+}
+
+export function buildDatevConnectHeaders(
+  options: Pick<BaseRequestOptions, "token" | "clientInstanceId" | "profileId">,
+  headers: Record<string, string | undefined> = {},
+  headerCase: DatevConnectHeaderCase = "standard",
+): Record<string, string> {
+  const profileId = options.profileId?.trim();
+  const authorizationHeader =
+    headerCase === "lower" ? "authorization" : "Authorization";
+
+  return buildHeaders({
+    [authorizationHeader]: `Bearer ${options.token}`,
+    "x-client-instance-id": options.clientInstanceId,
+    "x-profile-id": profileId,
+    ...headers,
+  }) as Record<string, string>;
+}
+
 export async function readResponseBody(
   response: Response,
 ): Promise<JsonValue | string | undefined> {
+  if (response.status === 204 || response.status === 205) {
+    return undefined;
+  }
+
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.toLowerCase().includes(JSON_CONTENT_TYPE)) {
@@ -214,10 +298,11 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
 export function extractErrorMessage(
   response: Response,
   body: JsonValue | string | undefined,
+  errorPrefix = DEFAULT_ERROR_PREFIX,
 ): string {
   const statusPart =
     `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
-  const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
+  const prefix = `${errorPrefix}${statusPart ? ` (${statusPart})` : ""}`;
 
   if (typeof body === "string" && body.trim().length > 0) {
     return `${prefix}: ${body.trim()}`;
@@ -240,11 +325,12 @@ export function extractErrorMessage(
 
 export async function ensureSuccess(
   response: Response,
+  errorPrefix = DEFAULT_ERROR_PREFIX,
 ): Promise<JsonValue | undefined> {
   const body = await readResponseBody(response);
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(response, body));
+    throw new Error(extractErrorMessage(response, body, errorPrefix));
   }
 
   if (body && typeof body === "object") {
@@ -255,13 +341,74 @@ export async function ensureSuccess(
     return undefined;
   }
 
-  throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected JSON response body.`);
+  throw new Error(`${errorPrefix}: Expected JSON response body.`);
 }
 
-export function buildApiUrl(host: string, path: string): URL {
+export function buildApiUrl(
+  host: string,
+  path: string,
+  query?: QueryParams,
+  queryOptions?: { skipEmptyString?: boolean },
+): URL {
   const baseUrl = normaliseBaseUrl(host);
   const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  return new URL(trimmedPath, baseUrl);
+  return appendQueryParams(new URL(trimmedPath, baseUrl), query, queryOptions);
+}
+
+export async function sendDatevConnectJsonRequest(
+  options: SendDatevConnectJsonRequestOptions,
+): Promise<DatevConnectJsonRequestResult> {
+  const {
+    host,
+    path,
+    method,
+    query,
+    body,
+    headers: additionalHeaders,
+    accept = JSON_CONTENT_TYPE,
+    contentType = JSON_CONTENT_TYPE,
+    headerCase = "lower",
+    skipEmptyQueryValues,
+    errorPrefix = DEFAULT_ERROR_PREFIX,
+    errorMessageBuilder,
+  } = options;
+  const contentTypeHeader = "content-type";
+  const acceptHeader = headerCase === "lower" ? "accept" : "Accept";
+  const url = buildApiUrl(host, path, query, {
+    skipEmptyString: skipEmptyQueryValues,
+  });
+  const headers = buildDatevConnectHeaders(
+    options,
+    {
+      [acceptHeader]: accept,
+      ...(body === undefined ? {} : { [contentTypeHeader]: contentType }),
+      ...additionalHeaders,
+    },
+    headerCase,
+  );
+  const fetchImpl = resolveFetchImpl(options);
+  const requestInit: RequestInit = {
+    method,
+    headers,
+  };
+  if (body !== undefined) {
+    requestInit.body = JSON.stringify(body);
+  }
+  const response = await fetchImpl(url, requestInit);
+  const responseBody = await readResponseBody(response);
+
+  if (!response.ok) {
+    throw new Error(
+      errorMessageBuilder
+        ? errorMessageBuilder(response, responseBody)
+        : extractErrorMessage(response, responseBody, errorPrefix),
+    );
+  }
+
+  return {
+    data: responseBody,
+    response,
+  };
 }
 
 /**

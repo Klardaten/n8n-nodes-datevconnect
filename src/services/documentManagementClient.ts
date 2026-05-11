@@ -1,6 +1,13 @@
-import type { JsonValue, HttpRequestHelper } from "./shared";
-import { authenticate } from "./shared";
-import { createFetchFromHttpHelper } from "./httpHelpers";
+import type {
+  BaseRequestOptions,
+  JsonValue,
+  HttpRequestHelper,
+} from "./shared";
+import {
+  authenticate,
+  buildDatevConnectHeaders,
+  resolveFetchImpl,
+} from "./shared";
 
 export interface DocumentManagementAuthenticateOptions {
   host: string;
@@ -17,14 +24,7 @@ export interface DocumentManagementAuthenticateResponse extends Record<
   access_token: string;
 }
 
-interface BaseDocumentManagementRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  profileId?: string;
-  httpHelper?: HttpRequestHelper;
-  fetchImpl?: typeof fetch; // Backward compatibility for tests
-}
+type BaseDocumentManagementRequestOptions = BaseRequestOptions;
 
 // Documents endpoint interfaces
 export interface FetchDocumentsOptions extends BaseDocumentManagementRequestOptions {
@@ -148,13 +148,7 @@ function buildRequestHeaders(
   options: BaseDocumentManagementRequestOptions,
   headers: Record<string, string> = {},
 ): Record<string, string> {
-  const profileId = options.profileId?.trim();
-  return {
-    Authorization: `Bearer ${options.token}`,
-    "x-client-instance-id": options.clientInstanceId,
-    ...(profileId ? { "x-profile-id": profileId } : {}),
-    ...headers,
-  };
+  return buildDatevConnectHeaders(options, headers, "standard");
 }
 
 /**
@@ -178,9 +172,7 @@ export class DocumentManagementClient {
   static async fetchDocuments(
     options: FetchDocumentsOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.filter) queryParams.append("filter", options.filter);
@@ -211,9 +203,7 @@ export class DocumentManagementClient {
   static async fetchDocument(
     options: FetchDocumentOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`,
@@ -240,9 +230,7 @@ export class DocumentManagementClient {
   static async createDocument(
     options: CreateDocumentOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents`,
@@ -277,9 +265,7 @@ export class DocumentManagementClient {
   static async updateDocument(
     options: UpdateDocumentOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}`,
@@ -313,9 +299,7 @@ export class DocumentManagementClient {
   static async fetchDocumentFile(
     options: FetchDocumentFileOptions,
   ): Promise<Response> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files/${encodeURIComponent(options.fileId)}`,
@@ -342,9 +326,7 @@ export class DocumentManagementClient {
   static async uploadDocumentFile(
     options: UploadDocumentFileOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/document-files`,
@@ -371,9 +353,7 @@ export class DocumentManagementClient {
    * 3. GET /domains - Get list of domains
    */
   static async fetchDomains(options: FetchDomainsOptions): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.filter) queryParams.append("filter", options.filter);
@@ -402,9 +382,7 @@ export class DocumentManagementClient {
   static async fetchDocumentStates(
     options: FetchDocumentStatesOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.filter) queryParams.append("filter", options.filter);
@@ -433,9 +411,7 @@ export class DocumentManagementClient {
   static async fetchDocumentState(
     options: FetchDocumentStateOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates/${encodeURIComponent(options.stateId)}`,
@@ -462,9 +438,7 @@ export class DocumentManagementClient {
   static async createDocumentState(
     options: CreateDocumentStateOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documentstates`,
@@ -491,9 +465,7 @@ export class DocumentManagementClient {
    * 5. GET /info - Get system information
    */
   static async fetchInfo(options: FetchInfoOptions): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/info`,
@@ -518,9 +490,7 @@ export class DocumentManagementClient {
    * DELETE /documents/{id} - Delete a document (soft delete)
    */
   static async deleteDocument(options: DeleteDocumentOptions): Promise<void> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}`,
@@ -543,9 +513,7 @@ export class DocumentManagementClient {
   static async deleteDocumentPermanently(
     options: DeleteDocumentOptions,
   ): Promise<void> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${options.documentId}/delete-permanently`,
@@ -568,9 +536,7 @@ export class DocumentManagementClient {
   static async fetchSecureAreas(
     options: FetchSecureAreasOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/secure-areas`,
@@ -597,9 +563,7 @@ export class DocumentManagementClient {
   static async fetchPropertyTemplates(
     options: FetchPropertyTemplatesOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const queryParams = new URLSearchParams();
     if (options.filter) queryParams.append("filter", options.filter);
@@ -628,9 +592,7 @@ export class DocumentManagementClient {
   static async fetchIndividualProperties(
     options: FetchIndividualPropertiesOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-properties`,
@@ -657,9 +619,7 @@ export class DocumentManagementClient {
   static async fetchIndividualReferences1(
     options: FetchIndividualReferences1Options,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.top) queryParams.append("top", options.top.toString());
@@ -689,9 +649,7 @@ export class DocumentManagementClient {
   static async createIndividualReference1(
     options: CreateIndividualReference1Options,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references1`,
@@ -720,9 +678,7 @@ export class DocumentManagementClient {
   static async fetchIndividualReferences2(
     options: FetchIndividualReferences2Options,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.top) queryParams.append("top", options.top.toString());
@@ -752,9 +708,7 @@ export class DocumentManagementClient {
   static async createIndividualReference2(
     options: CreateIndividualReference2Options,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/individual-references2`,
@@ -783,9 +737,7 @@ export class DocumentManagementClient {
   static async fetchStructureItems(
     options: FetchStructureItemsOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.top) queryParams.append("top", options.top.toString());
@@ -815,9 +767,7 @@ export class DocumentManagementClient {
   static async fetchStructureItem(
     options: FetchStructureItemOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`,
@@ -844,9 +794,7 @@ export class DocumentManagementClient {
   static async addStructureItem(
     options: AddStructureItemOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
     const queryParams = new URLSearchParams();
 
     if (options.insertPosition)
@@ -884,9 +832,7 @@ export class DocumentManagementClient {
   static async updateStructureItem(
     options: UpdateStructureItemOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/structure-items/${encodeURIComponent(options.structureItemId)}`,
@@ -924,9 +870,7 @@ export class DocumentManagementClient {
   static async createDispatcherInformation(
     options: CreateDispatcherInformationOptions,
   ): Promise<JsonValue> {
-    const fetchImpl = options.httpHelper
-      ? createFetchFromHttpHelper(options.httpHelper)
-      : options.fetchImpl || fetch;
+    const fetchImpl = resolveFetchImpl(options);
 
     const response = await fetchImpl(
       `${options.host}${DOCUMENT_MANAGEMENT_BASE_PATH}/documents/${encodeURIComponent(options.documentId)}/dispatcher-information`,
