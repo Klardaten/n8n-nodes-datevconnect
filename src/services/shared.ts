@@ -56,6 +56,12 @@ export interface DatevConnectJsonRequestResult {
   response: Response;
 }
 
+export interface ExtractErrorMessageOptions {
+  errorPrefix?: string;
+  preferredMessageFields?: string[];
+  includeErrorDescription?: boolean;
+}
+
 export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
   path: string;
   method: DatevConnectRequestMethod;
@@ -67,11 +73,27 @@ export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
   headerCase?: DatevConnectHeaderCase;
   skipEmptyQueryValues?: boolean;
   errorPrefix?: string;
-  errorMessageBuilder?: (
-    response: Response,
-    body: JsonValue | string | undefined,
-  ) => string;
+  errorMessageOptions?: ExtractErrorMessageOptions;
 }
+
+export type DatevConnectJsonRequestDefaults = Partial<
+  Pick<
+    SendDatevConnectJsonRequestOptions,
+    | "accept"
+    | "contentType"
+    | "headerCase"
+    | "skipEmptyQueryValues"
+    | "errorPrefix"
+    | "errorMessageOptions"
+    | "headers"
+  >
+>;
+
+export type ConfiguredDatevConnectJsonRequestOptions = Omit<
+  SendDatevConnectJsonRequestOptions,
+  keyof DatevConnectJsonRequestDefaults
+> &
+  DatevConnectJsonRequestDefaults;
 
 export function normaliseBaseUrl(host: string): string {
   if (!host) {
@@ -298,14 +320,35 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
 export function extractErrorMessage(
   response: Response,
   body: JsonValue | string | undefined,
-  errorPrefix = DEFAULT_ERROR_PREFIX,
+  options: string | ExtractErrorMessageOptions = DEFAULT_ERROR_PREFIX,
 ): string {
+  const {
+    errorPrefix = DEFAULT_ERROR_PREFIX,
+    preferredMessageFields,
+    includeErrorDescription,
+  } = typeof options === "string" ? { errorPrefix: options } : options;
   const statusPart =
     `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
   const prefix = `${errorPrefix}${statusPart ? ` (${statusPart})` : ""}`;
 
   if (typeof body === "string" && body.trim().length > 0) {
     return `${prefix}: ${body.trim()}`;
+  }
+
+  if (isRecord(body) && preferredMessageFields?.length) {
+    for (const field of preferredMessageFields) {
+      const message = readString(body, field);
+      if (!message) {
+        continue;
+      }
+
+      if (field === "error" && includeErrorDescription) {
+        const description = readString(body, "error_description");
+        return `${prefix}: ${message}${description ? `: ${description}` : ""}`;
+      }
+
+      return `${prefix}: ${message}`;
+    }
   }
 
   const datevError = parseDatevErrorBody(body);
@@ -344,6 +387,46 @@ export async function ensureSuccess(
   throw new Error(`${errorPrefix}: Expected JSON response body.`);
 }
 
+function applyJsonRequestDefaults(
+  defaults: DatevConnectJsonRequestDefaults,
+  options: ConfiguredDatevConnectJsonRequestOptions,
+): SendDatevConnectJsonRequestOptions {
+  return {
+    ...defaults,
+    ...options,
+    headers: {
+      ...defaults.headers,
+      ...options.headers,
+    },
+    errorMessageOptions: {
+      ...defaults.errorMessageOptions,
+      ...options.errorMessageOptions,
+    },
+  };
+}
+
+export function createDatevConnectJsonRequester(
+  defaults: DatevConnectJsonRequestDefaults,
+): (
+  options: ConfiguredDatevConnectJsonRequestOptions,
+) => Promise<DatevConnectJsonRequestResult> {
+  return (options) =>
+    sendDatevConnectJsonRequest(applyJsonRequestDefaults(defaults, options));
+}
+
+export function createDatevConnectJsonDataRequester(
+  defaults: DatevConnectJsonRequestDefaults,
+): (
+  options: ConfiguredDatevConnectJsonRequestOptions,
+) => Promise<JsonValue | undefined> {
+  return async (options) => {
+    const result = await sendDatevConnectJsonRequest(
+      applyJsonRequestDefaults(defaults, options),
+    );
+    return result.data;
+  };
+}
+
 export function buildApiUrl(
   host: string,
   path: string,
@@ -370,7 +453,7 @@ export async function sendDatevConnectJsonRequest(
     headerCase = "lower",
     skipEmptyQueryValues,
     errorPrefix = DEFAULT_ERROR_PREFIX,
-    errorMessageBuilder,
+    errorMessageOptions,
   } = options;
   const contentTypeHeader = "content-type";
   const acceptHeader = headerCase === "lower" ? "accept" : "Accept";
@@ -399,9 +482,10 @@ export async function sendDatevConnectJsonRequest(
 
   if (!response.ok) {
     throw new Error(
-      errorMessageBuilder
-        ? errorMessageBuilder(response, responseBody)
-        : extractErrorMessage(response, responseBody, errorPrefix),
+      extractErrorMessage(response, responseBody, {
+        errorPrefix,
+        ...errorMessageOptions,
+      }),
     );
   }
 
