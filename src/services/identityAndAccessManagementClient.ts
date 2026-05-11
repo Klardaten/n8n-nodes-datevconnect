@@ -1,10 +1,5 @@
-import type {
-  BaseRequestOptions,
-  DatevConnectRequestMethod,
-  JsonValue,
-  QueryParams,
-} from "./shared";
-import { sendDatevConnectJsonRequest } from "./shared";
+import type { BaseRequestOptions, JsonValue } from "./shared";
+import { createDatevConnectJsonRequester } from "./shared";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV IAM request failed";
@@ -17,24 +12,7 @@ const USERS_PATH = `${IAM_BASE_PATH}/Users`;
 const CURRENT_USER_PATH = `${USERS_PATH}/me`;
 const GROUPS_PATH = `${IAM_BASE_PATH}/Groups`;
 
-type RequestMethod = Extract<
-  DatevConnectRequestMethod,
-  "GET" | "POST" | "PUT" | "DELETE"
->;
-
 type BaseIamRequestOptions = BaseRequestOptions;
-
-interface SendRequestOptions extends BaseIamRequestOptions {
-  path: string;
-  method: RequestMethod;
-  query?: QueryParams;
-  body?: JsonValue;
-}
-
-interface RequestResult {
-  data?: JsonValue;
-  response: Response;
-}
 
 export type FetchServiceProviderConfigOptions = BaseIamRequestOptions;
 export type FetchResourceTypesOptions = BaseIamRequestOptions;
@@ -89,53 +67,16 @@ export interface DeleteGroupOptions extends BaseIamRequestOptions {
 
 export type FetchCurrentUserOptions = BaseIamRequestOptions;
 
-function buildErrorMessage(
-  response: Response,
-  body: JsonValue | string | undefined,
-): string {
-  const statusPart = `${response.status}${
-    response.statusText ? ` ${response.statusText}` : ""
-  }`.trim();
-  const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
-
-  if (body && typeof body === "object") {
-    const message =
-      ("message" in body && typeof body.message === "string"
-        ? body.message
-        : undefined) ||
-      ("detail" in body && typeof body.detail === "string"
-        ? body.detail
-        : undefined) ||
-      ("error" in body && typeof body.error === "string"
-        ? body.error
-        : undefined);
-
-    if (message) {
-      return `${prefix}: ${message}`;
-    }
-  }
-
-  if (typeof body === "string") {
-    return `${prefix}: ${body}`;
-  }
-
-  return prefix;
-}
-
-async function sendRequest(
-  options: SendRequestOptions,
-): Promise<RequestResult> {
-  const result = await sendDatevConnectJsonRequest({
-    ...options,
-    accept: JSON_CONTENT_TYPE,
-    contentType: JSON_CONTENT_TYPE,
-    headerCase: "standard",
-    skipEmptyQueryValues: true,
-    errorMessageBuilder: buildErrorMessage,
-  });
-
-  return { data: result.data, response: result.response };
-}
+const sendIamRequest = createDatevConnectJsonRequester({
+  accept: JSON_CONTENT_TYPE,
+  contentType: JSON_CONTENT_TYPE,
+  headerCase: "standard",
+  skipEmptyQueryValues: true,
+  errorPrefix: DEFAULT_ERROR_PREFIX,
+  errorMessageOptions: {
+    preferredMessageFields: ["message", "detail", "error"],
+  },
+});
 
 function extractLocationHeader(response: Response): string | undefined {
   return (
@@ -149,7 +90,7 @@ export class IdentityAndAccessManagementClient {
   static async fetchServiceProviderConfig(
     options: FetchServiceProviderConfigOptions,
   ): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: SERVICE_PROVIDER_CONFIG_PATH,
       method: "GET",
@@ -167,7 +108,7 @@ export class IdentityAndAccessManagementClient {
   static async fetchResourceTypes(
     options: FetchResourceTypesOptions,
   ): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: RESOURCE_TYPES_PATH,
       method: "GET",
@@ -183,7 +124,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchSchemas(options: FetchSchemasOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: SCHEMAS_PATH,
       method: "GET",
@@ -199,7 +140,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchSchema(options: FetchSchemaOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${SCHEMAS_PATH}/${encodeURIComponent(options.schemaId)}`,
       method: "GET",
@@ -213,7 +154,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchUsers(options: FetchUsersOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: USERS_PATH,
       method: "GET",
@@ -233,7 +174,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchUser(options: FetchUserOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${USERS_PATH}/${encodeURIComponent(options.userId)}`,
       method: "GET",
@@ -247,7 +188,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async createUser(options: CreateUserOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: USERS_PATH,
       method: "POST",
@@ -266,7 +207,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async updateUser(options: UpdateUserOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${USERS_PATH}/${encodeURIComponent(options.userId)}`,
       method: "PUT",
@@ -288,7 +229,7 @@ export class IdentityAndAccessManagementClient {
   static async deleteUser(
     options: DeleteUserOptions,
   ): Promise<{ location?: string }> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${USERS_PATH}/${encodeURIComponent(options.userId)}`,
       method: "DELETE",
@@ -302,7 +243,7 @@ export class IdentityAndAccessManagementClient {
   static async fetchCurrentUser(
     options: FetchCurrentUserOptions,
   ): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: CURRENT_USER_PATH,
       method: "GET",
@@ -318,7 +259,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchGroups(options: FetchGroupsOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: GROUPS_PATH,
       method: "GET",
@@ -332,7 +273,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async fetchGroup(options: FetchGroupOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${GROUPS_PATH}/${encodeURIComponent(options.groupId)}`,
       method: "GET",
@@ -346,7 +287,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async createGroup(options: CreateGroupOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: GROUPS_PATH,
       method: "POST",
@@ -365,7 +306,7 @@ export class IdentityAndAccessManagementClient {
   }
 
   static async updateGroup(options: UpdateGroupOptions): Promise<JsonValue> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${GROUPS_PATH}/${encodeURIComponent(options.groupId)}`,
       method: "PUT",
@@ -387,7 +328,7 @@ export class IdentityAndAccessManagementClient {
   static async deleteGroup(
     options: DeleteGroupOptions,
   ): Promise<{ location?: string }> {
-    const result = await sendRequest({
+    const result = await sendIamRequest({
       ...options,
       path: `${GROUPS_PATH}/${encodeURIComponent(options.groupId)}`,
       method: "DELETE",
