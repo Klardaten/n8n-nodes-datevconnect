@@ -1,4 +1,5 @@
 import {
+  NodeApiError,
   NodeOperationError,
   type IBinaryData,
   type INodeExecutionData,
@@ -8,7 +9,7 @@ import type { JsonValue } from "../../../src/services/datevConnectClient";
 import { DocumentManagementClient } from "../../../src/services/documentManagementClient";
 import type { AuthContext, SendSuccessFunction } from "../types";
 import { BaseResourceHandler } from "./BaseResourceHandler";
-import { normaliseToObjects, toErrorMessage } from "../utils";
+import { normaliseToObjects, toErrorMessage, toErrorObject } from "../utils";
 
 /**
  * Handler for document file operations
@@ -70,10 +71,12 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
           },
         });
       } else {
-        if (error instanceof Error) {
-          throw error;
+        if (error instanceof NodeOperationError) {
+          throw new NodeOperationError(this.context.getNode(), error.message, {
+            itemIndex: this.itemIndex,
+          });
         }
-        throw new NodeOperationError(this.context.getNode(), String(error), {
+        throw new NodeApiError(this.context.getNode(), toErrorObject(error), {
           itemIndex: this.itemIndex,
         });
       }

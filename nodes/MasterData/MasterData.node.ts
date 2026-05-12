@@ -1,9 +1,11 @@
 import {
+  NodeApiError,
   NodeOperationError,
   type IExecuteFunctions,
   type INodeExecutionData,
   type INodeType,
   type INodeTypeDescription,
+  type JsonObject,
 } from "n8n-workflow";
 
 import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
@@ -26,6 +28,7 @@ import type { Resource } from "./types";
 export class MasterData implements INodeType {
   description: INodeTypeDescription = {
     ...masterDataNodeDescription,
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     icon: masterDataNodeDescription.icon ?? "file:../klardaten.svg",
     usableAsTool: true,
   };
@@ -37,70 +40,99 @@ export class MasterData implements INodeType {
     const auth = await getDatevConnectAuthContextForNode(this);
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter(
-        "clientInstanceId",
-        itemIndex,
-        "",
-      ) as string;
-      const effectiveClientInstanceId =
-        paramClientInstanceId || auth.clientInstanceId;
+      try {
+        const paramClientInstanceId = this.getNodeParameter(
+          "clientInstanceId",
+          itemIndex,
+          "",
+        ) as string;
+        const effectiveClientInstanceId =
+          paramClientInstanceId || auth.clientInstanceId;
 
-      const authContext = {
-        ...auth,
-        clientInstanceId: effectiveClientInstanceId,
-      };
-      const resource = this.getNodeParameter("resource", itemIndex) as Resource;
-      const operation = this.getNodeParameter("operation", itemIndex) as string;
+        const authContext = {
+          ...auth,
+          clientInstanceId: effectiveClientInstanceId,
+        };
+        const resource = this.getNodeParameter(
+          "resource",
+          itemIndex,
+        ) as Resource;
+        const operation = this.getNodeParameter(
+          "operation",
+          itemIndex,
+        ) as string;
 
-      // Create appropriate resource handler
-      let handler: BaseResourceHandler;
-      switch (resource) {
-        case "client":
-          handler = new ClientResourceHandler(this, itemIndex);
-          break;
-        case "taxAuthority":
-          handler = new TaxAuthorityResourceHandler(this, itemIndex);
-          break;
-        case "relationship":
-          handler = new RelationshipResourceHandler(this, itemIndex);
-          break;
-        case "legalForm":
-          handler = new LegalFormResourceHandler(this, itemIndex);
-          break;
-        case "corporateStructure":
-          handler = new CorporateStructureResourceHandler(this, itemIndex);
-          break;
-        case "employee":
-          handler = new EmployeeResourceHandler(this, itemIndex);
-          break;
-        case "countryCode":
-          handler = new CountryCodeResourceHandler(this, itemIndex);
-          break;
-        case "clientGroupType":
-          handler = new ClientGroupTypeResourceHandler(this, itemIndex);
-          break;
-        case "clientCategoryType":
-          handler = new ClientCategoryTypeResourceHandler(this, itemIndex);
-          break;
-        case "bank":
-          handler = new BankResourceHandler(this, itemIndex);
-          break;
-        case "areaOfResponsibility":
-          handler = new AreaOfResponsibilityResourceHandler(this, itemIndex);
-          break;
-        case "addressee":
-          handler = new AddresseeResourceHandler(this, itemIndex);
-          break;
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `The resource "${resource}" is not supported.`,
-            { itemIndex },
-          );
+        // Create appropriate resource handler
+        let handler: BaseResourceHandler;
+        switch (resource) {
+          case "client":
+            handler = new ClientResourceHandler(this, itemIndex);
+            break;
+          case "taxAuthority":
+            handler = new TaxAuthorityResourceHandler(this, itemIndex);
+            break;
+          case "relationship":
+            handler = new RelationshipResourceHandler(this, itemIndex);
+            break;
+          case "legalForm":
+            handler = new LegalFormResourceHandler(this, itemIndex);
+            break;
+          case "corporateStructure":
+            handler = new CorporateStructureResourceHandler(this, itemIndex);
+            break;
+          case "employee":
+            handler = new EmployeeResourceHandler(this, itemIndex);
+            break;
+          case "countryCode":
+            handler = new CountryCodeResourceHandler(this, itemIndex);
+            break;
+          case "clientGroupType":
+            handler = new ClientGroupTypeResourceHandler(this, itemIndex);
+            break;
+          case "clientCategoryType":
+            handler = new ClientCategoryTypeResourceHandler(this, itemIndex);
+            break;
+          case "bank":
+            handler = new BankResourceHandler(this, itemIndex);
+            break;
+          case "areaOfResponsibility":
+            handler = new AreaOfResponsibilityResourceHandler(this, itemIndex);
+            break;
+          case "addressee":
+            handler = new AddresseeResourceHandler(this, itemIndex);
+            break;
+          default:
+            throw new NodeOperationError(
+              this.getNode(),
+              `The resource "${resource}" is not supported.`,
+              { itemIndex },
+            );
+        }
+
+        // Execute the operation using the handler
+        await handler.execute(operation, authContext, returnData);
+      } catch (error) {
+        if (this.continueOnFail()) {
+          returnData.push({
+            json: {
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Unknown error occurred",
+            },
+            pairedItem: { item: itemIndex },
+          });
+        } else {
+          if (error instanceof NodeOperationError) {
+            throw new NodeOperationError(this.getNode(), error.message, {
+              itemIndex,
+            });
+          }
+          throw new NodeApiError(this.getNode(), error as JsonObject, {
+            itemIndex,
+          });
+        }
       }
-
-      // Execute the operation using the handler
-      await handler.execute(operation, authContext, returnData);
     }
 
     return [returnData];

@@ -3,8 +3,9 @@ import type {
   INodeExecutionData,
   INodeType,
   INodeTypeDescription,
+  JsonObject,
 } from "n8n-workflow";
-import { NodeOperationError } from "n8n-workflow";
+import { NodeApiError, NodeOperationError } from "n8n-workflow";
 import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
 
 import { accountingNodeDescription } from "./Accounting.config";
@@ -61,6 +62,7 @@ import {
 export class Accounting implements INodeType {
   description: INodeTypeDescription = {
     ...accountingNodeDescription,
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     icon: accountingNodeDescription.icon ?? "file:../klardaten.svg",
     usableAsTool: true,
   };
@@ -220,7 +222,14 @@ export class Accounting implements INodeType {
             pairedItem: { item: itemIndex },
           });
         } else {
-          throw error;
+          if (error instanceof NodeOperationError) {
+            throw new NodeOperationError(this.getNode(), error.message, {
+              itemIndex,
+            });
+          }
+          throw new NodeApiError(this.getNode(), error as JsonObject, {
+            itemIndex,
+          });
         }
       }
     }
