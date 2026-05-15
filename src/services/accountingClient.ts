@@ -3,31 +3,21 @@ import * as client from "./datevConnectClient";
 import type { JsonValue } from "./datevConnectClient";
 
 interface CredentialsData {
-  host: string;
-  email: string;
-  password: string;
-  clientInstanceId: string;
+  host?: string;
+  email?: string;
+  password?: string;
+  apiKey?: string;
+  clientInstanceId?: string;
 }
 
 async function getAuthenticatedOptions(executeFunctions: IExecuteFunctions) {
   const credentials = (await executeFunctions.getCredentials(
     "datevConnectApi",
-  )) as CredentialsData;
+  )) as CredentialsData | null;
 
-  // Check if we have a cached token or need to authenticate
-  const authResponse = await client.authenticate({
-    host: credentials.host,
-    email: credentials.email,
-    password: credentials.password,
+  return client.getDatevConnectAuthContext(credentials, {
     httpHelper: executeFunctions.helpers.httpRequest,
   });
-
-  return {
-    host: credentials.host,
-    token: authResponse.access_token,
-    clientInstanceId: credentials.clientInstanceId,
-    httpHelper: executeFunctions.helpers.httpRequest,
-  };
 }
 
 export const datevConnectClient = {
