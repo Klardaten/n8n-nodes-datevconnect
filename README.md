@@ -58,6 +58,24 @@ Use the npm test runner to execute the automated tests:
 npm test
 ```
 
+## Releasing
+
+Releases are prepared locally and published to npm from GitHub Actions with npm provenance.
+Do not run `npm publish` locally.
+
+1. Ensure the npm Trusted Publisher for `@klardaten/n8n-nodes-datevconnect` points to the `Klardaten/n8n-nodes-datevconnect` repository and the `publish.yml` workflow.
+2. Start from an up-to-date `main` branch.
+   ```bash
+   git switch main
+   git pull
+   ```
+3. Run the release command and follow the prompts.
+   ```bash
+   npm run release
+   ```
+
+The local release command updates the version and changelog, creates the release commit and tag, pushes them, and creates the GitHub release. It does not publish to npm locally. The pushed version tag triggers the `Publish` workflow, which publishes the tagged package version to npm with the `latest` dist-tag and provenance.
+
 ## Usage in n8n
 
 1. Create a new workflow in n8n.
