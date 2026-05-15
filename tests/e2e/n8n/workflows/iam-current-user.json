@@ -1,0 +1,71 @@
+{
+  "name": "E2E DATEV IAM current user",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "79994011-7409-460f-8632-a49f0095ede3",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "resource": "currentUser",
+        "operation": "get",
+        "clientInstanceId": ""
+      },
+      "id": "6f179a9e-3eb9-4381-af8d-924c2bcdb5f6",
+      "name": "Get Current User",
+      "type": "@klardaten/n8n-nodes-datevconnect.identityAndAccessManagement",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "alwaysOutputData": true,
+      "credentials": {
+        "datevConnectApi": {
+          "id": "d4b2b595-7b23-4f4a-87d8-6ca1d06022df",
+          "name": "DATEVconnect E2E"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) {\n  throw new Error('Expected at least one item from DATEVconnect node.');\n}\nfor (const item of items) {\n  const data = item.json ?? {};\n  if (data.error) {\n    throw new Error(`DATEVconnect node returned error: ${data.error}`);\n  }\n  if (Object.keys(data).length === 0) {\n    throw new Error('DATEVconnect node returned an empty item.');\n  }\n}\nreturn items;"
+      },
+      "id": "da965d2f-a4d8-4fd9-acfe-d1ecb741726a",
+      "name": "Assert Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Current User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current User": {
+      "main": [
+        [
+          {
+            "node": "Assert Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
