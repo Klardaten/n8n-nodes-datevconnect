@@ -1,0 +1,71 @@
+{
+  "name": "E2E DATEV Document Management info",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "825d13a3-f0cf-4f50-a10a-3f83880f217e",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "resource": "info",
+        "operation": "get",
+        "clientInstanceId": ""
+      },
+      "id": "d4891649-f771-4d51-a346-1cf723927b75",
+      "name": "Get Document Info",
+      "type": "@klardaten/n8n-nodes-datevconnect.documentManagement",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "alwaysOutputData": true,
+      "credentials": {
+        "datevConnectApi": {
+          "id": "d4b2b595-7b23-4f4a-87d8-6ca1d06022df",
+          "name": "DATEVconnect E2E"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) {\n  throw new Error('Expected at least one item from DATEVconnect node.');\n}\nfor (const item of items) {\n  const data = item.json ?? {};\n  if (data.error) {\n    throw new Error(`DATEVconnect node returned error: ${data.error}`);\n  }\n  if (Object.keys(data).length === 0) {\n    throw new Error('DATEVconnect node returned an empty item.');\n  }\n}\nreturn items;"
+      },
+      "id": "4d7844ce-1b26-4b96-96b8-f90c981f6a96",
+      "name": "Assert Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Document Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Document Info": {
+      "main": [
+        [
+          {
+            "node": "Assert Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
