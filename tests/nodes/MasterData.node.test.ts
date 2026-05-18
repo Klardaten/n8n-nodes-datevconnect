@@ -102,6 +102,16 @@ describe("MasterData node integration", () => {
     authenticateSpy?.mockRestore();
   });
 
+  test("exposes profileId parameter", () => {
+    const node = new MasterData();
+    const profileIdParam = node.description.properties?.find(
+      (property) => property.name === "profileId",
+    );
+
+    expect(profileIdParam).toBeDefined();
+    expect(profileIdParam?.type).toBe("string");
+  });
+
   describe("credential validation", () => {
     test("rejects when neither email+password nor apiKey is provided", async () => {
       const node = new MasterData();
@@ -231,6 +241,50 @@ describe("MasterData node integration", () => {
       );
 
       clientHandlerSpy.mockRestore();
+    });
+
+    test("passes credential profileId and lets node profileId override it", async () => {
+      const node = new MasterData();
+      const context = createExecuteContext({
+        items: [{ json: {} }, { json: {} }],
+        credentials: {
+          host: "https://api.example.com",
+          email: "user@example.com",
+          password: "secret",
+          clientInstanceId: "instance-1",
+          profileId: "credential-profile",
+        },
+        parameters: {
+          resource: ["client", "taxAuthority"],
+          operation: ["getAll", "getAll"],
+          profileId: ["", "node-profile"],
+        },
+      });
+
+      const clientHandlerSpy = spyOn(
+        ClientResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const taxAuthorityHandlerSpy = spyOn(
+        TaxAuthorityResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(clientHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({ profileId: "credential-profile" }),
+        expect.any(Array),
+      );
+      expect(taxAuthorityHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({ profileId: "node-profile" }),
+        expect.any(Array),
+      );
+
+      clientHandlerSpy.mockRestore();
+      taxAuthorityHandlerSpy.mockRestore();
     });
   });
 
@@ -612,5 +666,4 @@ describe("MasterData node integration", () => {
       addresseeHandlerSpy.mockRestore();
     });
   });
-
 });

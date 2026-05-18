@@ -90,6 +90,16 @@ describe("OrderManagement node integration", () => {
     authenticateSpy?.mockRestore();
   });
 
+  test("exposes profileId parameter", () => {
+    const node = new OrderManagement();
+    const profileIdParam = node.description.properties?.find(
+      (property) => property.name === "profileId",
+    );
+
+    expect(profileIdParam).toBeDefined();
+    expect(profileIdParam?.type).toBe("string");
+  });
+
   describe("credential validation", () => {
     test("requires all credential fields", async () => {
       const node = new OrderManagement();
@@ -166,6 +176,50 @@ describe("OrderManagement node integration", () => {
       await expect(
         node.execute.call(context as unknown as IExecuteFunctions),
       ).rejects.toThrow(NodeApiError);
+    });
+
+    test("passes credential profileId and lets node profileId override it", async () => {
+      const node = new OrderManagement();
+      const context = createExecuteContext({
+        items: [{ json: {} }, { json: {} }],
+        credentials: {
+          host: "https://api.example.com",
+          email: "user@example.com",
+          password: "secret",
+          clientInstanceId: "instance-1",
+          profileId: "credential-profile",
+        },
+        parameters: {
+          resource: ["order", "orderType"],
+          operation: ["getAll", "getAll"],
+          profileId: ["", "node-profile"],
+        },
+      });
+
+      const orderHandlerSpy = spyOn(
+        OrderResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+      const orderTypeHandlerSpy = spyOn(
+        OrderTypeResourceHandler.prototype,
+        "execute",
+      ).mockResolvedValue();
+
+      await node.execute.call(context as unknown as IExecuteFunctions);
+
+      expect(orderHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({ profileId: "credential-profile" }),
+        expect.any(Array),
+      );
+      expect(orderTypeHandlerSpy).toHaveBeenCalledWith(
+        "getAll",
+        expect.objectContaining({ profileId: "node-profile" }),
+        expect.any(Array),
+      );
+
+      orderHandlerSpy.mockRestore();
+      orderTypeHandlerSpy.mockRestore();
     });
   });
 

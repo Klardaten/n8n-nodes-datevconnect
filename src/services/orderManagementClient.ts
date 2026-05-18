@@ -1,55 +1,11 @@
-import type { JsonValue, HttpRequestHelper } from "./shared";
-import { createFetchFromHttpHelper } from "./httpHelpers";
+import type { BaseRequestOptions, JsonValue } from "./shared";
+import { createDatevConnectJsonDataRequester } from "./shared";
 
 const JSON_CONTENT_TYPE = "application/json;charset=utf-8";
 const DEFAULT_ERROR_PREFIX = "DATEV Order Management request failed";
 const ORDER_MANAGEMENT_BASE_PATH = "datevconnect/order-management/v1";
 
-type RequestMethod = "GET" | "PUT" | "POST";
-
-interface BaseOrderManagementRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
-  httpHelper?: HttpRequestHelper;
-  fetchImpl?: typeof fetch; // Backward compatibility for tests
-}
-
-interface SendRequestOptions extends BaseOrderManagementRequestOptions {
-  path: string;
-  method: RequestMethod;
-  query?: Record<string, string | number | boolean | undefined | null>;
-  body?: JsonValue;
-}
-
-function normaliseBaseUrl(host: string): string {
-  if (!host) {
-    throw new Error("DATEVconnect host must be provided");
-  }
-
-  return host.endsWith("/") ? host : `${host}/`;
-}
-
-function buildUrl(
-  host: string,
-  path: string,
-  query?: Record<string, string | number | boolean | undefined | null>,
-): URL {
-  const baseUrl = normaliseBaseUrl(host);
-  const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  const url = new URL(trimmedPath, baseUrl);
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined || value === null || value === "") {
-        continue;
-      }
-      url.searchParams.set(key, String(value));
-    }
-  }
-
-  return url;
-}
+type BaseOrderManagementRequestOptions = BaseRequestOptions;
 
 function validateCostRateUsage(
   costRate: number | undefined,
@@ -71,104 +27,17 @@ function validateCostRateUsage(
   }
 }
 
-async function readResponseBody(
-  response: Response,
-): Promise<JsonValue | undefined> {
-  if (response.status === 204 || response.status === 205) {
-    return undefined;
-  }
-
-  const contentType = response.headers.get("content-type") ?? "";
-
-  if (contentType.toLowerCase().includes("application/json")) {
-    try {
-      return (await response.json()) as JsonValue;
-    } catch {
-      return undefined;
-    }
-  }
-
-  try {
-    const text = await response.text();
-    return text.length > 0 ? (text as unknown as JsonValue) : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function buildErrorMessage(
-  response: Response,
-  body: JsonValue | undefined,
-): string {
-  const statusPart =
-    `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
-  const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
-
-  if (body && typeof body === "object") {
-    if ("message" in body && typeof body.message === "string") {
-      return `${prefix}: ${body.message}`;
-    }
-    if ("error" in body && typeof body.error === "string") {
-      const description =
-        "error_description" in body &&
-        typeof body.error_description === "string"
-          ? body.error_description
-          : undefined;
-      return `${prefix}: ${body.error}${description ? `: ${description}` : ""}`;
-    }
-  }
-
-  if (typeof body === "string" && body.trim().length > 0) {
-    return `${prefix}: ${body}`;
-  }
-
-  return prefix;
-}
-
-async function sendRequest(
-  options: SendRequestOptions,
-): Promise<JsonValue | undefined> {
-  const {
-    host,
-    token,
-    clientInstanceId,
-    path,
-    method,
-    query,
-    body,
-    httpHelper,
-    fetchImpl: providedFetchImpl,
-  } = options;
-  const url = buildUrl(host, path, query);
-
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
-    "x-client-instance-id": clientInstanceId,
-    Accept: JSON_CONTENT_TYPE,
-  };
-
-  const init: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body !== undefined) {
-    headers["content-type"] = JSON_CONTENT_TYPE;
-    init.body = JSON.stringify(body);
-  }
-
-  const fetchImpl = httpHelper
-    ? createFetchFromHttpHelper(httpHelper)
-    : providedFetchImpl || fetch;
-  const response = await fetchImpl(url, init);
-  const responseBody = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(buildErrorMessage(response, responseBody));
-  }
-
-  return responseBody;
-}
+const sendOrderManagementRequest = createDatevConnectJsonDataRequester({
+  accept: JSON_CONTENT_TYPE,
+  contentType: JSON_CONTENT_TYPE,
+  headerCase: "standard",
+  skipEmptyQueryValues: true,
+  errorPrefix: DEFAULT_ERROR_PREFIX,
+  errorMessageOptions: {
+    preferredMessageFields: ["message", "error"],
+    includeErrorDescription: true,
+  },
+});
 
 export interface FetchOrderTypesOptions extends BaseOrderManagementRequestOptions {
   top?: number;
@@ -352,7 +221,7 @@ export interface FetchSelfClientsOptions extends BaseOrderManagementRequestOptio
 export async function fetchOrderTypes(
   options: FetchOrderTypesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/ordertypes`,
     method: "GET",
@@ -366,7 +235,7 @@ export async function fetchOrderTypes(
 export async function fetchClientGroup(
   options: FetchClientGroupOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/clientgroup`,
     method: "GET",
@@ -378,7 +247,7 @@ export async function fetchOrders(
   options: FetchOrdersOptions,
 ): Promise<JsonValue | undefined> {
   validateCostRateUsage(options.costRate, options.expand);
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders`,
     method: "GET",
@@ -398,7 +267,7 @@ export async function fetchOrder(
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
   validateCostRateUsage(rest.costRate, rest.expand);
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}`,
     method: "GET",
@@ -414,7 +283,7 @@ export async function updateOrder(
   options: UpdateOrderOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, order, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}`,
     method: "PUT",
@@ -426,7 +295,7 @@ export async function fetchOrderMonthlyValues(
   options: FetchOrderMonthlyValuesOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/monthlyvalues`,
     method: "GET",
@@ -440,7 +309,7 @@ export async function fetchOrderMonthlyValues(
 export async function fetchOrdersMonthlyValues(
   options: FetchOrdersMonthlyValuesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/monthlyvalues`,
     method: "GET",
@@ -458,7 +327,7 @@ export async function fetchOrderCostItems(
   options: FetchOrderCostItemsOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/costitems`,
     method: "GET",
@@ -469,7 +338,7 @@ export async function fetchOrderCostItems(
 export async function fetchOrdersCostItems(
   options: FetchOrdersCostItemsOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/costitems`,
     method: "GET",
@@ -486,7 +355,7 @@ export async function fetchOrderStateWork(
   options: FetchOrderStateWorkOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/orderstatework`,
     method: "GET",
@@ -497,7 +366,7 @@ export async function fetchOrderStateWork(
 export async function fetchOrdersStateWork(
   options: FetchOrdersStateWorkOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/orderstatework`,
     method: "GET",
@@ -514,7 +383,7 @@ export async function fetchSubordersStateBilling(
   options: FetchSubordersStateBillingOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/subordersstatebilling`,
     method: "GET",
@@ -525,7 +394,7 @@ export async function fetchSubordersStateBilling(
 export async function fetchSubordersStateBillingAll(
   options: FetchSubordersStateBillingAllOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/subordersstatebilling`,
     method: "GET",
@@ -542,7 +411,7 @@ export async function updateSuborder(
   options: UpdateSuborderOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, suborderId, suborder, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/suborders/${encodeURIComponent(suborderId)}`,
     method: "PUT",
@@ -554,7 +423,7 @@ export async function fetchOrderExpensePostings(
   options: FetchOrderExpensePostingsOptions,
 ): Promise<JsonValue | undefined> {
   const { orderId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/expensepostings`,
     method: "GET",
@@ -565,7 +434,7 @@ export async function fetchOrderExpensePostings(
 export async function fetchExpensePostings(
   options: FetchExpensePostingsOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/expensepostings`,
     method: "GET",
@@ -589,7 +458,7 @@ export async function createExpensePosting(
     deleteMassdataOnFailure,
     ...rest
   } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/orders/${encodeURIComponent(orderId)}/suborders/${encodeURIComponent(suborderId)}/expensepostings`,
     method: "POST",
@@ -605,7 +474,7 @@ export async function fetchInvoice(
   options: FetchInvoiceOptions,
 ): Promise<JsonValue | undefined> {
   const { invoiceId, ...rest } = options;
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...rest,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/invoices/${encodeURIComponent(invoiceId)}`,
     method: "GET",
@@ -615,7 +484,7 @@ export async function fetchInvoice(
 export async function fetchInvoices(
   options: FetchInvoicesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/invoices`,
     method: "GET",
@@ -631,7 +500,7 @@ export async function fetchInvoices(
 export async function fetchEmployeeCapacities(
   options: FetchEmployeeCapacitiesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/employeecapacities`,
     method: "GET",
@@ -647,7 +516,7 @@ export async function fetchEmployeeCapacities(
 export async function fetchEmployeesWithGroup(
   options: FetchEmployeesWithGroupOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/employeeswithgroup`,
     method: "GET",
@@ -663,7 +532,7 @@ export async function fetchEmployeesWithGroup(
 export async function fetchEmployeeQualifications(
   options: FetchEmployeeQualificationsOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/employeesqualification`,
     method: "GET",
@@ -679,7 +548,7 @@ export async function fetchEmployeeQualifications(
 export async function fetchEmployeeCostRates(
   options: FetchEmployeeCostRatesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/employeescostrate`,
     method: "GET",
@@ -695,7 +564,7 @@ export async function fetchEmployeeCostRates(
 export async function fetchChargeRates(
   options: FetchChargeRatesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/chargerates`,
     method: "GET",
@@ -711,7 +580,7 @@ export async function fetchChargeRates(
 export async function fetchOrderManagementCostCenters(
   options: FetchOrderManagementCostCentersOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/costcenters`,
     method: "GET",
@@ -727,7 +596,7 @@ export async function fetchOrderManagementCostCenters(
 export async function fetchFees(
   options: FetchFeesOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/fees`,
     method: "GET",
@@ -743,7 +612,7 @@ export async function fetchFees(
 export async function fetchFeePlans(
   options: FetchFeePlansOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/feeplans`,
     method: "GET",
@@ -759,7 +628,7 @@ export async function fetchFeePlans(
 export async function fetchSelfClients(
   options: FetchSelfClientsOptions,
 ): Promise<JsonValue | undefined> {
-  return sendRequest({
+  return sendOrderManagementRequest({
     ...options,
     path: `${ORDER_MANAGEMENT_BASE_PATH}/selfclients`,
     method: "GET",

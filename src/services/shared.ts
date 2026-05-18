@@ -33,12 +33,67 @@ export interface BaseRequestOptions {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
   fetchImpl?: typeof fetch; // Backward compatibility for tests
 }
 
 export const JSON_CONTENT_TYPE = "application/json";
 export const DEFAULT_ERROR_PREFIX = "DATEVconnect request failed";
+
+export type QueryValue = string | number | boolean | undefined | null;
+export type QueryParams = Record<string, QueryValue>;
+export type DatevConnectRequestMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE";
+export type DatevConnectHeaderCase = "lower" | "standard";
+
+export interface DatevConnectJsonRequestResult {
+  data: JsonValue | string | undefined;
+  response: Response;
+}
+
+export interface ExtractErrorMessageOptions {
+  errorPrefix?: string;
+  preferredMessageFields?: string[];
+  includeErrorDescription?: boolean;
+}
+
+export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
+  path: string;
+  method: DatevConnectRequestMethod;
+  query?: QueryParams;
+  body?: JsonValue;
+  headers?: Record<string, string | undefined>;
+  accept?: string;
+  contentType?: string;
+  headerCase?: DatevConnectHeaderCase;
+  skipEmptyQueryValues?: boolean;
+  errorPrefix?: string;
+  errorMessageOptions?: ExtractErrorMessageOptions;
+}
+
+export type DatevConnectJsonRequestDefaults = Partial<
+  Pick<
+    SendDatevConnectJsonRequestOptions,
+    | "accept"
+    | "contentType"
+    | "headerCase"
+    | "skipEmptyQueryValues"
+    | "errorPrefix"
+    | "errorMessageOptions"
+    | "headers"
+  >
+>;
+
+export type ConfiguredDatevConnectJsonRequestOptions = Omit<
+  SendDatevConnectJsonRequestOptions,
+  keyof DatevConnectJsonRequestDefaults
+> &
+  DatevConnectJsonRequestDefaults;
 
 export function normaliseBaseUrl(host: string): string {
   if (!host) {
@@ -62,9 +117,61 @@ export function buildHeaders(
   );
 }
 
+export function resolveFetchImpl(
+  options: Pick<BaseRequestOptions, "httpHelper" | "fetchImpl">,
+): typeof fetch {
+  return options.httpHelper
+    ? createFetchFromHttpHelper(options.httpHelper)
+    : options.fetchImpl || fetch;
+}
+
+export function appendQueryParams(
+  url: URL,
+  query?: QueryParams,
+  options: { skipEmptyString?: boolean } = {},
+): URL {
+  if (!query) {
+    return url;
+  }
+
+  for (const [key, value] of Object.entries(query)) {
+    if (
+      value === undefined ||
+      value === null ||
+      (options.skipEmptyString && value === "")
+    ) {
+      continue;
+    }
+    url.searchParams.set(key, String(value));
+  }
+
+  return url;
+}
+
+export function buildDatevConnectHeaders(
+  options: Pick<BaseRequestOptions, "token" | "clientInstanceId" | "profileId">,
+  headers: Record<string, string | undefined> = {},
+  headerCase: DatevConnectHeaderCase = "standard",
+): Record<string, string> {
+  const profileId = options.profileId?.trim();
+  const authorizationHeader =
+    headerCase === "lower" ? "authorization" : "Authorization";
+
+  return buildHeaders({
+    [authorizationHeader]: `Bearer ${options.token}`,
+    "x-client-instance-id": options.clientInstanceId,
+    "x-profile-id": profileId,
+    ...headers,
+  }) as Record<string, string>;
+}
+
 export async function readResponseBody(
   response: Response,
 ): Promise<JsonValue | string | undefined> {
+  if (response.status === 204 || response.status === 205) {
+    return undefined;
+  }
+
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.toLowerCase().includes(JSON_CONTENT_TYPE)) {
@@ -106,7 +213,9 @@ type DatevErrorBody = {
   additional_messages?: DatevAdditionalMessage[];
 };
 
-function isRecord(value: JsonValue | undefined): value is Record<string, JsonValue> {
+function isRecord(
+  value: JsonValue | undefined,
+): value is Record<string, JsonValue> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
@@ -169,7 +278,10 @@ function parseDatevErrorBody(
 
 function formatAdditionalMessage(message: DatevAdditionalMessage): string {
   const mainPart =
-    [message.severity ? `[${message.severity}]` : undefined, message.description]
+    [
+      message.severity ? `[${message.severity}]` : undefined,
+      message.description,
+    ]
       .filter((part): part is string => Boolean(part))
       .join(" ") || "Additional message";
 
@@ -188,7 +300,9 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
     "DATEVconnect returned an error response";
 
   const details = [
-    body.error && body.error_description ? `Error ID: ${body.error}` : undefined,
+    body.error && body.error_description
+      ? `Error ID: ${body.error}`
+      : undefined,
     body.request_id ? `Request ID: ${body.request_id}` : undefined,
     body.error_uri ? `More info: ${body.error_uri}` : undefined,
     body.additional_messages?.length
@@ -206,13 +320,35 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
 export function extractErrorMessage(
   response: Response,
   body: JsonValue | string | undefined,
+  options: string | ExtractErrorMessageOptions = DEFAULT_ERROR_PREFIX,
 ): string {
+  const {
+    errorPrefix = DEFAULT_ERROR_PREFIX,
+    preferredMessageFields,
+    includeErrorDescription,
+  } = typeof options === "string" ? { errorPrefix: options } : options;
   const statusPart =
     `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
-  const prefix = `${DEFAULT_ERROR_PREFIX}${statusPart ? ` (${statusPart})` : ""}`;
+  const prefix = `${errorPrefix}${statusPart ? ` (${statusPart})` : ""}`;
 
   if (typeof body === "string" && body.trim().length > 0) {
     return `${prefix}: ${body.trim()}`;
+  }
+
+  if (isRecord(body) && preferredMessageFields?.length) {
+    for (const field of preferredMessageFields) {
+      const message = readString(body, field);
+      if (!message) {
+        continue;
+      }
+
+      if (field === "error" && includeErrorDescription) {
+        const description = readString(body, "error_description");
+        return `${prefix}: ${message}${description ? `: ${description}` : ""}`;
+      }
+
+      return `${prefix}: ${message}`;
+    }
   }
 
   const datevError = parseDatevErrorBody(body);
@@ -232,11 +368,12 @@ export function extractErrorMessage(
 
 export async function ensureSuccess(
   response: Response,
+  errorPrefix = DEFAULT_ERROR_PREFIX,
 ): Promise<JsonValue | undefined> {
   const body = await readResponseBody(response);
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(response, body));
+    throw new Error(extractErrorMessage(response, body, errorPrefix));
   }
 
   if (body && typeof body === "object") {
@@ -247,13 +384,115 @@ export async function ensureSuccess(
     return undefined;
   }
 
-  throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected JSON response body.`);
+  throw new Error(`${errorPrefix}: Expected JSON response body.`);
 }
 
-export function buildApiUrl(host: string, path: string): URL {
+function applyJsonRequestDefaults(
+  defaults: DatevConnectJsonRequestDefaults,
+  options: ConfiguredDatevConnectJsonRequestOptions,
+): SendDatevConnectJsonRequestOptions {
+  return {
+    ...defaults,
+    ...options,
+    headers: {
+      ...defaults.headers,
+      ...options.headers,
+    },
+    errorMessageOptions: {
+      ...defaults.errorMessageOptions,
+      ...options.errorMessageOptions,
+    },
+  };
+}
+
+export function createDatevConnectJsonRequester(
+  defaults: DatevConnectJsonRequestDefaults,
+): (
+  options: ConfiguredDatevConnectJsonRequestOptions,
+) => Promise<DatevConnectJsonRequestResult> {
+  return (options) =>
+    sendDatevConnectJsonRequest(applyJsonRequestDefaults(defaults, options));
+}
+
+export function createDatevConnectJsonDataRequester(
+  defaults: DatevConnectJsonRequestDefaults,
+): (
+  options: ConfiguredDatevConnectJsonRequestOptions,
+) => Promise<JsonValue | undefined> {
+  return async (options) => {
+    const result = await sendDatevConnectJsonRequest(
+      applyJsonRequestDefaults(defaults, options),
+    );
+    return result.data;
+  };
+}
+
+export function buildApiUrl(
+  host: string,
+  path: string,
+  query?: QueryParams,
+  queryOptions?: { skipEmptyString?: boolean },
+): URL {
   const baseUrl = normaliseBaseUrl(host);
   const trimmedPath = path.startsWith("/") ? path.slice(1) : path;
-  return new URL(trimmedPath, baseUrl);
+  return appendQueryParams(new URL(trimmedPath, baseUrl), query, queryOptions);
+}
+
+export async function sendDatevConnectJsonRequest(
+  options: SendDatevConnectJsonRequestOptions,
+): Promise<DatevConnectJsonRequestResult> {
+  const {
+    host,
+    path,
+    method,
+    query,
+    body,
+    headers: additionalHeaders,
+    accept = JSON_CONTENT_TYPE,
+    contentType = JSON_CONTENT_TYPE,
+    headerCase = "lower",
+    skipEmptyQueryValues,
+    errorPrefix = DEFAULT_ERROR_PREFIX,
+    errorMessageOptions,
+  } = options;
+  const contentTypeHeader = "content-type";
+  const acceptHeader = headerCase === "lower" ? "accept" : "Accept";
+  const url = buildApiUrl(host, path, query, {
+    skipEmptyString: skipEmptyQueryValues,
+  });
+  const headers = buildDatevConnectHeaders(
+    options,
+    {
+      [acceptHeader]: accept,
+      ...(body === undefined ? {} : { [contentTypeHeader]: contentType }),
+      ...additionalHeaders,
+    },
+    headerCase,
+  );
+  const fetchImpl = resolveFetchImpl(options);
+  const requestInit: RequestInit = {
+    method,
+    headers,
+  };
+  if (body !== undefined) {
+    requestInit.body = JSON.stringify(body);
+  }
+  const response = await fetchImpl(url, requestInit);
+  const responseBody = await readResponseBody(response);
+
+  if (!response.ok) {
+    throw new Error(
+      extractErrorMessage(response, responseBody, {
+        errorPrefix,
+        ...errorMessageOptions,
+      }),
+    );
+  }
+
+  return {
+    data: responseBody,
+    response,
+  };
 }
 
 /**
@@ -319,6 +558,7 @@ export interface DatevConnectCredentialFields {
   password?: string;
   apiKey?: string;
   clientInstanceId?: string;
+  profileId?: string;
 }
 
 const CREDENTIAL_ERROR = "Provide either email and password or a user API key.";
@@ -332,10 +572,18 @@ export interface DatevConnectAuthContext {
   host: string;
   token: string;
   clientInstanceId: string;
+  profileId?: string;
   httpHelper?: HttpRequestHelper;
 }
 
 const CREDENTIALS_MISSING = "DATEVconnect credentials are missing";
+
+function normalizeOptionalString(
+  value: string | undefined,
+): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
 
 /**
  * Validates credentials, resolves the Bearer token, and returns the auth context.
@@ -356,10 +604,12 @@ export async function getDatevConnectAuthContext(
     throw new Error(CREDENTIAL_ERROR);
   }
   const token = await resolveTokenFromCredentials(credentials, options);
+  const profileId = normalizeOptionalString(credentials.profileId);
   return {
     host,
     token,
     clientInstanceId,
+    ...(profileId ? { profileId } : {}),
     httpHelper: options?.httpHelper,
   };
 }

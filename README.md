@@ -49,6 +49,7 @@ You need a Klardaten account and an instance id (of the DATEV instance you want 
 - `email`
 - `password`
 - `clientInstanceId`
+- `profileId` (optional)
 
 ## Running Tests
 
@@ -84,6 +85,12 @@ The local release command updates the version and changelog, creates the release
 4. Execute the workflow or schedule it as part of a larger automation.
 
 All nodes authenticate using the stored credentials and interact with their respective DATEVconnect APIs.
+
+### Profile Selection
+
+DATEVconnect profiles are managed in Klardaten. You can optionally set a Profile ID on the credential to use it as the default for all nodes using that credential. Each node also has an optional Profile ID field; if set, the node value overrides the credential value for that execution.
+
+If no Profile ID is configured, Klardaten resolves the default profile for the user and client instance. The effective fallback order is: node Profile ID -> credential Profile ID -> Klardaten backend default profile.
 
 ## Additional Notes
 

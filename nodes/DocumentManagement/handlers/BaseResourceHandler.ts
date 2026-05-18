@@ -128,6 +128,9 @@ export abstract class BaseResourceHandler {
       host: credentials.host,
       token,
       clientInstanceId: credentials.clientInstanceId,
+      ...(credentials.profileId?.trim()
+        ? { profileId: credentials.profileId.trim() }
+        : {}),
     };
   }
 

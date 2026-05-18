@@ -33,9 +33,7 @@ export class DomainResourceHandler extends BaseResourceHandler {
     const filter = this.getOptionalString("filter");
 
     const response = await DocumentManagementClient.fetchDomains({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       filter,
     });
 

@@ -16,6 +16,7 @@ export interface DatevConnectCredentials {
   password?: string;
   apiKey?: string;
   clientInstanceId: string;
+  profileId?: string;
 }
 
 const CREDENTIAL_TYPE = "datevConnectApi";
@@ -48,4 +49,28 @@ export async function getDatevConnectAuthContextForNode(
     }
     throw new NodeApiError(context.getNode(), { message });
   }
+}
+
+export function getDatevConnectRequestContextForNode(
+  context: IExecuteFunctions,
+  auth: DatevConnectAuthContext,
+  itemIndex: number,
+): DatevConnectAuthContext {
+  const paramClientInstanceId = context.getNodeParameter(
+    "clientInstanceId",
+    itemIndex,
+    "",
+  ) as string;
+  const paramProfileId = context.getNodeParameter(
+    "profileId",
+    itemIndex,
+    "",
+  ) as string;
+  const profileId = paramProfileId.trim() || auth.profileId;
+
+  return {
+    ...auth,
+    clientInstanceId: paramClientInstanceId || auth.clientInstanceId,
+    ...(profileId ? { profileId } : {}),
+  };
 }

@@ -1,11 +1,9 @@
-import { createFetchFromHttpHelper } from "./httpHelpers";
 import {
   type JsonValue,
-  type HttpRequestHelper,
   type BaseRequestOptions,
-  buildHeaders,
-  buildApiUrl,
-  ensureSuccess,
+  type DatevConnectRequestMethod,
+  type QueryParams,
+  sendDatevConnectJsonRequest,
   JSON_CONTENT_TYPE,
   DEFAULT_ERROR_PREFIX,
 } from "./shared";
@@ -267,61 +265,37 @@ const AREA_OF_RESPONSIBILITIES_PATH = `${MASTER_DATA_BASE_PATH}/area-of-responsi
 const ADDRESSEES_PATH = `${MASTER_DATA_BASE_PATH}/addressees`;
 const ADDRESSEES_DELETION_LOG_PATH = `${ADDRESSEES_PATH}/deletion-log`;
 
-type RequestMethod = "GET" | "POST" | "PUT";
-
-interface MasterDataRequestOptions {
-  host: string;
-  token: string;
-  clientInstanceId: string;
+interface MasterDataRequestOptions extends BaseRequestOptions {
   path: string;
-  method: RequestMethod;
-  query?: Record<string, string | number | undefined | null>;
+  method: DatevConnectRequestMethod;
+  query?: QueryParams;
   body?: JsonValue;
-  httpHelper?: HttpRequestHelper;
-  fetchImpl?: typeof fetch; // Backward compatibility for tests
+}
+
+function requireJsonResponseBody(
+  body: JsonValue | string | undefined,
+): JsonValue | undefined {
+  if (typeof body === "string") {
+    throw new Error(`${DEFAULT_ERROR_PREFIX}: Expected JSON response body.`);
+  }
+
+  return body;
 }
 
 async function sendMasterDataRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const {
-    host,
-    token,
-    clientInstanceId,
-    path,
-    method,
-    query,
-    body,
-    httpHelper,
-    fetchImpl: providedFetchImpl,
-  } = options;
-  const url = buildApiUrl(host, path);
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined || value === null) {
-        continue;
-      }
-      url.searchParams.set(key, String(value));
-    }
-  }
-
-  const fetchImpl = httpHelper
-    ? createFetchFromHttpHelper(httpHelper)
-    : providedFetchImpl || fetch;
-
-  const response = await fetchImpl(url, {
-    method,
-    headers: buildHeaders({
-      accept: JSON_CONTENT_TYPE,
-      authorization: `Bearer ${token}`,
+  const result = await sendDatevConnectJsonRequest({
+    ...options,
+    accept: JSON_CONTENT_TYPE,
+    contentType: JSON_CONTENT_TYPE,
+    headerCase: "lower",
+    headers: {
       "content-type": JSON_CONTENT_TYPE,
-      "x-client-instance-id": clientInstanceId,
-    }),
-    body: body === undefined ? undefined : JSON.stringify(body),
+    },
   });
 
-  return ensureSuccess(response);
+  return requireJsonResponseBody(result.data);
 }
 
 export async function fetchClients(
@@ -1655,44 +1629,17 @@ const ACCOUNTING_BASE_PATH = "datevconnect/accounting/v1";
 async function sendAccountingRequest(
   options: MasterDataRequestOptions,
 ): Promise<JsonValue | undefined> {
-  const {
-    host,
-    token,
-    clientInstanceId,
-    path,
-    method,
-    query,
-    body,
-    httpHelper,
-    fetchImpl: providedFetchImpl,
-  } = options;
-  const url = buildApiUrl(host, path);
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined || value === null) {
-        continue;
-      }
-      url.searchParams.set(key, String(value));
-    }
-  }
-
-  const fetchImpl = httpHelper
-    ? createFetchFromHttpHelper(httpHelper)
-    : providedFetchImpl || fetch;
-
-  const response = await fetchImpl(url, {
-    method,
-    headers: buildHeaders({
-      accept: JSON_CONTENT_TYPE,
-      authorization: `Bearer ${token}`,
+  const result = await sendDatevConnectJsonRequest({
+    ...options,
+    accept: JSON_CONTENT_TYPE,
+    contentType: JSON_CONTENT_TYPE,
+    headerCase: "lower",
+    headers: {
       "content-type": JSON_CONTENT_TYPE,
-      "x-client-instance-id": clientInstanceId,
-    }),
-    body: body === undefined ? undefined : JSON.stringify(body),
+    },
   });
 
-  return ensureSuccess(response);
+  return requireJsonResponseBody(result.data);
 }
 
 export async function fetchAccountingClients(

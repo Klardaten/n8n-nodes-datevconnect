@@ -54,6 +54,24 @@ describe("IdentityAndAccessManagementClient", () => {
     expect(result).toEqual(payload);
   });
 
+  test("adds x-profile-id when profileId is provided", async () => {
+    const payload = { documentationUri: "https://docs.example" };
+    mockFetch.mockResolvedValueOnce(jsonResponse(payload));
+
+    await IdentityAndAccessManagementClient.fetchServiceProviderConfig({
+      host: "https://localhost:58452",
+      token: "token-123",
+      clientInstanceId: "instance-abc",
+      profileId: " iam-profile ",
+    });
+
+    const [, init] = mockFetch.mock.calls[0];
+    expect(init?.headers).toMatchObject({
+      "x-client-instance-id": "instance-abc",
+      "x-profile-id": "iam-profile",
+    });
+  });
+
   test("fetchUsers forwards SCIM query parameters", async () => {
     const payload = { Resources: [{ id: "user-1" }], totalResults: 1 };
     mockFetch.mockResolvedValueOnce(jsonResponse(payload));
