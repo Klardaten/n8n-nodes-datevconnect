@@ -1,9 +1,11 @@
 import {
+  NodeApiError,
   NodeOperationError,
   type IExecuteFunctions,
   type INodeExecutionData,
   type INodeType,
   type INodeTypeDescription,
+  type JsonObject,
 } from "n8n-workflow";
 
 import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
@@ -20,6 +22,7 @@ import type { Resource } from "./types";
 export class IdentityAndAccessManagement implements INodeType {
   description: INodeTypeDescription = {
     ...identityAndAccessManagementNodeDescription,
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     icon:
       identityAndAccessManagementNodeDescription.icon ??
       "file:../klardaten.svg",
@@ -33,51 +36,80 @@ export class IdentityAndAccessManagement implements INodeType {
     const auth = await getDatevConnectAuthContextForNode(this);
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter(
-        "clientInstanceId",
-        itemIndex,
-        "",
-      ) as string;
-      const effectiveClientInstanceId =
-        paramClientInstanceId || auth.clientInstanceId;
+      try {
+        const paramClientInstanceId = this.getNodeParameter(
+          "clientInstanceId",
+          itemIndex,
+          "",
+        ) as string;
+        const effectiveClientInstanceId =
+          paramClientInstanceId || auth.clientInstanceId;
 
-      const authContext = {
-        ...auth,
-        clientInstanceId: effectiveClientInstanceId,
-      };
+        const authContext = {
+          ...auth,
+          clientInstanceId: effectiveClientInstanceId,
+        };
 
-      const resource = this.getNodeParameter("resource", itemIndex) as Resource;
-      const operation = this.getNodeParameter("operation", itemIndex) as string;
+        const resource = this.getNodeParameter(
+          "resource",
+          itemIndex,
+        ) as Resource;
+        const operation = this.getNodeParameter(
+          "operation",
+          itemIndex,
+        ) as string;
 
-      let handler: BaseResourceHandler;
-      switch (resource) {
-        case "serviceProviderConfig":
-          handler = new ServiceProviderConfigResourceHandler(this, itemIndex);
-          break;
-        case "resourceType":
-          handler = new ResourceTypeResourceHandler(this, itemIndex);
-          break;
-        case "schema":
-          handler = new SchemaResourceHandler(this, itemIndex);
-          break;
-        case "user":
-          handler = new UserResourceHandler(this, itemIndex);
-          break;
-        case "currentUser":
-          handler = new CurrentUserResourceHandler(this, itemIndex);
-          break;
-        case "group":
-          handler = new GroupResourceHandler(this, itemIndex);
-          break;
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `The resource "${resource}" is not supported.`,
-            { itemIndex },
-          );
+        let handler: BaseResourceHandler;
+        switch (resource) {
+          case "serviceProviderConfig":
+            handler = new ServiceProviderConfigResourceHandler(this, itemIndex);
+            break;
+          case "resourceType":
+            handler = new ResourceTypeResourceHandler(this, itemIndex);
+            break;
+          case "schema":
+            handler = new SchemaResourceHandler(this, itemIndex);
+            break;
+          case "user":
+            handler = new UserResourceHandler(this, itemIndex);
+            break;
+          case "currentUser":
+            handler = new CurrentUserResourceHandler(this, itemIndex);
+            break;
+          case "group":
+            handler = new GroupResourceHandler(this, itemIndex);
+            break;
+          default:
+            throw new NodeOperationError(
+              this.getNode(),
+              `The resource "${resource}" is not supported.`,
+              { itemIndex },
+            );
+        }
+
+        await handler.execute(operation, authContext, returnData);
+      } catch (error) {
+        if (this.continueOnFail()) {
+          returnData.push({
+            json: {
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Unknown error occurred",
+            },
+            pairedItem: { item: itemIndex },
+          });
+        } else {
+          if (error instanceof NodeOperationError) {
+            throw new NodeOperationError(this.getNode(), error.message, {
+              itemIndex,
+            });
+          }
+          throw new NodeApiError(this.getNode(), error as JsonObject, {
+            itemIndex,
+          });
+        }
       }
-
-      await handler.execute(operation, authContext, returnData);
     }
 
     return [returnData];

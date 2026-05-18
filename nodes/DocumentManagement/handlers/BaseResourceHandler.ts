@@ -70,7 +70,9 @@ export abstract class BaseResourceHandler {
           error instanceof NodeApiError ||
           error instanceof NodeOperationError
         ) {
-          throw error;
+          throw new NodeOperationError(this.context.getNode(), error.message, {
+            itemIndex: this.itemIndex,
+          });
         }
         throw new NodeApiError(this.context.getNode(), toErrorObject(error), {
           itemIndex: this.itemIndex,

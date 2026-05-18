@@ -1,9 +1,11 @@
 import {
+  NodeApiError,
   NodeOperationError,
   type IExecuteFunctions,
   type INodeExecutionData,
   type INodeType,
   type INodeTypeDescription,
+  type JsonObject,
 } from "n8n-workflow";
 
 import { getDatevConnectAuthContextForNode } from "../common/datevConnectAuth";
@@ -22,6 +24,7 @@ import type { AuthContext, Resource } from "./types";
 export class OrderManagement implements INodeType {
   description: INodeTypeDescription = {
     ...orderManagementNodeDescription,
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     icon: orderManagementNodeDescription.icon ?? "file:../klardaten.svg",
     usableAsTool: true,
   };
@@ -33,56 +36,85 @@ export class OrderManagement implements INodeType {
     const auth = await getDatevConnectAuthContextForNode(this);
 
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      const paramClientInstanceId = this.getNodeParameter(
-        "clientInstanceId",
-        itemIndex,
-        "",
-      ) as string;
-      const effectiveClientInstanceId =
-        paramClientInstanceId || auth.clientInstanceId;
+      try {
+        const paramClientInstanceId = this.getNodeParameter(
+          "clientInstanceId",
+          itemIndex,
+          "",
+        ) as string;
+        const effectiveClientInstanceId =
+          paramClientInstanceId || auth.clientInstanceId;
 
-      const authContext: AuthContext = {
-        ...auth,
-        clientInstanceId: effectiveClientInstanceId,
-      };
-      const resource = this.getNodeParameter("resource", itemIndex) as Resource;
-      const operation = this.getNodeParameter("operation", itemIndex) as string;
+        const authContext: AuthContext = {
+          ...auth,
+          clientInstanceId: effectiveClientInstanceId,
+        };
+        const resource = this.getNodeParameter(
+          "resource",
+          itemIndex,
+        ) as Resource;
+        const operation = this.getNodeParameter(
+          "operation",
+          itemIndex,
+        ) as string;
 
-      let handler: BaseResourceHandler;
-      switch (resource) {
-        case "order":
-          handler = new OrderResourceHandler(this, itemIndex);
-          break;
-        case "orderType":
-          handler = new OrderTypeResourceHandler(this, itemIndex);
-          break;
-        case "clientGroup":
-          handler = new ClientGroupResourceHandler(this, itemIndex);
-          break;
-        case "invoice":
-          handler = new InvoiceResourceHandler(this, itemIndex);
-          break;
-        case "employee":
-          handler = new EmployeeResourceHandler(this, itemIndex);
-          break;
-        case "fee":
-          handler = new FeeResourceHandler(this, itemIndex);
-          break;
-        case "costCenter":
-          handler = new CostCenterResourceHandler(this, itemIndex);
-          break;
-        case "selfClient":
-          handler = new SelfClientResourceHandler(this, itemIndex);
-          break;
-        default:
-          throw new NodeOperationError(
-            this.getNode(),
-            `The resource "${resource}" is not supported.`,
-            { itemIndex },
-          );
+        let handler: BaseResourceHandler;
+        switch (resource) {
+          case "order":
+            handler = new OrderResourceHandler(this, itemIndex);
+            break;
+          case "orderType":
+            handler = new OrderTypeResourceHandler(this, itemIndex);
+            break;
+          case "clientGroup":
+            handler = new ClientGroupResourceHandler(this, itemIndex);
+            break;
+          case "invoice":
+            handler = new InvoiceResourceHandler(this, itemIndex);
+            break;
+          case "employee":
+            handler = new EmployeeResourceHandler(this, itemIndex);
+            break;
+          case "fee":
+            handler = new FeeResourceHandler(this, itemIndex);
+            break;
+          case "costCenter":
+            handler = new CostCenterResourceHandler(this, itemIndex);
+            break;
+          case "selfClient":
+            handler = new SelfClientResourceHandler(this, itemIndex);
+            break;
+          default:
+            throw new NodeOperationError(
+              this.getNode(),
+              `The resource "${resource}" is not supported.`,
+              { itemIndex },
+            );
+        }
+
+        await handler.execute(operation, authContext, returnData);
+      } catch (error) {
+        if (this.continueOnFail()) {
+          returnData.push({
+            json: {
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Unknown error occurred",
+            },
+            pairedItem: { item: itemIndex },
+          });
+        } else {
+          if (error instanceof NodeOperationError) {
+            throw new NodeOperationError(this.getNode(), error.message, {
+              itemIndex,
+            });
+          }
+          throw new NodeApiError(this.getNode(), error as JsonObject, {
+            itemIndex,
+          });
+        }
       }
-
-      await handler.execute(operation, authContext, returnData);
     }
 
     return [returnData];
