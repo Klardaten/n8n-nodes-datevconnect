@@ -91,7 +91,10 @@ export function getOptionalString(
     parameterName,
     itemIndex,
     "",
-  ) as string;
+  ) as unknown;
+  if (typeof value !== "string") {
+    return undefined;
+  }
   return value.trim() || undefined;
 }
 
@@ -103,11 +106,26 @@ export function getRequiredString(
   parameterName: string,
   itemIndex: number,
 ): string {
-  const value = getOptionalString(context, parameterName, itemIndex);
-  if (!value) {
-    throw new Error(`Parameter '${parameterName}' is required`);
+  const value = context.getNodeParameter(
+    parameterName,
+    itemIndex,
+    "",
+  ) as unknown;
+  const normalizedValue =
+    typeof value === "number"
+      ? String(value)
+      : typeof value === "string"
+        ? value.trim()
+        : "";
+
+  if (!normalizedValue) {
+    throw new NodeOperationError(
+      context.getNode(),
+      `Parameter '${parameterName}' is required and must be a string or number`,
+      { itemIndex },
+    );
   }
-  return value;
+  return normalizedValue;
 }
 
 /**
