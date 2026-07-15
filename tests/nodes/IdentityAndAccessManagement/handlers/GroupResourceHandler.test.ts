@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
-import { NodeOperationError } from "n8n-workflow";
+import { NodeApiError, NodeOperationError } from "n8n-workflow";
 import { GroupResourceHandler } from "../../../../nodes/IdentityAndAccessManagement/handlers/GroupResourceHandler";
 import { IdentityAndAccessManagementClient } from "../../../../src/services/identityAndAccessManagementClient";
 import type { AuthContext } from "../../../../nodes/IdentityAndAccessManagement/types";
@@ -174,6 +174,35 @@ describe("IdentityAndAccessManagement - GroupResourceHandler", () => {
     await handler.execute("get", authContext, returnData);
 
     expect(returnData[0].json.error).toBe("boom");
+
+    fetchGroupSpy.mockRestore();
+  });
+
+  test("preserves API error response context when continueOnFail is false", async () => {
+    const apiError = new NodeApiError(context.getNode(), {
+      message: "DATEV IAM request failed",
+      statusCode: 403,
+      response: {
+        data: {
+          detail: "Insufficient permissions",
+        },
+      },
+    });
+    const fetchGroupSpy = spyOn(
+      IdentityAndAccessManagementClient,
+      "fetchGroup",
+    ).mockRejectedValueOnce(apiError);
+    context.getNodeParameter.mockImplementation((parameter: string) =>
+      parameter === "groupId" ? "group-403" : undefined,
+    );
+
+    const execution = handler.execute("get", authContext, []);
+
+    await expect(execution).rejects.toBe(apiError);
+    expect(apiError.httpCode).toBe("403");
+    expect(apiError.context.data).toEqual({
+      detail: "Insufficient permissions",
+    });
 
     fetchGroupSpy.mockRestore();
   });

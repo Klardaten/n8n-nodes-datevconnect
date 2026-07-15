@@ -12,7 +12,7 @@
   },
   "main": "./dist/index.js",
   "devDependencies": {
-    "@n8n/node-cli": "^0.29.1",
+    "@n8n/node-cli": "^0.39.3",
     "@types/node": "^24.10.2",
     "bun": "^1.3.2",
     "bun-types": "^1.3.2",
@@ -87,8 +87,5 @@
     "prettier": "npx prettier --write .",
     "format": "npm run prettier && npm run lint:fix"
   },
-  "types": "./dist/index.d.ts",
-  "overrides": {
-    "eslint-plugin-n8n-nodes-base": ">=1.16.6"
-  }
+  "types": "./dist/index.d.ts"
 }

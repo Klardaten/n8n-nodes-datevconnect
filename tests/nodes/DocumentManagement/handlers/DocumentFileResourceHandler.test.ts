@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { NodeApiError } from "n8n-workflow";
 import { DocumentFileResourceHandler } from "../../../../nodes/DocumentManagement/handlers/DocumentFileResourceHandler";
 import type { AuthContext } from "../../../../nodes/DocumentManagement/types";
 import { DocumentManagementClient } from "../../../../src/services/documentManagementClient";
@@ -68,5 +69,32 @@ describe("DocumentFileResourceHandler", () => {
         },
       },
     ]);
+  });
+
+  test("preserves API error response context when continueOnFail is false", async () => {
+    const apiError = new NodeApiError(mockContext.getNode(), {
+      message: "DATEV document file request failed",
+      statusCode: 404,
+      response: {
+        data: {
+          detail: "The document file does not exist",
+        },
+      },
+    });
+    spyOn(DocumentManagementClient, "fetchDocumentFile").mockRejectedValueOnce(
+      apiError,
+    );
+
+    const execution = documentFileResourceHandler.execute(
+      "get",
+      mockAuthContext,
+      [],
+    );
+
+    await expect(execution).rejects.toBe(apiError);
+    expect(apiError.httpCode).toBe("404");
+    expect(apiError.context.data).toEqual({
+      detail: "The document file does not exist",
+    });
   });
 });

@@ -3,6 +3,7 @@ import {
   NodeOperationError,
   type IExecuteFunctions,
   type INodeExecutionData,
+  type JsonObject,
 } from "n8n-workflow";
 import {
   validateDatevConnectCredentials,
@@ -66,10 +67,14 @@ export abstract class BaseResourceHandler {
           },
         });
       } else {
-        if (
-          error instanceof NodeApiError ||
-          error instanceof NodeOperationError
-        ) {
+        if (error instanceof NodeApiError) {
+          throw new NodeApiError(
+            this.context.getNode(),
+            error as unknown as JsonObject,
+            { itemIndex: this.itemIndex },
+          );
+        }
+        if (error instanceof NodeOperationError) {
           throw new NodeOperationError(this.context.getNode(), error.message, {
             itemIndex: this.itemIndex,
           });
