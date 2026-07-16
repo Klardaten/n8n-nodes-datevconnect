@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../../..");
 const workflowsDir = path.join(repoRoot, "tests/e2e/n8n/workflows");
 
-const DEFAULT_N8N_VERSION = "2.20.6";
+const DEFAULT_N8N_VERSION = "2.30.6";
 const DEFAULT_DATEV_HOST = "https://api.klardaten-sandbox.com";
 const CREDENTIAL_ID = "d4b2b595-7b23-4f4a-87d8-6ca1d06022df";
 const CREDENTIAL_NAME = "DATEVconnect E2E";

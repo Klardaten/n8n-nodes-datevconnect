@@ -38,7 +38,7 @@ describe("n8n E2E runner", () => {
   });
 
   test("accepts the known Order Management sandbox missing-plugin response", () => {
-    const error = new Error("npx -y n8n@2.20.6 execute --id abc exited");
+    const error = new Error("npx -y n8n@2.30.6 execute --id abc exited");
     Object.assign(error, {
       stderr: [
         "DATEV Order Management request failed (404 Not Found)",
