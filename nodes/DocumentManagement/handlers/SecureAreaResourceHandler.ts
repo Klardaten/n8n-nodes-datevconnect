@@ -34,9 +34,7 @@ export class SecureAreaResourceHandler extends BaseResourceHandler {
     sendSuccess: SendSuccessFunction,
   ): Promise<void> {
     const response = await DocumentManagementClient.fetchSecureAreas({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
     });
 
     sendSuccess(response);

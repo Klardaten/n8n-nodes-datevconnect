@@ -1,6 +1,69 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
+import type { IExecuteFunctions } from "n8n-workflow";
 import { Accounting } from "../../nodes/Accounting/Accounting.node";
+import { ClientResourceHandler } from "../../nodes/Accounting/handlers";
+
+type InputItem = { json: Record<string, unknown> };
+
+type ExecuteContextOptions = {
+  items?: InputItem[];
+  credentials?: Record<string, string> | null;
+  parameters?: Record<string, Array<unknown> | unknown>;
+};
+
+function createExecuteContext(options: ExecuteContextOptions = {}) {
+  const {
+    items = [{ json: {} }],
+    credentials = {
+      host: "https://api.example.com",
+      clientInstanceId: "instance-1",
+      apiKey: "uk-" + "x".repeat(61),
+    },
+    parameters = {},
+  } = options;
+
+  const parameterValues = new Map<string, Array<unknown>>();
+  for (const [name, value] of Object.entries(parameters)) {
+    parameterValues.set(name, Array.isArray(value) ? value : [value]);
+  }
+
+  return {
+    getInputData() {
+      return items;
+    },
+    async getCredentials() {
+      return credentials;
+    },
+    getNodeParameter(name: string, itemIndex: number, defaultValue?: unknown) {
+      const values = parameterValues.get(name);
+      if (!values || values[itemIndex] === undefined) {
+        return defaultValue;
+      }
+      return values[itemIndex];
+    },
+    getNode() {
+      return { name: "Accounting" };
+    },
+    helpers: {
+      returnJsonArray(data: Array<Record<string, unknown>>) {
+        return data.map((entry) => ({ json: entry }));
+      },
+      constructExecutionMetaData<T>(
+        data: Array<{ json: Record<string, unknown> }> & T[],
+        { itemData }: { itemData: { item: number } },
+      ) {
+        return data.map((entry) => ({
+          ...entry,
+          pairedItem: itemData,
+        }));
+      },
+    },
+    continueOnFail() {
+      return false;
+    },
+  };
+}
 
 describe("Accounting node", () => {
   test("node description is properly configured", () => {
@@ -127,6 +190,50 @@ describe("Accounting node", () => {
     const filterParam = properties.find((p) => p.name === "filter");
     expect(filterParam).toBeDefined();
     expect(filterParam?.type).toBe("string");
+
+    const profileIdParam = properties.find((p) => p.name === "profileId");
+    expect(profileIdParam).toBeDefined();
+    expect(profileIdParam?.type).toBe("string");
+  });
+
+  test("passes credential profileId and lets node profileId override it", async () => {
+    const accountingNode = new Accounting();
+    const context = createExecuteContext({
+      items: [{ json: {} }, { json: {} }],
+      credentials: {
+        host: "https://api.example.com",
+        clientInstanceId: "instance-1",
+        apiKey: "uk-" + "x".repeat(61),
+        profileId: "credential-profile",
+      },
+      parameters: {
+        resource: ["client", "client"],
+        operation: ["getAll", "getAll"],
+        profileId: ["", "node-profile"],
+      },
+    });
+
+    const clientHandlerSpy = spyOn(
+      ClientResourceHandler.prototype,
+      "execute",
+    ).mockResolvedValue();
+
+    await accountingNode.execute.call(context as unknown as IExecuteFunctions);
+
+    expect(clientHandlerSpy).toHaveBeenNthCalledWith(
+      1,
+      "getAll",
+      expect.objectContaining({ profileId: "credential-profile" }),
+      expect.any(Array),
+    );
+    expect(clientHandlerSpy).toHaveBeenNthCalledWith(
+      2,
+      "getAll",
+      expect.objectContaining({ profileId: "node-profile" }),
+      expect.any(Array),
+    );
+
+    clientHandlerSpy.mockRestore();
   });
 
   test("ID parameters are properly configured", () => {

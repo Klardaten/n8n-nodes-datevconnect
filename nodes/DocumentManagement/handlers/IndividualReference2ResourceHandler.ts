@@ -40,9 +40,7 @@ export class IndividualReference2ResourceHandler extends BaseResourceHandler {
     const skip = this.getNumberParameter("skip", 0);
 
     const response = await DocumentManagementClient.fetchIndividualReferences2({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       top: top || undefined,
       skip: skip || undefined,
     });
@@ -59,9 +57,7 @@ export class IndividualReference2ResourceHandler extends BaseResourceHandler {
     );
 
     const response = await DocumentManagementClient.createIndividualReference2({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       individualReference: individualReferenceData,
     });
 

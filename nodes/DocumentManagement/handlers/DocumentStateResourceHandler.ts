@@ -39,9 +39,7 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
     const filter = this.getOptionalString("filter");
 
     const response = await DocumentManagementClient.fetchDocumentStates({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       filter,
     });
 
@@ -55,9 +53,7 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
     const stateId = this.getRequiredString("stateId");
 
     const response = await DocumentManagementClient.fetchDocumentState({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       stateId,
     });
 
@@ -71,9 +67,7 @@ export class DocumentStateResourceHandler extends BaseResourceHandler {
     const stateData = this.getRequiredJsonData("stateData");
 
     const response = await DocumentManagementClient.createDocumentState({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       state: stateData,
     });
 

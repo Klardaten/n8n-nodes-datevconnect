@@ -101,9 +101,7 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
     const documentFileId = this.getRequiredString("documentFileId");
 
     const response = await DocumentManagementClient.fetchDocumentFile({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       fileId: documentFileId,
     });
 
@@ -152,9 +150,7 @@ export class DocumentFileResourceHandler extends BaseResourceHandler {
     }
 
     const response = await DocumentManagementClient.uploadDocumentFile({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       binaryData: bufferData as BodyInit,
     });
     sendSuccess(response);

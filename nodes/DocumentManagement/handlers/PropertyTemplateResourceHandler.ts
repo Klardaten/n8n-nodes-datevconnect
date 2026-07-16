@@ -36,9 +36,7 @@ export class PropertyTemplateResourceHandler extends BaseResourceHandler {
     const filter = this.getOptionalString("filter");
 
     const response = await DocumentManagementClient.fetchPropertyTemplates({
-      host: authContext.host,
-      token: authContext.token,
-      clientInstanceId: authContext.clientInstanceId,
+      ...authContext,
       filter,
     });
 
