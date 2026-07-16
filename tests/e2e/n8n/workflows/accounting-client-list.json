@@ -1,0 +1,73 @@
+{
+  "name": "E2E DATEV Accounting client list",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0b61d4c4-a9f8-4c60-9d5f-9009897e81a2",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "resource": "client",
+        "operation": "getAll",
+        "top": 1,
+        "skip": 0,
+        "clientInstanceId": ""
+      },
+      "id": "7b7fd885-b108-42ff-b72a-04f731328ad2",
+      "name": "Get Accounting Clients",
+      "type": "@klardaten/n8n-nodes-datevconnect.accounting",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "alwaysOutputData": true,
+      "credentials": {
+        "datevConnectApi": {
+          "id": "d4b2b595-7b23-4f4a-87d8-6ca1d06022df",
+          "name": "DATEVconnect E2E"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) {\n  throw new Error('Expected at least one item from DATEVconnect node.');\n}\nfor (const item of items) {\n  const data = item.json ?? {};\n  if (data.error) {\n    throw new Error(`DATEVconnect node returned error: ${data.error}`);\n  }\n  if (Object.keys(data).length === 0) {\n    throw new Error('DATEVconnect node returned an empty item.');\n  }\n}\nreturn items;"
+      },
+      "id": "c9879e34-7a47-4d8c-ab38-0a1d1e5cb8f7",
+      "name": "Assert Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Accounting Clients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Accounting Clients": {
+      "main": [
+        [
+          {
+            "node": "Assert Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

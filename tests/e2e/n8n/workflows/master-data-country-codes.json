@@ -1,0 +1,73 @@
+{
+  "name": "E2E DATEV Master Data country codes",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ce47f473-991a-4893-9d8e-9079a5e0368f",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "resource": "countryCode",
+        "operation": "getAll",
+        "top": 1,
+        "skip": 0,
+        "clientInstanceId": ""
+      },
+      "id": "0447c43d-388d-472e-a4a2-d943490f9181",
+      "name": "Get Country Codes",
+      "type": "@klardaten/n8n-nodes-datevconnect.masterData",
+      "typeVersion": 1,
+      "position": [260, 0],
+      "alwaysOutputData": true,
+      "credentials": {
+        "datevConnectApi": {
+          "id": "d4b2b595-7b23-4f4a-87d8-6ca1d06022df",
+          "name": "DATEVconnect E2E"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif (items.length === 0) {\n  throw new Error('Expected at least one item from DATEVconnect node.');\n}\nfor (const item of items) {\n  const data = item.json ?? {};\n  if (data.error) {\n    throw new Error(`DATEVconnect node returned error: ${data.error}`);\n  }\n  if (Object.keys(data).length === 0) {\n    throw new Error('DATEVconnect node returned an empty item.');\n  }\n}\nreturn items;"
+      },
+      "id": "66193945-59fa-4b3e-8642-f8170bc00546",
+      "name": "Assert Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Country Codes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Country Codes": {
+      "main": [
+        [
+          {
+            "node": "Assert Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
