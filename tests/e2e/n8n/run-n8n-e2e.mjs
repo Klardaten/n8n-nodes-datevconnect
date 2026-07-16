@@ -112,6 +112,7 @@ function readConfig() {
   return {
     host: readOptionalEnv("DATEV_E2E_HOST") ?? DEFAULT_DATEV_HOST,
     clientInstanceId: readRequiredEnv("DATEV_E2E_CLIENT_INSTANCE_ID"),
+    profileId: readRequiredEnv("DATEV_E2E_PROFILE_ID"),
     apiKey,
     email,
     password,
@@ -132,6 +133,7 @@ export function getCredentialScenarios(config) {
         password: "",
         apiKey: config.apiKey,
         clientInstanceId: config.clientInstanceId,
+        profileId: config.profileId,
       },
     });
   }
@@ -146,6 +148,7 @@ export function getCredentialScenarios(config) {
         password: config.password,
         apiKey: "",
         clientInstanceId: config.clientInstanceId,
+        profileId: config.profileId,
       },
     });
   }

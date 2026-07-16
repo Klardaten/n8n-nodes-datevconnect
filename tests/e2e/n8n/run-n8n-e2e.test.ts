@@ -21,6 +21,22 @@ describe("n8n E2E runner", () => {
     ]);
   });
 
+  test("uses the configured profile in every credential scenario", () => {
+    const scenarios = getCredentialScenarios({
+      host: "https://api.klardaten-sandbox.com",
+      clientInstanceId: "client-instance-id",
+      profileId: "service-account",
+      apiKey: "api-key",
+      email: "user@example.com",
+      password: "password",
+    });
+
+    expect(scenarios.map((scenario) => scenario.data.profileId)).toEqual([
+      "service-account",
+      "service-account",
+    ]);
+  });
+
   test("accepts the known Order Management sandbox missing-plugin response", () => {
     const error = new Error("npx -y n8n@2.20.6 execute --id abc exited");
     Object.assign(error, {
