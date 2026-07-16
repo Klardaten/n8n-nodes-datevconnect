@@ -100,6 +100,13 @@ export class IdentityAndAccessManagement implements INodeType {
             pairedItem: { item: itemIndex },
           });
         } else {
+          if (error instanceof NodeApiError) {
+            throw new NodeApiError(
+              this.getNode(),
+              error as unknown as JsonObject,
+              { itemIndex },
+            );
+          }
           if (error instanceof NodeOperationError) {
             throw new NodeOperationError(this.getNode(), error.message, {
               itemIndex,

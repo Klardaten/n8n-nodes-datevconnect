@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test, beforeEach, spyOn, mock } from "bun:test";
+import { NodeApiError } from "n8n-workflow";
 import { DocumentResourceHandler } from "../../../../nodes/DocumentManagement/handlers/DocumentResourceHandler";
 import { DocumentManagementClient } from "../../../../src/services/documentManagementClient";
 import type { AuthContext } from "../../../../nodes/DocumentManagement/types";
@@ -178,5 +179,32 @@ describe("DocumentResourceHandler", () => {
 
     expect(returnData).toHaveLength(1);
     expect(returnData[0].json.error).toBeDefined();
+  });
+
+  test("preserves API error response context when continueOnFail is false", async () => {
+    const apiError = new NodeApiError(mockContext.getNode(), {
+      message: "DATEV validation failed",
+      statusCode: 422,
+      response: {
+        data: {
+          detail: "The document is invalid",
+        },
+      },
+    });
+    spyOn(DocumentManagementClient, "fetchDocuments").mockRejectedValueOnce(
+      apiError,
+    );
+
+    const execution = documentResourceHandler.execute(
+      "getAll",
+      mockAuthContext,
+      [],
+    );
+
+    await expect(execution).rejects.toBe(apiError);
+    expect(apiError.httpCode).toBe("422");
+    expect(apiError.context.data).toEqual({
+      detail: "The document is invalid",
+    });
   });
 });
