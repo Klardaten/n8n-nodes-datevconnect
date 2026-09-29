@@ -1,9 +1,149 @@
 import { describe, expect, test } from "bun:test";
 
-import { createFetchFromHttpHelper } from "../../src/services/httpHelpers";
-import { ensureSuccess, DEFAULT_ERROR_PREFIX } from "../../src/services/shared";
+import {
+  createFetchFromHttpHelper,
+  type HttpRequestHelper,
+} from "../../src/services/httpHelpers";
+import {
+  authenticate,
+  ensureSuccess,
+  readResponseBody,
+  DEFAULT_ERROR_PREFIX,
+} from "../../src/services/shared";
 
 describe("createFetchFromHttpHelper", () => {
+  test("preserves every byte by requesting binary response encoding", async () => {
+    const original = Buffer.from(Array.from({ length: 256 }, (_, i) => i));
+    const httpHelper: HttpRequestHelper = async (options) => ({
+      body:
+        options.encoding === "arraybuffer"
+          ? original
+          : original.toString("utf8"),
+      statusCode: 200,
+      headers: { "content-type": "application/octet-stream" },
+    });
+
+    const response = await createFetchFromHttpHelper(httpHelper)(
+      "https://api.example.com/test",
+    );
+    const downloaded = Buffer.from(await response.arrayBuffer());
+
+    expect(downloaded.byteLength).toBe(original.byteLength);
+    expect(downloaded).toEqual(original);
+  });
+
+  test("decodes buffer-backed JSON and text with umlauts", async () => {
+    const payload = { name: "Müller", description: "Größe ändern" };
+    const serialized = JSON.stringify(payload);
+    const httpHelper: HttpRequestHelper = async () => ({
+      body: Buffer.from(serialized),
+      statusCode: 200,
+      headers: { "content-type": "application/json;charset=utf-8" },
+    });
+    const fetchImpl = createFetchFromHttpHelper(httpHelper);
+
+    const jsonResponse = await fetchImpl("https://api.example.com/test");
+    expect(await jsonResponse.json()).toEqual(payload);
+
+    const textResponse = await fetchImpl("https://api.example.com/test");
+    expect(await textResponse.text()).toBe(serialized);
+  });
+
+  test.each(["application/json", undefined])(
+    "authenticates with buffer-backed JSON (content-type: %s)",
+    async (contentType) => {
+      const httpHelper: HttpRequestHelper = async (options) => {
+        expect(options.encoding).toBe("arraybuffer");
+        expect(options.method).toBe("POST");
+        expect(JSON.parse(options.body as string)).toEqual({
+          email: "test@example.com",
+          password: "test-password",
+        });
+        return {
+          body: Buffer.from('{"access_token":"test-token"}'),
+          statusCode: 200,
+          headers: contentType ? { "content-type": contentType } : {},
+        };
+      };
+
+      expect(
+        await authenticate({
+          host: "https://api.example.com",
+          email: "test@example.com",
+          password: "test-password",
+          httpHelper,
+        }),
+      ).toEqual({ access_token: "test-token" });
+    },
+  );
+
+  test.each(["application/json", undefined])(
+    "preserves buffer-backed structured errors (content-type: %s)",
+    async (contentType) => {
+      const httpHelper: HttpRequestHelper = async () => {
+        throw {
+          response: {
+            status: 400,
+            statusText: "Bad Request",
+            headers: contentType ? { "content-type": contentType } : {},
+            data: Buffer.from(
+              JSON.stringify({
+                error: "validation_fault",
+                error_description: "Ungültige Anfrage",
+                request_id: "req-binary",
+              }),
+            ),
+          },
+        };
+      };
+      const response = await createFetchFromHttpHelper(httpHelper)(
+        "https://api.example.com/test",
+      );
+
+      await expect(ensureSuccess(response)).rejects.toThrow(
+        `${DEFAULT_ERROR_PREFIX} (400 Bad Request): Ungültige Anfrage | Error ID: validation_fault | Request ID: req-binary`,
+      );
+    },
+  );
+
+  test.each([
+    [undefined, "Service unavailable"],
+    [undefined, '{"incomplete":'],
+    ["text/plain", '{"message":"Keep as text"}'],
+    ["application/octet-stream", '{"message":"Keep as text"}'],
+  ])("keeps %s response as text: %s", async (contentType, body) => {
+    const httpHelper: HttpRequestHelper = async () => ({
+      body: Buffer.from(body!),
+      statusCode: 200,
+      headers: contentType ? { "content-type": contentType } : {},
+    });
+    const response = await createFetchFromHttpHelper(httpHelper)(
+      "https://api.example.com/test",
+    );
+
+    expect(await readResponseBody(response)).toBe(body);
+  });
+
+  test.each([200, 204, 205])(
+    "handles empty buffers with HTTP status %i",
+    async (statusCode) => {
+      const httpHelper: HttpRequestHelper = async () => ({
+        body: Buffer.alloc(0),
+        statusCode,
+        headers: {},
+      });
+      const fetchImpl = createFetchFromHttpHelper(httpHelper);
+      const response = await fetchImpl("https://api.example.com/test");
+
+      expect(response.status).toBe(statusCode);
+      expect((await response.arrayBuffer()).byteLength).toBe(0);
+      expect(await response.text()).toBe("");
+      await expect(
+        ensureSuccess(await fetchImpl("https://api.example.com/test")),
+      ).resolves.toBeUndefined();
+    },
+  );
+
   test("prefers upstream response status and body from n8n httpRequest errors", async () => {
     const httpHelper = async () => {
       throw {

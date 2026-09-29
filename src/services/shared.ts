@@ -184,6 +184,13 @@ export async function readResponseBody(
 
   try {
     const text = await response.text();
+    if (!contentType && text.length > 0) {
+      try {
+        return JSON.parse(text) as JsonValue;
+      } catch {
+        return text;
+      }
+    }
     return text.length > 0 ? text : undefined;
   } catch {
     return undefined;
