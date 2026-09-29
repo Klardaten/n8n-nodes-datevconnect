@@ -222,6 +222,7 @@ export function createFetchFromHttpHelper(
         method,
         headers,
         body: init?.body,
+        encoding: "arraybuffer",
         returnFullResponse: true,
       });
 
