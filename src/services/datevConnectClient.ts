@@ -1768,17 +1768,16 @@ export async function fetchAccountsReceivable(
 export async function fetchAccountsReceivableCondensed(
   options: FetchAccountsReceivableCondensedOptions,
 ): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select, filter, top, skip } = options;
+  // DATEV does not support paging for condensed open items.
+  const { clientId, fiscalYearId, select, filter } = options;
 
   const body = await sendAccountingRequest({
     ...options,
-    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-receivable/condensed`,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/accounts-receivable/condense`,
     method: "GET",
     query: {
       select: select,
       filter: filter,
-      top: top,
-      skip: skip,
     },
   });
 
@@ -1846,7 +1845,8 @@ export async function fetchAccountsPayable(
 export async function fetchAccountsPayableCondensed(
   options: FetchAccountsPayableCondensedOptions,
 ): Promise<JsonValue> {
-  const { clientId, fiscalYearId, select, filter, top, skip } = options;
+  // DATEV does not support paging for condensed open items.
+  const { clientId, fiscalYearId, select, filter } = options;
 
   const body = await sendAccountingRequest({
     ...options,
@@ -1855,8 +1855,6 @@ export async function fetchAccountsPayableCondensed(
     query: {
       select: select,
       filter: filter,
-      top: top,
-      skip: skip,
     },
   });
 

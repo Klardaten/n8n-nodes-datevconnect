@@ -1253,7 +1253,6 @@ export const accountingNodeDescription: INodeTypeDescription = {
         show: {
           operation: [
             "getAll",
-            "getCondensed",
             "getAccountingRecords",
             "getRulesIncoming",
             "getRulesOutgoing",
@@ -1281,7 +1280,6 @@ export const accountingNodeDescription: INodeTypeDescription = {
         show: {
           operation: [
             "getAll",
-            "getCondensed",
             "getAccountingRecords",
             "getRulesIncoming",
             "getRulesOutgoing",

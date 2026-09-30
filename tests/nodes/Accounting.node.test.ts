@@ -174,12 +174,20 @@ describe("Accounting node", () => {
     expect(topParam).toBeDefined();
     expect(topParam?.type).toBe("number");
     expect(topParam?.default).toBe(100);
+    expect(topParam?.displayOptions?.show?.operation).toContain("getAll");
+    expect(topParam?.displayOptions?.show?.operation).not.toContain(
+      "getCondensed",
+    );
 
     // Check that skip parameter exists
     const skipParam = properties.find((p) => p.name === "skip");
     expect(skipParam).toBeDefined();
     expect(skipParam?.type).toBe("number");
     expect(skipParam?.default).toBe(0);
+    expect(skipParam?.displayOptions?.show?.operation).toContain("getAll");
+    expect(skipParam?.displayOptions?.show?.operation).not.toContain(
+      "getCondensed",
+    );
 
     // Check that select parameter exists
     const selectParam = properties.find((p) => p.name === "select");
