@@ -103,7 +103,7 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleGetRuleIncoming(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const ruleId = this.getRequiredString("ruleId");
+    const ruleId = this.getRequiredString("postingProposalRuleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleIncoming(
       this.context,
@@ -117,7 +117,7 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleGetRuleOutgoing(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const ruleId = this.getRequiredString("ruleId");
+    const ruleId = this.getRequiredString("postingProposalRuleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleOutgoing(
       this.context,
@@ -131,7 +131,7 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleGetRuleCashRegister(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const ruleId = this.getRequiredString("ruleId");
+    const ruleId = this.getRequiredString("postingProposalRuleId");
     const queryParams = this.buildQueryParams();
     return await datevConnectClient.accounting.getPostingProposalRuleCashRegister(
       this.context,
@@ -145,13 +145,10 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleBatchIncoming(
     requestContext: RequestContext,
   ): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter(
-      "batchData",
-      this.itemIndex,
-    );
+    const batchDataRaw = this.getRequiredString("postingProposalData");
     const batchData: JsonValue = this.parseJsonParameter(
       batchDataRaw,
-      "batchData",
+      "postingProposalData",
     );
     return await datevConnectClient.accounting.batchPostingProposalsIncoming(
       this.context,
@@ -164,13 +161,10 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleBatchOutgoing(
     requestContext: RequestContext,
   ): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter(
-      "batchData",
-      this.itemIndex,
-    );
+    const batchDataRaw = this.getRequiredString("postingProposalData");
     const batchData: JsonValue = this.parseJsonParameter(
       batchDataRaw,
-      "batchData",
+      "postingProposalData",
     );
     return await datevConnectClient.accounting.batchPostingProposalsOutgoing(
       this.context,
@@ -183,13 +177,10 @@ export class PostingProposalsResourceHandler extends BaseResourceHandler {
   private async handleBatchCashRegister(
     requestContext: RequestContext,
   ): Promise<JsonValue | undefined> {
-    const batchDataRaw = this.context.getNodeParameter(
-      "batchData",
-      this.itemIndex,
-    );
+    const batchDataRaw = this.getRequiredString("postingProposalData");
     const batchData: JsonValue = this.parseJsonParameter(
       batchDataRaw,
-      "batchData",
+      "postingProposalData",
     );
     return await datevConnectClient.accounting.batchPostingProposalsCashRegister(
       this.context,

@@ -4,7 +4,7 @@ import { NodeOperationError } from "n8n-workflow";
 import { BaseResourceHandler } from "./BaseResourceHandler";
 import { datevConnectClient } from "../../../src/services/accountingClient";
 
-type CostCentersUnitsOperation = "getAll" | "get";
+type CostCentersUnitsOperation = "getAll" | "get" | "upsert";
 
 /**
  * Handler for Cost Centers/Units operations
@@ -26,6 +26,9 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
         break;
       case "get":
         await this.handleGet(requestContext, returnData);
+        break;
+      case "upsert":
+        await this.handleUpsert(requestContext, returnData);
         break;
       default:
         throw new NodeOperationError(
@@ -66,7 +69,7 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
   ): Promise<void> {
     try {
       const costSystemId = this.getRequiredString("costSystemId");
-      const costCenterId = this.getRequiredString("costCenterId");
+      const costCenterId = this.getRequiredString("costCenterUnitId");
       const queryParams = this.buildQueryParams();
       const costCenter = await datevConnectClient.accounting.getCostCenter(
         this.context,
@@ -79,6 +82,49 @@ export class CostCentersUnitsResourceHandler extends BaseResourceHandler {
 
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(costCenter);
+    } catch (error) {
+      this.handleError(error, returnData);
+    }
+  }
+
+  private async handleUpsert(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
+    try {
+      const costSystemId = this.getRequiredString("costSystemId");
+      const costCenterId = this.getRequiredString("costCenterUnitId");
+      const data = this.parseJsonParameter(
+        this.context.getNodeParameter("costCenterUnitData", this.itemIndex),
+        "costCenterUnitData",
+      );
+
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new NodeOperationError(
+          this.context.getNode(),
+          "Cost center/unit data must be a valid JSON object",
+          { itemIndex: this.itemIndex },
+        );
+      }
+      if (data.id !== costCenterId) {
+        throw new NodeOperationError(
+          this.context.getNode(),
+          "Cost center/unit data id must match the Cost Center/Unit ID",
+          { itemIndex: this.itemIndex },
+        );
+      }
+
+      const result = await datevConnectClient.accounting.upsertCostCenter(
+        this.context,
+        requestContext.clientId!,
+        requestContext.fiscalYearId!,
+        costSystemId,
+        costCenterId,
+        data,
+      );
+
+      const sendSuccess = this.createSendSuccess(returnData);
+      sendSuccess(result);
     } catch (error) {
       this.handleError(error, returnData);
     }

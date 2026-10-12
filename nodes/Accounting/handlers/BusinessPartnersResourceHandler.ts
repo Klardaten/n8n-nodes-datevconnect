@@ -10,11 +10,13 @@ type BusinessPartnersOperation =
   | "getDebitor"
   | "createDebitor"
   | "updateDebitor"
+  | "upsertDebitors"
   | "getNextAvailableDebitor"
   | "getCreditors"
   | "getCreditor"
   | "createCreditor"
   | "updateCreditor"
+  | "upsertCreditors"
   | "getNextAvailableCreditor";
 
 /**
@@ -71,6 +73,14 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
       case "updateCreditor":
         await this.handleUpdateCreditor(requestContext, returnData);
         break;
+      case "upsertDebitors":
+      case "upsertCreditors":
+        await this.handleUpsertBusinessPartners(
+          operation,
+          requestContext,
+          returnData,
+        );
+        break;
       case "getNextAvailableCreditor":
         await this.handleGetNextAvailableCreditor(requestContext, returnData);
         break;
@@ -82,6 +92,53 @@ export class BusinessPartnersResourceHandler extends BaseResourceHandler {
             itemIndex: this.itemIndex,
           },
         );
+    }
+  }
+
+  private async handleUpsertBusinessPartners(
+    operation: "upsertDebitors" | "upsertCreditors",
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
+    this.validateRequiredParameters(requestContext);
+    try {
+      const isDebitors = operation === "upsertDebitors";
+      const parameter = isDebitors ? "debitorsData" : "creditorsData";
+      const data = this.parseJsonParameter(
+        this.context.getNodeParameter(parameter, this.itemIndex),
+        parameter,
+      );
+      if (
+        !Array.isArray(data) ||
+        data.length > 500 ||
+        data.some(
+          (partner) =>
+            !partner ||
+            typeof partner !== "object" ||
+            Array.isArray(partner) ||
+            typeof partner.id !== "string" ||
+            !partner.id,
+        )
+      ) {
+        throw new NodeOperationError(
+          this.context.getNode(),
+          `${parameter} must be a JSON array of at most 500 objects with an ID`,
+          { itemIndex: this.itemIndex },
+        );
+      }
+
+      const upsert = isDebitors
+        ? datevConnectClient.accounting.upsertDebitors
+        : datevConnectClient.accounting.upsertCreditors;
+      const result = await upsert(
+        this.context,
+        requestContext.clientId!,
+        requestContext.fiscalYearId!,
+        data,
+      );
+      this.createSendSuccess(returnData)(result);
+    } catch (error) {
+      this.handleError(error, returnData);
     }
   }
 

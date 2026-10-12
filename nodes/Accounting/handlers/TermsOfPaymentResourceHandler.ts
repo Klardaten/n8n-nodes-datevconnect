@@ -60,7 +60,7 @@ export class TermsOfPaymentResourceHandler extends BaseResourceHandler {
   }
 
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
-    const termOfPaymentId = this.getRequiredString("termOfPaymentId");
+    const termOfPaymentId = this.getRequiredString("termsOfPaymentId");
     const queryParams = this.buildQueryParams();
     const result = await datevConnectClient.accounting.getTermOfPayment(
       this.context,
@@ -75,10 +75,10 @@ export class TermsOfPaymentResourceHandler extends BaseResourceHandler {
   private async handleCreate(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const termOfPaymentData = this.getRequiredString("termOfPaymentData");
+    const termOfPaymentData = this.getRequiredString("termsOfPaymentData");
     const data = this.parseJsonParameter(
       termOfPaymentData,
-      "termOfPaymentData",
+      "termsOfPaymentData",
     );
 
     if (!data || typeof data !== "object" || Array.isArray(data)) {
@@ -101,11 +101,11 @@ export class TermsOfPaymentResourceHandler extends BaseResourceHandler {
   private async handleUpdate(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const termOfPaymentId = this.getRequiredString("termOfPaymentId");
-    const termOfPaymentData = this.getRequiredString("termOfPaymentData");
+    const termOfPaymentId = this.getRequiredString("termsOfPaymentId");
+    const termOfPaymentData = this.getRequiredString("termsOfPaymentData");
     const data = this.parseJsonParameter(
       termOfPaymentData,
-      "termOfPaymentData",
+      "termsOfPaymentData",
     );
 
     if (!data || typeof data !== "object" || Array.isArray(data)) {

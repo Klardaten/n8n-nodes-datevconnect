@@ -8,6 +8,7 @@ type CostSequencesOperation =
   | "getAll"
   | "get"
   | "create"
+  | "createCostAccountingRecord"
   | "getCostAccountingRecords";
 
 /**
@@ -33,6 +34,9 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
         break;
       case "create":
         await this.handleCreate(requestContext, returnData);
+        break;
+      case "createCostAccountingRecord":
+        await this.handleCreateCostAccountingRecord(requestContext, returnData);
         break;
       case "getCostAccountingRecords":
         await this.handleGetCostAccountingRecords(requestContext, returnData);
@@ -122,6 +126,42 @@ export class CostSequencesResourceHandler extends BaseResourceHandler {
 
       const sendSuccess = this.createSendSuccess(returnData);
       sendSuccess(result);
+    } catch (error) {
+      this.handleError(error, returnData);
+    }
+  }
+
+  private async handleCreateCostAccountingRecord(
+    requestContext: RequestContext,
+    returnData: INodeExecutionData[],
+  ): Promise<void> {
+    try {
+      const costSystemId = this.getRequiredString("costSystemId");
+      const costSequenceId = this.getRequiredString("costSequenceId");
+      const data = this.parseJsonParameter(
+        this.context.getNodeParameter(
+          "costAccountingRecordData",
+          this.itemIndex,
+        ),
+        "costAccountingRecordData",
+      );
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new NodeOperationError(
+          this.context.getNode(),
+          "Cost accounting record data must be a valid JSON object",
+          { itemIndex: this.itemIndex },
+        );
+      }
+      const result =
+        await datevConnectClient.accounting.createCostAccountingRecord(
+          this.context,
+          requestContext.clientId!,
+          requestContext.fiscalYearId!,
+          costSystemId,
+          costSequenceId,
+          data,
+        );
+      this.createSendSuccess(returnData)(result);
     } catch (error) {
       this.handleError(error, returnData);
     }

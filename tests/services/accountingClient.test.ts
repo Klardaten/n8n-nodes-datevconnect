@@ -42,6 +42,41 @@ function createExecuteContext(
 }
 
 describe("datevConnectClient.accounting", () => {
+  test("upserts a cost center with encoded IDs and the complete payload", async () => {
+    const apiKey = `uk-${"x".repeat(61)}`;
+    const calls: HttpRequestCall[] = [];
+    const context = createExecuteContext(apiKey, calls);
+    const payload = {
+      id: "CC001",
+      short_name: "Admin",
+      long_name: "Administration",
+      properties: [{ id: "1", value: "North" }],
+      cost_rates: [],
+    };
+
+    const response = await datevConnectClient.accounting.upsertCostCenter(
+      context,
+      "client/123",
+      "FY 2025",
+      "system/1",
+      "CC/001",
+      payload,
+    );
+
+    expect(response).toEqual([{ id: "client-1" }]);
+    expect(calls).toHaveLength(1);
+    expect(new URL(calls[0].url).pathname).toBe(
+      "/datevconnect/accounting/v1/clients/client%2F123/fiscal-years/FY%202025/cost-systems/system%2F1/cost-centers/CC%2F001",
+    );
+    expect(new URL(calls[0].url).search).toBe("");
+    expect(calls[0].method).toBe("PUT");
+    expect(JSON.parse(calls[0].body as string)).toEqual(payload);
+    expect(calls[0].headers).toMatchObject({
+      authorization: `Bearer ${apiKey}`,
+      "x-client-instance-id": "instance-1",
+    });
+  });
+
   test.each([
     [
       "getAccountsReceivableCondensed",
