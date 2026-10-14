@@ -614,6 +614,21 @@ export const datevConnectClient = {
       });
     },
 
+    async upsertDebitors(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      debitors: JsonValue[],
+    ) {
+      const options = await getAuthenticatedOptions(executeFunctions);
+      return client.upsertDebitors({
+        ...options,
+        clientId,
+        fiscalYearId,
+        debitors,
+      });
+    },
+
     async getNextAvailableDebitor(
       executeFunctions: IExecuteFunctions,
       clientId: string,
@@ -695,6 +710,21 @@ export const datevConnectClient = {
         fiscalYearId,
         creditorId,
         creditor,
+      });
+    },
+
+    async upsertCreditors(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      creditors: JsonValue[],
+    ) {
+      const options = await getAuthenticatedOptions(executeFunctions);
+      return client.upsertCreditors({
+        ...options,
+        clientId,
+        fiscalYearId,
+        creditors,
       });
     },
 
@@ -962,6 +992,25 @@ export const datevConnectClient = {
       });
     },
 
+    async upsertCostCenter(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costCenterId: string,
+      costCenterData: JsonValue,
+    ) {
+      const options = await getAuthenticatedOptions(executeFunctions);
+      return client.upsertCostCenter({
+        ...options,
+        clientId,
+        fiscalYearId,
+        costSystemId,
+        costCenterId,
+        costCenterData,
+      });
+    },
+
     // Cost Center Properties methods
     async getCostCenterProperties(
       executeFunctions: IExecuteFunctions,
@@ -998,6 +1047,25 @@ export const datevConnectClient = {
         costSystemId,
         costCenterPropertyId,
         select: queryParams.select as string,
+      });
+    },
+
+    async upsertCostCenterProperty(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costCenterPropertyId: string,
+      costCenterPropertyData: JsonValue,
+    ) {
+      const options = await getAuthenticatedOptions(executeFunctions);
+      return client.upsertCostCenterProperty({
+        ...options,
+        clientId,
+        fiscalYearId,
+        costSystemId,
+        costCenterPropertyId,
+        costCenterPropertyData,
       });
     },
 
@@ -1095,6 +1163,25 @@ export const datevConnectClient = {
         select: queryParams.select as string,
         skip: queryParams.skip as number,
         top: queryParams.top as number,
+      });
+    },
+
+    async createCostAccountingRecord(
+      executeFunctions: IExecuteFunctions,
+      clientId: string,
+      fiscalYearId: string,
+      costSystemId: string,
+      costSequenceId: string,
+      costAccountingRecordData: JsonValue,
+    ) {
+      const options = await getAuthenticatedOptions(executeFunctions);
+      return client.createCostAccountingRecord({
+        ...options,
+        clientId,
+        fiscalYearId,
+        costSystemId,
+        costSequenceId,
+        costAccountingRecordData,
       });
     },
 

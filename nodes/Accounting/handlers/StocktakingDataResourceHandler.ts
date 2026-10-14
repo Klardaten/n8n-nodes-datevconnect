@@ -26,6 +26,7 @@ export class StocktakingDataResourceHandler extends BaseResourceHandler {
         case "get":
           response = await this.handleGet(requestContext);
           break;
+        case "create":
         case "update":
           response = await this.handleUpdate(requestContext);
           break;
@@ -57,7 +58,7 @@ export class StocktakingDataResourceHandler extends BaseResourceHandler {
   }
 
   private async handleGet(requestContext: RequestContext): Promise<JsonValue> {
-    const assetId = this.getRequiredString("assetId");
+    const assetId = this.getRequiredString("stocktakingDataId");
     const queryParams = this.buildQueryParams();
     const result =
       await datevConnectClient.accounting.getStocktakingDataByAsset(
@@ -73,7 +74,7 @@ export class StocktakingDataResourceHandler extends BaseResourceHandler {
   private async handleUpdate(
     requestContext: RequestContext,
   ): Promise<JsonValue> {
-    const assetId = this.getRequiredString("assetId");
+    const assetId = this.getRequiredString("stocktakingDataId");
     const stocktakingData = this.getRequiredString("stocktakingData");
     const data = this.parseJsonParameter(stocktakingData, "stocktakingData");
 

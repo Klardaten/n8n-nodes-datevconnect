@@ -1350,6 +1350,12 @@ export interface UpdateDebitorOptions extends BaseRequestOptions {
   debitor: JsonValue;
 }
 
+export interface UpsertDebitorsOptions extends BaseRequestOptions {
+  clientId: string;
+  fiscalYearId: string;
+  debitors: JsonValue[];
+}
+
 export interface FetchNextAvailableDebitorOptions extends BaseRequestOptions {
   clientId: string;
   fiscalYearId: string;
@@ -1385,6 +1391,12 @@ export interface UpdateCreditorOptions extends BaseRequestOptions {
   fiscalYearId: string;
   creditorId: string;
   creditor: JsonValue;
+}
+
+export interface UpsertCreditorsOptions extends BaseRequestOptions {
+  clientId: string;
+  fiscalYearId: string;
+  creditors: JsonValue[];
 }
 
 export interface FetchNextAvailableCreditorOptions extends BaseRequestOptions {
@@ -1507,6 +1519,14 @@ export interface FetchCostCenterOptions extends BaseRequestOptions {
   select?: string;
 }
 
+export interface UpsertCostCenterOptions extends BaseRequestOptions {
+  clientId: string;
+  fiscalYearId: string;
+  costSystemId: string;
+  costCenterId: string;
+  costCenterData: JsonValue;
+}
+
 // Cost Center Properties interfaces
 export interface FetchCostCenterPropertiesOptions extends BaseRequestOptions {
   clientId: string;
@@ -1523,6 +1543,14 @@ export interface FetchCostCenterPropertyOptions extends BaseRequestOptions {
   costSystemId: string;
   costCenterPropertyId: string;
   select?: string;
+}
+
+export interface UpsertCostCenterPropertyOptions extends BaseRequestOptions {
+  clientId: string;
+  fiscalYearId: string;
+  costSystemId: string;
+  costCenterPropertyId: string;
+  costCenterPropertyData: JsonValue;
 }
 
 // Internal Cost Services interfaces
@@ -1567,6 +1595,14 @@ export interface FetchCostAccountingRecordsOptions extends BaseRequestOptions {
   select?: string;
   skip?: number;
   top?: number;
+}
+
+export interface CreateCostAccountingRecordOptions extends BaseRequestOptions {
+  clientId: string;
+  fiscalYearId: string;
+  costSystemId: string;
+  costSequenceId: string;
+  costAccountingRecordData: JsonValue;
 }
 
 // Accounting Statistics interfaces
@@ -1627,15 +1663,16 @@ export interface CreateVariousAddressOptions extends BaseRequestOptions {
 const ACCOUNTING_BASE_PATH = "datevconnect/accounting/v1";
 
 async function sendAccountingRequest(
-  options: MasterDataRequestOptions,
+  options: MasterDataRequestOptions & { contentType?: string },
 ): Promise<JsonValue | undefined> {
+  const contentType = options.contentType ?? JSON_CONTENT_TYPE;
   const result = await sendDatevConnectJsonRequest({
     ...options,
     accept: JSON_CONTENT_TYPE,
-    contentType: JSON_CONTENT_TYPE,
+    contentType,
     headerCase: "lower",
     headers: {
-      "content-type": JSON_CONTENT_TYPE,
+      "content-type": contentType,
     },
   });
 
@@ -2368,6 +2405,20 @@ export async function updateDebitor(
   });
 }
 
+export async function upsertDebitors(
+  options: UpsertDebitorsOptions,
+): Promise<JsonValue | undefined> {
+  const { clientId, fiscalYearId, debitors } = options;
+
+  return sendAccountingRequest({
+    ...options,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/debitors`,
+    method: "PUT",
+    body: debitors,
+    contentType: "application/merge-patch+json",
+  });
+}
+
 export async function fetchNextAvailableDebitor(
   options: FetchNextAvailableDebitorOptions,
 ): Promise<JsonValue> {
@@ -2461,6 +2512,20 @@ export async function updateCreditor(
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/creditors/${encodeURIComponent(creditorId)}`,
     method: "PUT",
     body: creditor,
+  });
+}
+
+export async function upsertCreditors(
+  options: UpsertCreditorsOptions,
+): Promise<JsonValue | undefined> {
+  const { clientId, fiscalYearId, creditors } = options;
+
+  return sendAccountingRequest({
+    ...options,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/creditors`,
+    method: "PUT",
+    body: creditors,
+    contentType: "application/merge-patch+json",
   });
 }
 
@@ -2794,6 +2859,20 @@ export async function fetchCostCenter(
   return body;
 }
 
+export async function upsertCostCenter(
+  options: UpsertCostCenterOptions,
+): Promise<JsonValue | undefined> {
+  const { clientId, fiscalYearId, costSystemId, costCenterId, costCenterData } =
+    options;
+
+  return sendAccountingRequest({
+    ...options,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-centers/${encodeURIComponent(costCenterId)}`,
+    method: "PUT",
+    body: costCenterData,
+  });
+}
+
 // Cost Center Properties functions
 export async function fetchCostCenterProperties(
   options: FetchCostCenterPropertiesOptions,
@@ -2845,6 +2924,25 @@ export async function fetchCostCenterProperty(
 }
 
 // Internal Cost Services functions
+export async function upsertCostCenterProperty(
+  options: UpsertCostCenterPropertyOptions,
+): Promise<JsonValue | undefined> {
+  const {
+    clientId,
+    fiscalYearId,
+    costSystemId,
+    costCenterPropertyId,
+    costCenterPropertyData,
+  } = options;
+
+  return sendAccountingRequest({
+    ...options,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-center-properties/${encodeURIComponent(costCenterPropertyId)}`,
+    method: "PUT",
+    body: costCenterPropertyData,
+  });
+}
+
 export async function createInternalCostService(
   options: CreateInternalCostServiceOptions,
 ): Promise<JsonValue | undefined> {
@@ -2921,7 +3019,7 @@ export async function createCostSequence(
   return sendAccountingRequest({
     ...options,
     path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-sequences/${encodeURIComponent(costSequenceId)}`,
-    method: "POST",
+    method: "PUT",
     body: costSequenceData,
   });
 }
@@ -2960,6 +3058,25 @@ export async function fetchCostAccountingRecords(
 }
 
 // Accounting Statistics functions
+export async function createCostAccountingRecord(
+  options: CreateCostAccountingRecordOptions,
+): Promise<JsonValue | undefined> {
+  const {
+    clientId,
+    fiscalYearId,
+    costSystemId,
+    costSequenceId,
+    costAccountingRecordData,
+  } = options;
+
+  return sendAccountingRequest({
+    ...options,
+    path: `${ACCOUNTING_BASE_PATH}/clients/${encodeURIComponent(clientId)}/fiscal-years/${encodeURIComponent(fiscalYearId)}/cost-systems/${encodeURIComponent(costSystemId)}/cost-sequences/${encodeURIComponent(costSequenceId)}/cost-accounting-records`,
+    method: "POST",
+    body: costAccountingRecordData,
+  });
+}
+
 export async function fetchAccountingStatistics(
   options: FetchAccountingStatisticsOptions,
 ): Promise<JsonValue> {

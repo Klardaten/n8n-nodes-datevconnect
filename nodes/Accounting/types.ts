@@ -50,7 +50,11 @@ export type AccountingSequenceOperation =
   | "getAccountingRecord";
 export type TermsOfPaymentOperation = "getAll" | "get" | "create" | "update";
 export type CreditorOperation = "getAll" | "get" | "create" | "update";
-export type CostSequenceOperation = "getAll" | "get" | "create";
+export type CostSequenceOperation =
+  | "getAll"
+  | "get"
+  | "create"
+  | "createCostAccountingRecord";
 export type DebitorsOperation = "getAll" | "get" | "create" | "update";
 export type FixedAssetOperation = "getAll" | "get";
 export type InternalCostServiceOperation = "getAll" | "get" | "create";
@@ -66,7 +70,7 @@ export type PostingProposalOperation =
   | "batchIncoming"
   | "batchOutgoing"
   | "batchCashRegister";
-export type StocktakingDataOperation = "getAll" | "get" | "update";
+export type StocktakingDataOperation = "getAll" | "get" | "create" | "update";
 export type VariousAddressOperation = "getAll" | "get" | "create";
 export type VariousDocumentOperation = "getAll" | "get";
 export type MasterDataCostSequenceOperation = "getAll" | "get" | "create";

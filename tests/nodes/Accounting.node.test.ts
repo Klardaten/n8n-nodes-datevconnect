@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, spyOn, test } from "bun:test";
+import { describe, expect, mock, spyOn, test } from "bun:test";
 import type { IExecuteFunctions } from "n8n-workflow";
 import { Accounting } from "../../nodes/Accounting/Accounting.node";
 import { ClientResourceHandler } from "../../nodes/Accounting/handlers";
@@ -275,5 +275,179 @@ describe("Accounting node", () => {
       (p) => p.name === "accountingSequenceId",
     );
     expect(accountingSequenceIdParam).toBeDefined();
+  });
+
+  describe("cost centers/units", () => {
+    function createCostCenterContext(parameters: Record<string, unknown> = {}) {
+      const context = createExecuteContext({
+        parameters: {
+          resource: "costCentersUnits",
+          operation: "upsert",
+          clientId: "client-123",
+          fiscalYearId: "2025",
+          costSystemId: "1",
+          costCenterUnitId: "1000",
+          costCenterUnitData: JSON.stringify({
+            id: "1000",
+            short_name: "Admin",
+          }),
+          ...parameters,
+        },
+      });
+      const httpRequest = mock(async (_options: unknown) => ({
+        statusCode: 204,
+        headers: {},
+        body: undefined as unknown,
+      }));
+      return {
+        ...context,
+        helpers: { ...context.helpers, httpRequest },
+      };
+    }
+
+    test("exposes Create or Update with required ID and payload fields", () => {
+      const properties = new Accounting().description.properties;
+      const operation = properties.find(
+        (p) =>
+          p.name === "operation" &&
+          p.displayOptions?.show?.resource?.includes("costCentersUnits"),
+      );
+      expect(operation?.options).toContainEqual(
+        expect.objectContaining({
+          name: "Create or Update",
+          value: "upsert",
+        }),
+      );
+      const id = properties.find((p) => p.name === "costCenterUnitId");
+      expect(id?.required).toBe(true);
+      expect(id?.displayOptions?.show?.operation).toEqual(["get", "upsert"]);
+      const data = properties.find((p) => p.name === "costCenterUnitData");
+      expect(data?.required).toBe(true);
+      expect(data?.type).toBe("json");
+      expect(data?.displayOptions?.show).toEqual({
+        resource: ["costCentersUnits"],
+        operation: ["upsert"],
+      });
+    });
+
+    test.each(["string", "object"])(
+      "sends a %s payload with PUT and handles an empty 204 response",
+      async (format) => {
+        const payload = { id: "1000", short_name: "Admin", cost_rates: [] };
+        const context = createCostCenterContext({
+          costCenterUnitData:
+            format === "string" ? JSON.stringify(payload) : payload,
+          profileId: "cost-profile",
+        });
+
+        const result = await new Accounting().execute.call(
+          context as unknown as IExecuteFunctions,
+        );
+
+        expect(context.helpers.httpRequest).toHaveBeenCalledTimes(1);
+        expect(context.helpers.httpRequest).toHaveBeenCalledWith(
+          expect.objectContaining({
+            method: "PUT",
+            url: "https://api.example.com/datevconnect/accounting/v1/clients/client-123/fiscal-years/2025/cost-systems/1/cost-centers/1000",
+            body: JSON.stringify(payload),
+            headers: expect.objectContaining({
+              "x-profile-id": "cost-profile",
+            }),
+          }),
+        );
+        expect(result).toEqual([
+          [{ json: { success: true }, pairedItem: { item: 0 } }],
+        ]);
+      },
+    );
+
+    test("returns notifications from a successful 200 response", async () => {
+      const context = createCostCenterContext();
+      const notifications = { messages: [{ message: "Name was truncated" }] };
+      context.helpers.httpRequest.mockResolvedValueOnce({
+        statusCode: 200,
+        headers: { "content-type": "application/json" },
+        body: notifications,
+      });
+
+      const result = await new Accounting().execute.call(
+        context as unknown as IExecuteFunctions,
+      );
+
+      expect(result[0][0].json).toEqual(notifications);
+    });
+
+    test.each([
+      ["{", "Invalid JSON"],
+      ["[]", "must be a valid JSON object"],
+      ["null", "must be a valid JSON object"],
+      ["42", "must be a valid JSON object"],
+      ["{}", "id must match"],
+      [JSON.stringify({ id: "2000" }), "id must match"],
+    ])(
+      "rejects invalid payload %s before making a request",
+      async (payload, message) => {
+        const context = createCostCenterContext({
+          costCenterUnitData: payload,
+        });
+
+        await expect(
+          new Accounting().execute.call(
+            context as unknown as IExecuteFunctions,
+          ),
+        ).rejects.toThrow(message);
+        expect(context.helpers.httpRequest).not.toHaveBeenCalled();
+      },
+    );
+
+    test.each(["costSystemId", "costCenterUnitId"])(
+      "requires %s before making a request",
+      async (parameter) => {
+        const context = createCostCenterContext({ [parameter]: "" });
+
+        await expect(
+          new Accounting().execute.call(
+            context as unknown as IExecuteFunctions,
+          ),
+        ).rejects.toThrow(`Parameter "${parameter}" is required`);
+        expect(context.helpers.httpRequest).not.toHaveBeenCalled();
+      },
+    );
+
+    test("returns invalid payload errors when continueOnFail is enabled", async () => {
+      const context = createCostCenterContext({ costCenterUnitData: "[]" });
+      context.continueOnFail = () => true;
+
+      const result = await new Accounting().execute.call(
+        context as unknown as IExecuteFunctions,
+      );
+
+      expect(result[0][0]).toMatchObject({
+        json: { error: expect.stringContaining("must be a valid JSON object") },
+        pairedItem: { item: 0 },
+      });
+      expect(context.helpers.httpRequest).not.toHaveBeenCalled();
+    });
+
+    test("retrieves a cost center using the ID exposed by the node", async () => {
+      const context = createCostCenterContext({ operation: "get" });
+      context.helpers.httpRequest.mockResolvedValueOnce({
+        statusCode: 200,
+        headers: { "content-type": "application/json" },
+        body: { id: "1000", short_name: "Admin" },
+      });
+
+      const result = await new Accounting().execute.call(
+        context as unknown as IExecuteFunctions,
+      );
+
+      expect(context.helpers.httpRequest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: "GET",
+          url: "https://api.example.com/datevconnect/accounting/v1/clients/client-123/fiscal-years/2025/cost-systems/1/cost-centers/1000",
+        }),
+      );
+      expect(result[0][0].json.id).toBe("1000");
+    });
   });
 });
