@@ -230,6 +230,39 @@ describe("Accounting operation coverage", () => {
     },
   );
 
+  test.each([
+    { operation: "getDebitor", idField: "debitorId", id: "100000000" },
+    { operation: "getCreditor", idField: "creditorId", id: "700000000" },
+  ])("$operation requests all subordinate data", async (entry) => {
+    const context = createContext([
+      {
+        resource: "businessPartners",
+        operation: entry.operation,
+        [entry.idField]: entry.id,
+        expand: "all",
+      },
+    ]);
+    const partner = {
+      id: entry.id,
+      not_specified_person: { name: "Test partner" },
+    };
+    context.helpers.httpRequest.mockResolvedValueOnce({
+      statusCode: 200,
+      headers: { "content-type": "application/json" },
+      body: partner,
+    });
+
+    const result = await new Accounting().execute.call(
+      context as unknown as IExecuteFunctions,
+    );
+
+    const request = context.helpers.httpRequest.mock.calls[0][0] as {
+      url: string;
+    };
+    expect(new URL(request.url).searchParams.get("expand")).toBe("all");
+    expect(result[0][0].json).toEqual(partner);
+  });
+
   test.each(
     writes.filter(
       (entry) =>

@@ -117,7 +117,7 @@ export abstract class BaseResourceHandler {
       params.filter = filter;
     }
     if (expand && expand !== "") {
-      params.expand = expand === "all" ? "*" : expand;
+      params.expand = expand;
     }
 
     return { ...params, ...additionalParams };
