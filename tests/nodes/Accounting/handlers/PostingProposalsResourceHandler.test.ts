@@ -263,8 +263,8 @@ const createMockContext = (overrides: any = {}) => ({
   getNodeParameter: mock(
     (name: string, itemIndex: number, defaultValue?: unknown) => {
       const mockParams: Record<string, unknown> = {
-        ruleId: "IR001",
-        batchData: JSON.stringify({
+        postingProposalRuleId: "IR001",
+        postingProposalData: JSON.stringify({
           items: [
             {
               invoice_id: "INV001",
@@ -525,16 +525,16 @@ describe("PostingProposalsResourceHandler", () => {
       expect(returnData[0].json).toEqual(mockSingleIncomingRule);
     });
 
-    test("requires ruleId parameter for getRuleIncoming", async () => {
+    test("requires postingProposalRuleId parameter for getRuleIncoming", async () => {
       const context = createMockContext({
-        parameters: { ruleId: undefined },
+        parameters: { postingProposalRuleId: undefined },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
         handler.execute("getRuleIncoming", mockAuthContext, returnData),
-      ).rejects.toThrow('Parameter "ruleId" is required');
+      ).rejects.toThrow('Parameter "postingProposalRuleId" is required');
     });
   });
 
@@ -591,16 +591,16 @@ describe("PostingProposalsResourceHandler", () => {
       expect(returnData[0].json).toEqual(mockSingleIncomingRule);
     });
 
-    test("requires ruleId parameter for getRuleCashRegister", async () => {
+    test("requires postingProposalRuleId parameter for getRuleCashRegister", async () => {
       const context = createMockContext({
-        parameters: { ruleId: "" },
+        parameters: { postingProposalRuleId: "" },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
         handler.execute("getRuleCashRegister", mockAuthContext, returnData),
-      ).rejects.toThrow('Parameter "ruleId" is required');
+      ).rejects.toThrow('Parameter "postingProposalRuleId" is required');
     });
   });
 
@@ -655,10 +655,10 @@ describe("PostingProposalsResourceHandler", () => {
       expect(returnData[0].json).toEqual({ success: true }); // null becomes default success response
     });
 
-    test("handles invalid JSON in batchData parameter", async () => {
+    test("handles invalid JSON in postingProposalData parameter", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: "invalid json",
+          postingProposalData: "invalid json",
         },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
@@ -666,7 +666,7 @@ describe("PostingProposalsResourceHandler", () => {
 
       await expect(
         handler.execute("batchIncoming", mockAuthContext, returnData),
-      ).rejects.toThrow('Invalid JSON in parameter "batchData"');
+      ).rejects.toThrow('Invalid JSON in parameter "postingProposalData"');
     });
   });
 
@@ -674,7 +674,7 @@ describe("PostingProposalsResourceHandler", () => {
     test("processes batch outgoing posting proposals", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify({
+          postingProposalData: JSON.stringify({
             items: [
               {
                 invoice_id: "OUT001",
@@ -718,7 +718,7 @@ describe("PostingProposalsResourceHandler", () => {
     test("processes batch cash register posting proposals", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify({
+          postingProposalData: JSON.stringify({
             items: [
               {
                 transaction_id: "CASH001",
@@ -754,14 +754,14 @@ describe("PostingProposalsResourceHandler", () => {
       expect(returnData[0].json).toEqual(mockBatchResult);
     });
 
-    test("handles undefined batchData parameter gracefully", async () => {
+    test("handles undefined postingProposalData parameter gracefully", async () => {
       const context = createMockContext({
-        parameters: { batchData: undefined },
+        parameters: { postingProposalData: undefined },
       });
       // Override getNodeParameter to return undefined
       context.getNodeParameter = mock(
         (name: string, itemIndex: number, defaultValue?: unknown) => {
-          if (name === "batchData") return undefined;
+          if (name === "postingProposalData") return undefined;
           return defaultValue;
         },
       );
@@ -769,14 +769,11 @@ describe("PostingProposalsResourceHandler", () => {
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
 
-      await handler.execute("batchCashRegister", mockAuthContext, returnData);
+      await expect(
+        handler.execute("batchCashRegister", mockAuthContext, returnData),
+      ).rejects.toThrow('Parameter "postingProposalData" is required');
 
-      expect(batchPostingProposalsCashRegisterSpy).toHaveBeenCalledWith(
-        context,
-        "client-123",
-        "FY2023",
-        undefined,
-      );
+      expect(batchPostingProposalsCashRegisterSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -930,7 +927,7 @@ describe("PostingProposalsResourceHandler", () => {
     test("uses parseJsonParameter correctly for batch operations", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify({
+          postingProposalData: JSON.stringify({
             test: "data",
             items: [],
           }),
@@ -954,9 +951,9 @@ describe("PostingProposalsResourceHandler", () => {
   });
 
   describe("parameter handling", () => {
-    test("correctly retrieves ruleId parameter", async () => {
+    test("correctly retrieves postingProposalRuleId parameter", async () => {
       const context = createMockContext({
-        parameters: { ruleId: "TEST_RULE" },
+        parameters: { postingProposalRuleId: "TEST_RULE" },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -1001,7 +998,7 @@ describe("PostingProposalsResourceHandler", () => {
       );
     });
 
-    test("correctly parses complex batchData", async () => {
+    test("correctly parses complex postingProposalData", async () => {
       const complexBatchData = {
         items: [
           {
@@ -1036,7 +1033,7 @@ describe("PostingProposalsResourceHandler", () => {
 
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify(complexBatchData),
+          postingProposalData: JSON.stringify(complexBatchData),
         },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);
@@ -1070,10 +1067,10 @@ describe("PostingProposalsResourceHandler", () => {
       );
     });
 
-    test("handles empty batchData object", async () => {
+    test("handles empty postingProposalData object", async () => {
       const context = createMockContext({
         parameters: {
-          batchData: JSON.stringify({}),
+          postingProposalData: JSON.stringify({}),
         },
       });
       const handler = new PostingProposalsResourceHandler(context, 0);

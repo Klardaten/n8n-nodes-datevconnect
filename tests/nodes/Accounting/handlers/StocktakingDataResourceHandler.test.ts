@@ -86,7 +86,7 @@ const createMockContext = (overrides: any = {}) => ({
   getNodeParameter: mock(
     (name: string, itemIndex: number, defaultValue?: unknown) => {
       const mockParams: Record<string, unknown> = {
-        assetId: "ASSET001",
+        stocktakingDataId: "ASSET001",
         stocktakingData: JSON.stringify({
           counted_quantity: 1,
           condition: "excellent",
@@ -255,28 +255,28 @@ describe("StocktakingDataResourceHandler", () => {
       expect(returnData[0].json).toEqual(mockSingleStocktakingData);
     });
 
-    test("requires assetId parameter", async () => {
+    test("requires stocktakingDataId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: undefined },
+        parameters: { stocktakingDataId: undefined },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
         handler.execute("get", mockAuthContext, returnData),
-      ).rejects.toThrow('Parameter "assetId" is required');
+      ).rejects.toThrow('Parameter "stocktakingDataId" is required');
     });
 
-    test("handles empty assetId parameter", async () => {
+    test("handles empty stocktakingDataId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: "" },
+        parameters: { stocktakingDataId: "" },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
         handler.execute("get", mockAuthContext, returnData),
-      ).rejects.toThrow('Parameter "assetId" is required');
+      ).rejects.toThrow('Parameter "stocktakingDataId" is required');
     });
 
     test("handles null response for single asset", async () => {
@@ -294,7 +294,7 @@ describe("StocktakingDataResourceHandler", () => {
     test("fetches asset with custom parameters", async () => {
       const context = createMockContext({
         parameters: {
-          assetId: "ASSET002",
+          stocktakingDataId: "ASSET002",
           select: "asset_id,asset_name,net_book_value",
           expand: "stocktaking_history",
         },
@@ -343,16 +343,16 @@ describe("StocktakingDataResourceHandler", () => {
       expect(returnData[0].json).toEqual(mockUpdateResult);
     });
 
-    test("requires assetId parameter for update", async () => {
+    test("requires stocktakingDataId parameter for update", async () => {
       const context = createMockContext({
-        parameters: { assetId: undefined },
+        parameters: { stocktakingDataId: undefined },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
 
       await expect(
         handler.execute("update", mockAuthContext, returnData),
-      ).rejects.toThrow('Parameter "assetId" is required');
+      ).rejects.toThrow('Parameter "stocktakingDataId" is required');
     });
 
     test("requires stocktakingData parameter", async () => {
@@ -426,7 +426,7 @@ describe("StocktakingDataResourceHandler", () => {
 
       const context = createMockContext({
         parameters: {
-          assetId: "ASSET003",
+          stocktakingDataId: "ASSET003",
           stocktakingData: JSON.stringify(complexUpdateData),
         },
       });
@@ -472,7 +472,7 @@ describe("StocktakingDataResourceHandler", () => {
       context.getNodeParameter = mock(
         (name: string, itemIndex: number, defaultValue?: unknown) => {
           if (name === "stocktakingData") return undefined;
-          if (name === "assetId") return "ASSET001";
+          if (name === "stocktakingDataId") return "ASSET001";
           return defaultValue;
         },
       );
@@ -676,9 +676,9 @@ describe("StocktakingDataResourceHandler", () => {
   });
 
   describe("parameter handling", () => {
-    test("correctly retrieves assetId parameter", async () => {
+    test("correctly retrieves stocktakingDataId parameter", async () => {
       const context = createMockContext({
-        parameters: { assetId: "TEST_ASSET" },
+        parameters: { stocktakingDataId: "TEST_ASSET" },
       });
       const handler = new StocktakingDataResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -755,7 +755,7 @@ describe("StocktakingDataResourceHandler", () => {
 
       const context = createMockContext({
         parameters: {
-          assetId: "COMPLEX_ASSET",
+          stocktakingDataId: "COMPLEX_ASSET",
           stocktakingData: JSON.stringify(complexStocktakingData),
         },
       });

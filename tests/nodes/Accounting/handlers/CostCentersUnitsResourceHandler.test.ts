@@ -111,7 +111,7 @@ const createMockContext = (overrides: any = {}) => ({
     (name: string, itemIndex: number, defaultValue?: unknown) => {
       const mockParams: Record<string, unknown> = {
         costSystemId: "CS01",
-        costCenterId: "CC001",
+        costCenterUnitId: "CC001",
         top: 50,
         skip: 10,
         select: "id,name,description,cost_type,is_active",

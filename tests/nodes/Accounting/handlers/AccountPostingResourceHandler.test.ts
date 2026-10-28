@@ -136,7 +136,7 @@ describe("AccountPostingResourceHandler", () => {
         {
           select: "id,account_number,amount_debit,amount_credit",
           filter: "amount_debit gt 100",
-          expand: "*",
+          expand: "all",
         },
       );
 
@@ -185,7 +185,7 @@ describe("AccountPostingResourceHandler", () => {
         "client-123",
         "2023",
         {
-          expand: "*",
+          expand: "all",
         },
       );
     });
@@ -206,7 +206,7 @@ describe("AccountPostingResourceHandler", () => {
         "5318111",
         {
           select: "id,account_number,amount_debit,amount_credit",
-          expand: "*",
+          expand: "all",
         },
       );
 
@@ -233,7 +233,7 @@ describe("AccountPostingResourceHandler", () => {
         "2023",
         "test-account-posting-id",
         {
-          expand: "*",
+          expand: "all",
         },
       );
     });
@@ -394,7 +394,7 @@ describe("AccountPostingResourceHandler", () => {
         context,
         "client-123",
         "2023",
-        expect.objectContaining({ expand: "*" }),
+        expect.objectContaining({ expand: "all" }),
       );
     });
   });

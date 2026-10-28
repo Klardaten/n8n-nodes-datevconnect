@@ -95,8 +95,8 @@ const createMockContext = (overrides: any = {}) => ({
   getNodeParameter: mock(
     (name: string, itemIndex: number, defaultValue?: unknown) => {
       const mockParams: Record<string, unknown> = {
-        termOfPaymentId: "NET30",
-        termOfPaymentData: JSON.stringify({
+        termsOfPaymentId: "NET30",
+        termsOfPaymentData: JSON.stringify({
           name: "Test Payment Term",
           payment_days: 45,
           discount_percentage: 2.5,
@@ -283,9 +283,9 @@ describe("TermsOfPaymentResourceHandler", () => {
       expect(returnData[0].json).toEqual({ success: true });
     });
 
-    test("requires termOfPaymentId parameter", async () => {
+    test("requires termsOfPaymentId parameter", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentId: undefined },
+        parameters: { termsOfPaymentId: undefined },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -341,9 +341,9 @@ describe("TermsOfPaymentResourceHandler", () => {
       expect(returnData[0].json).toEqual({ success: true });
     });
 
-    test("requires termOfPaymentData parameter", async () => {
+    test("requires termsOfPaymentData parameter", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: undefined },
+        parameters: { termsOfPaymentData: undefined },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -353,9 +353,9 @@ describe("TermsOfPaymentResourceHandler", () => {
       ).rejects.toThrow();
     });
 
-    test("validates termOfPaymentData is valid JSON object", async () => {
+    test("validates termsOfPaymentData is valid JSON object", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: "invalid json" },
+        parameters: { termsOfPaymentData: "invalid json" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -365,9 +365,9 @@ describe("TermsOfPaymentResourceHandler", () => {
       ).rejects.toThrow();
     });
 
-    test("rejects array as termOfPaymentData", async () => {
+    test("rejects array as termsOfPaymentData", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: JSON.stringify([{ name: "test" }]) },
+        parameters: { termsOfPaymentData: JSON.stringify([{ name: "test" }]) },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -377,9 +377,9 @@ describe("TermsOfPaymentResourceHandler", () => {
       ).rejects.toThrow("Term of payment data must be a valid JSON object");
     });
 
-    test("rejects null as termOfPaymentData", async () => {
+    test("rejects null as termsOfPaymentData", async () => {
       const context = createMockContext({
-        parameters: { termOfPaymentData: "null" },
+        parameters: { termsOfPaymentData: "null" },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
       const returnData: any[] = [];
@@ -437,11 +437,11 @@ describe("TermsOfPaymentResourceHandler", () => {
       expect(returnData[0].json).toEqual({ success: true });
     });
 
-    test("requires both termOfPaymentId and termOfPaymentData parameters", async () => {
+    test("requires both termsOfPaymentId and termsOfPaymentData parameters", async () => {
       const context = createMockContext({
         parameters: {
-          termOfPaymentId: undefined,
-          termOfPaymentData: JSON.stringify({ name: "test" }),
+          termsOfPaymentId: undefined,
+          termsOfPaymentData: JSON.stringify({ name: "test" }),
         },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);
@@ -452,11 +452,11 @@ describe("TermsOfPaymentResourceHandler", () => {
       ).rejects.toThrow();
     });
 
-    test("validates termOfPaymentData is valid JSON object for update", async () => {
+    test("validates termsOfPaymentData is valid JSON object for update", async () => {
       const context = createMockContext({
         parameters: {
-          termOfPaymentId: "NET30",
-          termOfPaymentData: "invalid json",
+          termsOfPaymentId: "NET30",
+          termsOfPaymentData: "invalid json",
         },
       });
       const handler = new TermsOfPaymentResourceHandler(context, 0);

@@ -461,6 +461,20 @@ export const accountingNodeDescription: INodeTypeDescription = {
           action: "Create a debitor",
         },
         {
+          name: "Create or Update Many Creditors",
+          value: "upsertCreditors",
+          description:
+            "Create or replace up to 500 creditors with specified account IDs",
+          action: "Create or update many creditors",
+        },
+        {
+          name: "Create or Update Many Debitors",
+          value: "upsertDebitors",
+          description:
+            "Create or replace up to 500 debitors with specified account IDs",
+          action: "Create or update many debitors",
+        },
+        {
           name: "Get Creditor",
           value: "getCreditor",
           description: "Retrieve a specific creditor",
@@ -611,10 +625,10 @@ export const accountingNodeDescription: INodeTypeDescription = {
           action: "Get a stocktaking data entry",
         },
         {
-          name: "Create",
-          value: "create",
-          description: "Create a new stocktaking data entry",
-          action: "Create a stocktaking data entry",
+          name: "Update",
+          value: "update",
+          description: "Create or update stocktaking data for an asset",
+          action: "Update stocktaking data",
         },
       ],
       default: "getAll",
@@ -661,6 +675,13 @@ export const accountingNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
+          name: "Create or Update",
+          value: "upsert",
+          description:
+            "Create a new record, or update the current one if it already exists (upsert)",
+          action: "Create or update a cost center unit",
+        },
+        {
           name: "Get Many",
           value: "getAll",
           description: "Retrieve a list of cost centers/units",
@@ -688,6 +709,13 @@ export const accountingNodeDescription: INodeTypeDescription = {
         },
       },
       options: [
+        {
+          name: "Create or Update",
+          value: "upsert",
+          description:
+            "Create a new record, or update the current one if it already exists (upsert)",
+          action: "Create or update a cost center property",
+        },
         {
           name: "Get Many",
           value: "getAll",
@@ -739,10 +767,17 @@ export const accountingNodeDescription: INodeTypeDescription = {
       },
       options: [
         {
-          name: "Get Many",
-          value: "getAll",
-          description: "Retrieve a list of cost sequences",
-          action: "Get many cost sequences",
+          name: "Create",
+          value: "create",
+          description: "Create a new cost sequence",
+          action: "Create a cost sequence",
+        },
+        {
+          name: "Create Cost Accounting Record",
+          value: "createCostAccountingRecord",
+          description:
+            "Create a cost accounting record in an existing cost sequence",
+          action: "Create a cost accounting record",
         },
         {
           name: "Get",
@@ -751,16 +786,16 @@ export const accountingNodeDescription: INodeTypeDescription = {
           action: "Get a cost sequence",
         },
         {
-          name: "Create",
-          value: "create",
-          description: "Create a new cost sequence",
-          action: "Create a cost sequence",
-        },
-        {
           name: "Get Cost Accounting Records",
           value: "getCostAccountingRecords",
           description: "Retrieve cost accounting records for a sequence",
           action: "Get cost accounting records",
+        },
+        {
+          name: "Get Many",
+          value: "getAll",
+          description: "Retrieve a list of cost sequences",
+          action: "Get many cost sequences",
         },
       ],
       default: "getAll",
@@ -1120,19 +1155,20 @@ export const accountingNodeDescription: INodeTypeDescription = {
       description: "The ID of the terms of payment",
     },
     {
-      displayName: "Stocktaking Data ID",
+      displayName: "Asset ID",
       name: "stocktakingDataId",
       type: "string",
       required: true,
       displayOptions: {
         show: {
-          operation: ["get"],
+          operation: ["get", "create", "update"],
           resource: ["stocktakingData"],
         },
       },
       default: "",
       placeholder: "1",
-      description: "The ID of the stocktaking data entry",
+      description:
+        "The ID of the asset whose stocktaking data is retrieved or updated",
     },
     {
       displayName: "Cost System ID",
@@ -1175,7 +1211,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          operation: ["get"],
+          operation: ["get", "upsert"],
           resource: ["costCentersUnits"],
         },
       },
@@ -1190,7 +1226,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          operation: ["get"],
+          operation: ["get", "upsert"],
           resource: ["costCenterProperties"],
         },
       },
@@ -1205,7 +1241,12 @@ export const accountingNodeDescription: INodeTypeDescription = {
       required: true,
       displayOptions: {
         show: {
-          operation: ["get", "create", "getCostAccountingRecords"],
+          operation: [
+            "get",
+            "create",
+            "getCostAccountingRecords",
+            "createCostAccountingRecord",
+          ],
           resource: ["costSequences"],
         },
       },
@@ -1381,6 +1422,34 @@ export const accountingNodeDescription: INodeTypeDescription = {
 
     // Parameters for create operations
     {
+      displayName:
+        "Updates replace the entire cost center/unit. Use Get first and include all fields you want to preserve.",
+      name: "costCenterUnitUpsertNotice",
+      type: "notice",
+      displayOptions: {
+        show: {
+          operation: ["upsert"],
+          resource: ["costCentersUnits"],
+        },
+      },
+      default: "",
+    },
+    {
+      displayName: "Cost Center/Unit Data",
+      name: "costCenterUnitData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          operation: ["upsert"],
+          resource: ["costCentersUnits"],
+        },
+      },
+      default: "{}",
+      description:
+        "Cost center/unit JSON object. Its ID must match the Cost Center/Unit ID.",
+    },
+    {
       displayName: "Accounting Sequence Data",
       name: "accountingSequenceData",
       type: "json",
@@ -1397,14 +1466,15 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayName: "Posting Proposal Data",
       name: "postingProposalData",
       type: "json",
+      required: true,
       displayOptions: {
         show: {
           operation: ["batchIncoming", "batchOutgoing", "batchCashRegister"],
           resource: ["postingProposals"],
         },
       },
-      default: "{}",
-      description: "Posting proposal batch data to send to the API",
+      default: "[]",
+      description: "JSON array of posting proposals to send to the API",
     },
     {
       displayName: "Debitor Data",
@@ -1436,6 +1506,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayName: "Terms of Payment Data",
       name: "termsOfPaymentData",
       type: "json",
+      required: true,
       displayOptions: {
         show: {
           operation: ["create", "update"],
@@ -1449,9 +1520,10 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayName: "Stocktaking Data",
       name: "stocktakingData",
       type: "json",
+      required: true,
       displayOptions: {
         show: {
-          operation: ["create"],
+          operation: ["create", "update"],
           resource: ["stocktakingData"],
         },
       },
@@ -1475,6 +1547,7 @@ export const accountingNodeDescription: INodeTypeDescription = {
       displayName: "Cost Sequence Data",
       name: "costSequenceData",
       type: "json",
+      required: true,
       displayOptions: {
         show: {
           operation: ["create"],
@@ -1483,6 +1556,79 @@ export const accountingNodeDescription: INodeTypeDescription = {
       },
       default: "{}",
       description: "Cost sequence data to send to the API",
+    },
+    {
+      displayName: "Cost Accounting Record Data",
+      name: "costAccountingRecordData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          operation: ["createCostAccountingRecord"],
+          resource: ["costSequences"],
+        },
+      },
+      default: "{}",
+      description:
+        "Cost accounting record JSON object including account_number and date",
+    },
+    {
+      displayName: "Cost Center Property Data",
+      name: "costCenterPropertyData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          operation: ["upsert"],
+          resource: ["costCenterProperties"],
+        },
+      },
+      default: "{}",
+      description:
+        "Cost center property JSON object including its description and characteristics",
+    },
+    {
+      displayName:
+        "Updates replace each included business partner. Retrieve existing records first to preserve their fields. Include each account ID and addressee_id; omit account_number.",
+      name: "businessPartnerUpsertNotice",
+      type: "notice",
+      displayOptions: {
+        show: {
+          operation: ["upsertDebitors", "upsertCreditors"],
+          resource: ["businessPartners"],
+        },
+      },
+      default: "",
+    },
+    {
+      displayName: "Debitors Data",
+      name: "debitorsData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          operation: ["upsertDebitors"],
+          resource: ["businessPartners"],
+        },
+      },
+      default: "[]",
+      description:
+        "JSON array of debitors with their desired account IDs (maximum 500 records)",
+    },
+    {
+      displayName: "Creditors Data",
+      name: "creditorsData",
+      type: "json",
+      required: true,
+      displayOptions: {
+        show: {
+          operation: ["upsertCreditors"],
+          resource: ["businessPartners"],
+        },
+      },
+      default: "[]",
+      description:
+        "JSON array of creditors with their desired account IDs (maximum 500 records)",
     },
     {
       displayName: "Various Address Data",
