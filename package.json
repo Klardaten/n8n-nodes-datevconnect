@@ -22,7 +22,7 @@
     "n8n-workflow": "^2.17.2",
     "nock": "14.0.10",
     "prettier": "^3.7.4",
-    "release-it": "^21.1.1",
+    "release-it": "^21.1.2",
     "typescript": "5.9.3"
   },
   "peerDependencies": {
