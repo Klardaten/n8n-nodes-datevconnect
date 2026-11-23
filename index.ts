@@ -1,10 +1,10 @@
 export type { INodeTypeDescription } from "n8n-workflow";
 
-export { accountingNodeDescription } from "./nodes/Accounting/Accounting.config";
-export { masterDataNodeDescription } from "./nodes/MasterData/MasterData.config";
-export { documentManagementNodeDescription } from "./nodes/DocumentManagement/DocumentManagement.config";
-export { identityAndAccessManagementNodeDescription } from "./nodes/IdentityAndAccessManagement/IdentityAndAccessManagement.config";
-export { orderManagementNodeDescription } from "./nodes/OrderManagement/OrderManagement.config";
+export { accountingNodeDescription } from "./nodes/Accounting/Accounting.node";
+export { masterDataNodeDescription } from "./nodes/MasterData/MasterData.node";
+export { documentManagementNodeDescription } from "./nodes/DocumentManagement/DocumentManagement.node";
+export { identityAndAccessManagementNodeDescription } from "./nodes/IdentityAndAccessManagement/IdentityAndAccessManagement.node";
+export { orderManagementNodeDescription } from "./nodes/OrderManagement/OrderManagement.node";
 
 export type {
   JsonValue,

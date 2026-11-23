@@ -1,0 +1,45 @@
+{
+  "name": "@klardaten/n8n-nodes-datevconnect-master-data",
+  "version": "1.0.0",
+  "description": "Klardaten DATEVconnect Master Data node for n8n",
+  "author": {
+    "name": "Klardaten",
+    "email": "info@klardaten.com",
+    "url": "https://klardaten.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git",
+    "directory": "packages/master-data"
+  },
+  "bugs": {
+    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
+  },
+  "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
+  "keywords": [
+    "n8n",
+    "n8n-community-node-package",
+    "klardaten",
+    "datevconnect",
+    "master-data"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/MasterData/MasterData.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/DatevConnectApi.credentials.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

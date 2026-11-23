@@ -35,3 +35,9 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Build npm packages
+        run: npm run build:packages
+
+      - name: Check npm tarballs
+        run: npm run test:packages

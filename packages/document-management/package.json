@@ -1,0 +1,45 @@
+{
+  "name": "@klardaten/n8n-nodes-datevconnect-document-management",
+  "version": "1.0.0",
+  "description": "Klardaten DATEVconnect Document Management node for n8n",
+  "author": {
+    "name": "Klardaten",
+    "email": "info@klardaten.com",
+    "url": "https://klardaten.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git",
+    "directory": "packages/document-management"
+  },
+  "bugs": {
+    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
+  },
+  "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
+  "keywords": [
+    "n8n",
+    "n8n-community-node-package",
+    "klardaten",
+    "datevconnect",
+    "document-management"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/DocumentManagement/DocumentManagement.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/DatevConnectApi.credentials.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -31,6 +31,20 @@ npm install @klardaten/n8n-nodes-datevconnect
 
 Copy or symlink the contents of the installed `node_modules/@klardaten/n8n-nodes-datevconnect/dist/{nodes,credentials}` directories into your `~/.n8n/custom/` folder if you prefer the legacy custom-nodes workflow, then restart n8n.
 
+### Standalone packages
+
+The all-in-one package installs all five nodes in one step. Each standalone package installs one node and can use an existing **DATEVconnect API** credential. For local testing before publication, build and install the corresponding tarball.
+
+| Node | Standalone npm package | Saved node type suffix |
+| --- | --- | --- |
+| Master Data | `@klardaten/n8n-nodes-datevconnect-master-data` | `.masterData` |
+| Accounting | `@klardaten/n8n-nodes-datevconnect-accounting` | `.accounting` |
+| Document Management | `@klardaten/n8n-nodes-datevconnect-document-management` | `.documentManagement` |
+| Order Management | `@klardaten/n8n-nodes-datevconnect-order-management` | `.orderManagement` |
+| Identity & Access Management | `@klardaten/n8n-nodes-datevconnect-identity-and-access-management` | `.identityAndAccessManagement` |
+
+Workflows using the bundle can keep using it. To migrate an exported workflow, install the corresponding standalone package, then replace the bundle prefix in the node's `type` field with the standalone package name from the table. For example, `@klardaten/n8n-nodes-datevconnect.accounting` becomes `@klardaten/n8n-nodes-datevconnect-accounting.accounting`. Keep the node parameters, credential reference, and `typeVersion`. Test the migrated workflow before enabling it.
+
 ## Development
 
 1. **Install dependencies**
@@ -41,6 +55,8 @@ Copy or symlink the contents of the installed `node_modules/@klardaten/n8n-nodes
    ```bash
    npm run dev
    ```
+
+To build the bundle and all five standalone packages locally, run `npm run build:packages`, then `npm run test:packages` to check the tarballs. For example, `npm pack --workspace=@klardaten/n8n-nodes-datevconnect-accounting` creates an Accounting tarball you can install on a local n8n instance. `npm run test:e2e:packages` runs the packaged nodes in the n8n CLI against a local mock Gateway without DATEV credentials.
 
 ## Required Credentials
 
