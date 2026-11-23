@@ -41,3 +41,6 @@ jobs:
 
       - name: Check npm tarballs
         run: npm run test:packages
+
+      - name: Test packaged nodes in n8n
+        run: node tests/e2e/n8n/run-package-e2e.mjs

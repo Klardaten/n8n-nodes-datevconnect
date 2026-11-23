@@ -3,7 +3,7 @@ import { config } from "@n8n/node-cli/eslint";
 const customConfig = [
   ...config,
   {
-    ignores: ["tests/**/*"],
+    ignores: ["tests/**/*", "packages/*/dist/**"],
   },
 ];
 
