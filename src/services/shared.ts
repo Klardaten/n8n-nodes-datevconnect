@@ -56,12 +56,6 @@ export interface DatevConnectJsonRequestResult {
   response: Response;
 }
 
-export interface ExtractErrorMessageOptions {
-  errorPrefix?: string;
-  preferredMessageFields?: string[];
-  includeErrorDescription?: boolean;
-}
-
 export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
   path: string;
   method: DatevConnectRequestMethod;
@@ -73,7 +67,6 @@ export interface SendDatevConnectJsonRequestOptions extends BaseRequestOptions {
   headerCase?: DatevConnectHeaderCase;
   skipEmptyQueryValues?: boolean;
   errorPrefix?: string;
-  errorMessageOptions?: ExtractErrorMessageOptions;
 }
 
 export type DatevConnectJsonRequestDefaults = Partial<
@@ -84,7 +77,6 @@ export type DatevConnectJsonRequestDefaults = Partial<
     | "headerCase"
     | "skipEmptyQueryValues"
     | "errorPrefix"
-    | "errorMessageOptions"
     | "headers"
   >
 >;
@@ -175,11 +167,7 @@ export async function readResponseBody(
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.toLowerCase().includes(JSON_CONTENT_TYPE)) {
-    try {
-      return (await response.json()) as JsonValue;
-    } catch {
-      return undefined;
-    }
+    return readJsonResponseBody(response);
   }
 
   try {
@@ -197,9 +185,11 @@ export async function readResponseBody(
   }
 }
 
-function safeStringify(value: JsonValue): string | undefined {
+async function readJsonResponseBody(
+  response: Response,
+): Promise<JsonValue | undefined> {
   try {
-    return JSON.stringify(value);
+    return (await response.json()) as JsonValue;
   } catch {
     return undefined;
   }
@@ -215,6 +205,7 @@ type DatevAdditionalMessage = {
 type DatevErrorBody = {
   error?: string;
   error_description?: string;
+  message?: string;
   error_uri?: string;
   request_id?: string;
   additional_messages?: DatevAdditionalMessage[];
@@ -266,6 +257,7 @@ function parseDatevErrorBody(
   const errorBody: DatevErrorBody = {
     error: readString(value, "error"),
     error_description: readString(value, "error_description"),
+    message: readString(value, "message") ?? readString(value, "detail"),
     error_uri: readString(value, "error_uri"),
     request_id: readString(value, "request_id"),
   };
@@ -303,11 +295,12 @@ function formatAdditionalMessage(message: DatevAdditionalMessage): string {
 function formatDatevErrorBody(body: DatevErrorBody): string {
   const mainMessage =
     body.error_description ||
+    body.message ||
     body.error ||
     "DATEVconnect returned an error response";
 
   const details = [
-    body.error && body.error_description
+    body.error && body.error !== mainMessage
       ? `Error ID: ${body.error}`
       : undefined,
     body.request_id ? `Request ID: ${body.request_id}` : undefined,
@@ -324,64 +317,44 @@ function formatDatevErrorBody(body: DatevErrorBody): string {
     : mainMessage;
 }
 
-export function extractErrorMessage(
+function extractErrorMessage(
   response: Response,
-  body: JsonValue | string | undefined,
-  options: string | ExtractErrorMessageOptions = DEFAULT_ERROR_PREFIX,
+  body: JsonValue | undefined,
+  errorPrefix: string,
 ): string {
-  const {
-    errorPrefix = DEFAULT_ERROR_PREFIX,
-    preferredMessageFields,
-    includeErrorDescription,
-  } = typeof options === "string" ? { errorPrefix: options } : options;
   const statusPart =
     `${response.status}${response.statusText ? ` ${response.statusText}` : ""}`.trim();
   const prefix = `${errorPrefix}${statusPart ? ` (${statusPart})` : ""}`;
 
-  if (typeof body === "string" && body.trim().length > 0) {
-    return `${prefix}: ${body.trim()}`;
-  }
-
-  if (isRecord(body) && preferredMessageFields?.length) {
-    for (const field of preferredMessageFields) {
-      const message = readString(body, field);
-      if (!message) {
-        continue;
-      }
-
-      if (field === "error" && includeErrorDescription) {
-        const description = readString(body, "error_description");
-        return `${prefix}: ${message}${description ? `: ${description}` : ""}`;
-      }
-
-      return `${prefix}: ${message}`;
-    }
-  }
-
   const datevError = parseDatevErrorBody(body);
-  if (datevError) {
-    return `${prefix}: ${formatDatevErrorBody(datevError)}`;
+  return datevError ? `${prefix}: ${formatDatevErrorBody(datevError)}` : prefix;
+}
+
+export async function throwIfResponseFailed(
+  response: Response,
+  errorPrefix = DEFAULT_ERROR_PREFIX,
+): Promise<void> {
+  if (response.ok) {
+    return;
   }
 
-  if (body && typeof body === "object") {
-    const serializedBody = safeStringify(body);
-    if (serializedBody) {
-      return `${prefix}: ${serializedBody}`;
-    }
-  }
-
-  return prefix;
+  const mediaType = (response.headers.get("content-type") ?? "")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  const body =
+    !mediaType || mediaType === JSON_CONTENT_TYPE || mediaType.endsWith("+json")
+      ? await readJsonResponseBody(response)
+      : undefined;
+  throw new Error(extractErrorMessage(response, body, errorPrefix));
 }
 
 export async function ensureSuccess(
   response: Response,
   errorPrefix = DEFAULT_ERROR_PREFIX,
 ): Promise<JsonValue | undefined> {
+  await throwIfResponseFailed(response, errorPrefix);
   const body = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(extractErrorMessage(response, body, errorPrefix));
-  }
 
   if (body && typeof body === "object") {
     return body as JsonValue;
@@ -404,10 +377,6 @@ function applyJsonRequestDefaults(
     headers: {
       ...defaults.headers,
       ...options.headers,
-    },
-    errorMessageOptions: {
-      ...defaults.errorMessageOptions,
-      ...options.errorMessageOptions,
     },
   };
 }
@@ -460,7 +429,6 @@ export async function sendDatevConnectJsonRequest(
     headerCase = "lower",
     skipEmptyQueryValues,
     errorPrefix = DEFAULT_ERROR_PREFIX,
-    errorMessageOptions,
   } = options;
   const contentTypeHeader = "content-type";
   const acceptHeader = headerCase === "lower" ? "accept" : "Accept";
@@ -485,19 +453,10 @@ export async function sendDatevConnectJsonRequest(
     requestInit.body = JSON.stringify(body);
   }
   const response = await fetchImpl(url, requestInit);
-  const responseBody = await readResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(
-      extractErrorMessage(response, responseBody, {
-        errorPrefix,
-        ...errorMessageOptions,
-      }),
-    );
-  }
+  await throwIfResponseFailed(response, errorPrefix);
 
   return {
-    data: responseBody,
+    data: await readResponseBody(response),
     response,
   };
 }

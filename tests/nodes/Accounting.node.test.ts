@@ -429,6 +429,29 @@ describe("Accounting node", () => {
       expect(context.helpers.httpRequest).not.toHaveBeenCalled();
     });
 
+    test("returns the DATEV diagnostic when Continue On Fail is enabled", async () => {
+      const context = createCostCenterContext();
+      context.continueOnFail = () => true;
+      context.helpers.httpRequest.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          statusText: "Bad Request",
+          headers: { "content-type": "application/json" },
+          data: Buffer.from(
+            '{"error_description":"Cost center is locked","request_id":"req-accounting"}',
+          ),
+        },
+      });
+
+      const result = await new Accounting().execute.call(
+        context as unknown as IExecuteFunctions,
+      );
+
+      expect(result[0][0].json.error).toBe(
+        "DATEVconnect request failed (400 Bad Request): Cost center is locked | Request ID: req-accounting",
+      );
+    });
+
     test("retrieves a cost center using the ID exposed by the node", async () => {
       const context = createCostCenterContext({ operation: "get" });
       context.helpers.httpRequest.mockResolvedValueOnce({

@@ -157,6 +157,28 @@ describe("OrderManagementClient - All Endpoints", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
+  test("reports the Order Management message with the DATEV error code and request ID", async () => {
+    await expect(
+      fetchOrders({
+        host: "https://localhost:58454",
+        token: "token",
+        clientInstanceId: "inst",
+        httpHelper: async () => ({
+          statusCode: 400,
+          statusMessage: "Bad Request",
+          body: {
+            message: "Invalid filter",
+            error: "validation_fault",
+            request_id: "req-orders",
+          },
+        }),
+      }),
+    ).rejects.toHaveProperty(
+      "message",
+      "DATEV Order Management request failed (400 Bad Request): Invalid filter | Error ID: validation_fault | Request ID: req-orders",
+    );
+  });
+
   test("GET /orders/{orderid} - fetchOrder with costRate and expand", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

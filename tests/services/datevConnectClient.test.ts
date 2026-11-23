@@ -269,7 +269,7 @@ describe("fetchClients", () => {
         fetchImpl: fetchMock,
       }),
     ).rejects.toThrowError(
-      'DATEVconnect request failed (401 Unauthorized): {"message":"Something went wrong"}',
+      "DATEVconnect request failed (401 Unauthorized): Something went wrong",
     );
   });
 
@@ -335,12 +335,11 @@ describe("fetchClients", () => {
     );
   });
 
-  test("stringifies non-DATEV error objects as plain text", async () => {
+  test("reports only the HTTP status for an unrecognized JSON error body", async () => {
     const fetchMock = createFetchMock(async () =>
       createJsonResponse(
         {
-          message: "Something went wrong",
-          details: [{ field: "name" }],
+          headers: { authorization: "Bearer fixture-token" },
         },
         {
           status: 500,
@@ -356,8 +355,9 @@ describe("fetchClients", () => {
         clientInstanceId: "instance-1",
         fetchImpl: fetchMock,
       }),
-    ).rejects.toThrowError(
-      'DATEVconnect request failed (500 Internal Server Error): {"message":"Something went wrong","details":[{"field":"name"}]}',
+    ).rejects.toHaveProperty(
+      "message",
+      "DATEVconnect request failed (500 Internal Server Error)",
     );
   });
 });

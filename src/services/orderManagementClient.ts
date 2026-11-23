@@ -33,10 +33,6 @@ const sendOrderManagementRequest = createDatevConnectJsonDataRequester({
   headerCase: "standard",
   skipEmptyQueryValues: true,
   errorPrefix: DEFAULT_ERROR_PREFIX,
-  errorMessageOptions: {
-    preferredMessageFields: ["message", "error"],
-    includeErrorDescription: true,
-  },
 });
 
 export interface FetchOrderTypesOptions extends BaseOrderManagementRequestOptions {
