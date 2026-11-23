@@ -43,4 +43,7 @@ jobs:
         run: npm run test:packages
 
       - name: Test packaged nodes in n8n
-        run: node tests/e2e/n8n/run-package-e2e.mjs
+        run: |
+          npm_config_cache="$(npm config get cache)"
+          export npm_config_cache
+          node tests/e2e/n8n/run-package-e2e.mjs
