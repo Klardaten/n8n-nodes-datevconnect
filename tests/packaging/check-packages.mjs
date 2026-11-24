@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { packPackages, readPackedJson } from "./tarballs.mjs";
@@ -13,6 +13,14 @@ const nodeTypes = {
   "master-data": "masterData",
   "order-management": "orderManagement",
 };
+
+const { version } = JSON.parse(readFileSync("package.json", "utf8"));
+const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+assert.equal(
+  lock.version,
+  version,
+  "The lockfile must match the bundle version",
+);
 
 const directory = mkdtempSync(path.join(os.tmpdir(), "datevconnect-tarballs-"));
 try {
@@ -28,6 +36,17 @@ try {
   for (const { name, tarball, files } of packages) {
     const manifest = readPackedJson(tarball, "package.json");
     assert.equal(manifest.name, name);
+    assert.equal(
+      manifest.version,
+      version,
+      `${name} must match the bundle version`,
+    );
+    const lockPath = name === bundleName ? "" : manifest.repository.directory;
+    assert.equal(
+      lock.packages[lockPath].version,
+      version,
+      `${name} must match the lockfile version`,
+    );
     assert.deepEqual(manifest.n8n.credentials, [credentialFile]);
     assert.ok(files.includes(credentialFile));
     assert.ok(files.includes("dist/nodes/klardaten.svg"));

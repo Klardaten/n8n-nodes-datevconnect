@@ -1,6 +1,6 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect-document-management",
-  "version": "1.0.0",
+  "version": "1.0.18",
   "description": "Klardaten DATEVconnect Document Management node for n8n",
   "author": {
     "name": "Klardaten",

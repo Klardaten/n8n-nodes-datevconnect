@@ -1,0 +1,83 @@
+name: Stage standalone packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: standalone-npm-staging
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      tarballs: ${{ steps.pack.outputs.tarballs }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build npm packages
+        run: npm run build:packages
+
+      - name: Check npm tarballs
+        run: npm run test:packages
+
+      - name: Pack standalone packages
+        id: pack
+        run: |
+          mkdir -p "$RUNNER_TEMP/standalone-tarballs"
+          npm pack --json --workspaces --include-workspace-root=false \
+            --pack-destination "$RUNNER_TEMP/standalone-tarballs" > "$RUNNER_TEMP/standalone-pack.json"
+          tarballs="$(jq -ce 'if length == 5 then map(.filename) else error("Expected five standalone tarballs") end' "$RUNNER_TEMP/standalone-pack.json")"
+          echo "tarballs=$tarballs" >> "$GITHUB_OUTPUT"
+
+      - name: Upload standalone tarballs
+        uses: actions/upload-artifact@v4
+        with:
+          name: standalone-tarballs
+          path: ${{ runner.temp }}/standalone-tarballs/*.tgz
+          if-no-files-found: error
+
+  stage:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        tarball: ${{ fromJSON(needs.prepare.outputs.tarballs) }}
+
+    steps:
+      - name: Download standalone tarballs
+        uses: actions/download-artifact@v4
+        with:
+          name: standalone-tarballs
+          path: ${{ runner.temp }}/standalone-tarballs
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Stage npm tarball with provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_STAGING_TOKEN }}
+          PACKAGE_TARBALL: ${{ matrix.tarball }}
+        run: npm stage publish "$RUNNER_TEMP/standalone-tarballs/$PACKAGE_TARBALL" --access public --provenance
