@@ -58,6 +58,8 @@ Workflows using the bundle can keep using it. To migrate an exported workflow, i
 
 To build the bundle and all five standalone packages locally, run `npm run build:packages`, then `npm run test:packages` to check the tarballs. For example, `npm pack --workspace=@klardaten/n8n-nodes-datevconnect-accounting` creates an Accounting tarball you can install on a local n8n instance. `npm run test:e2e:packages` runs the packaged nodes in the n8n CLI against a local mock Gateway without DATEV credentials.
 
+Each standalone workspace carries a copy of the credential definition so n8n can find it when scanning the package source. Edit the shared `credentials/DatevConnectApi.credentials.ts` file, then run `npm run sync:standalone-credentials` and commit the refreshed workspace copies. The packaging checks compare each copy with the shared source.
+
 ## Required Credentials
 
 You need a Klardaten account and an instance id (of the DATEV instance you want to access).

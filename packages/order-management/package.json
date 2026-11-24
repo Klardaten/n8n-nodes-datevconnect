@@ -1,6 +1,6 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect-order-management",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Klardaten DATEVconnect Order Management node for n8n",
   "author": {
     "name": "Klardaten",
