@@ -7,6 +7,7 @@ import {
   authenticate,
   buildDatevConnectHeaders,
   resolveFetchImpl,
+  throwIfResponseFailed,
 } from "./shared";
 
 export interface DocumentManagementAuthenticateOptions {
@@ -188,11 +189,7 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch documents: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch documents");
 
     return (await response.json()) as JsonValue;
   }
@@ -215,11 +212,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch document: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch document");
 
     return (await response.json()) as JsonValue;
   }
@@ -244,11 +237,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to create document: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to create document");
 
     // Handle 201 Created response with location header
     if (response.status === 201) {
@@ -279,11 +268,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to update document: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to update document");
 
     // Handle 204 No Content response
     if (response.status === 204) {
@@ -311,11 +296,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch document file: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch document file");
 
     return response; // Return raw response for binary data handling
   }
@@ -340,11 +321,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to upload document file: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to upload document file");
 
     return (await response.json()) as JsonValue;
   }
@@ -367,11 +344,7 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch domains: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch domains");
 
     return (await response.json()) as JsonValue;
   }
@@ -396,11 +369,7 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch document states: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch document states");
 
     return (await response.json()) as JsonValue;
   }
@@ -423,11 +392,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch document state: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch document state");
 
     return (await response.json()) as JsonValue;
   }
@@ -452,11 +417,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to create document state: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to create document state");
 
     return (await response.json()) as JsonValue;
   }
@@ -477,11 +438,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch info: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch info");
 
     return (await response.json()) as JsonValue;
   }
@@ -500,11 +457,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to delete document: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to delete document");
   }
 
   /**
@@ -523,11 +476,10 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to permanently delete document: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to permanently delete document",
+    );
   }
 
   /**
@@ -548,11 +500,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch secure areas: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch secure areas");
 
     return (await response.json()) as JsonValue;
   }
@@ -577,11 +525,7 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch property templates: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch property templates");
 
     return (await response.json()) as JsonValue;
   }
@@ -604,11 +548,10 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch individual properties: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to fetch individual properties",
+    );
 
     return (await response.json()) as JsonValue;
   }
@@ -634,11 +577,10 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch individual references 1: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to fetch individual references 1",
+    );
 
     return (await response.json()) as JsonValue;
   }
@@ -663,11 +605,10 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to create individual reference 1: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to create individual reference 1",
+    );
 
     return (await response.json()) as JsonValue;
   }
@@ -693,11 +634,10 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch individual references 2: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to fetch individual references 2",
+    );
 
     return (await response.json()) as JsonValue;
   }
@@ -722,11 +662,10 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to create individual reference 2: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to create individual reference 2",
+    );
 
     return (await response.json()) as JsonValue;
   }
@@ -752,11 +691,7 @@ export class DocumentManagementClient {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch structure items: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch structure items");
 
     return (await response.json()) as JsonValue;
   }
@@ -779,11 +714,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch structure item: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to fetch structure item");
 
     return (await response.json()) as JsonValue;
   }
@@ -811,11 +742,7 @@ export class DocumentManagementClient {
       body: JSON.stringify(options.structureItem),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to add structure item: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to add structure item");
 
     // Handle 201 Created response
     if (response.status === 201) {
@@ -846,11 +773,7 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to update structure item: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(response, "Failed to update structure item");
 
     // Handle 204 No Content response
     if (response.status === 204) {
@@ -884,11 +807,10 @@ export class DocumentManagementClient {
       },
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to create dispatcher information: ${response.status} ${response.statusText}`,
-      );
-    }
+    await throwIfResponseFailed(
+      response,
+      "Failed to create dispatcher information",
+    );
 
     // Handle 201 Created response
     if (response.status === 201) {

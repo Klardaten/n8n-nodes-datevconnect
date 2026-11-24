@@ -220,7 +220,7 @@ describe("createFetchFromHttpHelper", () => {
     ]);
   });
 
-  test("keeps generic transport errors generic when no structured response is available", async () => {
+  test("reports only the fallback status for an unstructured transport error", async () => {
     const httpHelper = async () => {
       throw {
         statusCode: 500,
@@ -237,8 +237,9 @@ describe("createFetchFromHttpHelper", () => {
     expect(response.status).toBe(500);
     expect(response.statusText).toBe("");
 
-    await expect(ensureSuccess(response)).rejects.toThrow(
-      `${DEFAULT_ERROR_PREFIX} (500): Request failed with status code 400`,
+    await expect(ensureSuccess(response)).rejects.toHaveProperty(
+      "message",
+      `${DEFAULT_ERROR_PREFIX} (500)`,
     );
   });
 });

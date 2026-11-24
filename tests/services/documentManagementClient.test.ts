@@ -164,6 +164,27 @@ describe("DocumentManagementClient - All Endpoints", () => {
     ]);
   });
 
+  test("reports the DATEV diagnostic when a file download fails", async () => {
+    await expect(
+      DocumentManagementClient.fetchDocumentFile({
+        host: "https://localhost:58452",
+        token: "test-token",
+        clientInstanceId: "test-client-id",
+        fileId: "file-123",
+        httpHelper: async () => ({
+          statusCode: 404,
+          statusMessage: "Not Found",
+          headers: { "content-type": "application/json" },
+          body: Buffer.from(
+            '{"error_description":"File not found in DMS","request_id":"req-download"}',
+          ),
+        }),
+      }),
+    ).rejects.toThrow(
+      "Failed to fetch document file (404 Not Found): File not found in DMS | Request ID: req-download",
+    );
+  });
+
   test("4. POST /document-files - uploadDocumentFile", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

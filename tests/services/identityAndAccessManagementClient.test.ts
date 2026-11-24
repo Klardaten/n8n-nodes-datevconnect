@@ -180,4 +180,29 @@ describe("IdentityAndAccessManagementClient", () => {
       "DATEV IAM request failed (500 Internal Server Error): Ups, server error",
     );
   });
+
+  test("reports IAM detail and the request ID from a SCIM error response", async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({ detail: "Group not found", request_id: "req-iam" }),
+        {
+          status: 404,
+          statusText: "Not Found",
+          headers: { "content-type": "application/scim+json; charset=utf-8" },
+        },
+      ),
+    );
+
+    await expect(
+      IdentityAndAccessManagementClient.fetchGroup({
+        host: "https://localhost:58452",
+        token: "token-123",
+        clientInstanceId: "instance-abc",
+        groupId: "abc",
+      }),
+    ).rejects.toHaveProperty(
+      "message",
+      "DATEV IAM request failed (404 Not Found): Group not found | Request ID: req-iam",
+    );
+  });
 });

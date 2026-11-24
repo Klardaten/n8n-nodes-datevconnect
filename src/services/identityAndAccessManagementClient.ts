@@ -73,9 +73,6 @@ const sendIamRequest = createDatevConnectJsonRequester({
   headerCase: "standard",
   skipEmptyQueryValues: true,
   errorPrefix: DEFAULT_ERROR_PREFIX,
-  errorMessageOptions: {
-    preferredMessageFields: ["message", "detail", "error"],
-  },
 });
 
 function extractLocationHeader(response: Response): string | undefined {
