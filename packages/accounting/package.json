@@ -1,0 +1,45 @@
+{
+  "name": "@klardaten/n8n-nodes-datevconnect-accounting",
+  "version": "1.0.18",
+  "description": "Klardaten DATEVconnect Accounting node for n8n",
+  "author": {
+    "name": "Klardaten",
+    "email": "info@klardaten.com",
+    "url": "https://klardaten.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klardaten/n8n-nodes-datevconnect.git",
+    "directory": "packages/accounting"
+  },
+  "bugs": {
+    "url": "https://github.com/Klardaten/n8n-nodes-datevconnect/issues"
+  },
+  "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
+  "keywords": [
+    "n8n",
+    "n8n-community-node-package",
+    "klardaten",
+    "datevconnect",
+    "accounting"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/Accounting/Accounting.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/DatevConnectApi.credentials.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

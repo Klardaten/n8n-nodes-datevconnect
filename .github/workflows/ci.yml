@@ -35,3 +35,15 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: Build npm packages
+        run: npm run build:packages
+
+      - name: Check npm tarballs
+        run: npm run test:packages
+
+      - name: Test packaged nodes in n8n
+        run: |
+          npm_config_cache="$(npm config get cache)"
+          export npm_config_cache
+          node tests/e2e/n8n/run-package-e2e.mjs

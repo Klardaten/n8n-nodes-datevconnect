@@ -1,0 +1,5 @@
+{
+  "npm": {
+    "versionArgs": ["--workspaces", "--include-workspace-root"]
+  }
+}

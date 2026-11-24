@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../../..");
 const workflowsDir = path.join(repoRoot, "tests/e2e/n8n/workflows");
 
-const DEFAULT_N8N_VERSION = "2.30.6";
+export const DEFAULT_N8N_VERSION = "2.30.6";
 const DEFAULT_DATEV_HOST = "https://api.klardaten-sandbox.com";
 const CREDENTIAL_ID = "d4b2b595-7b23-4f4a-87d8-6ca1d06022df";
 const CREDENTIAL_NAME = "DATEVconnect E2E";
@@ -304,11 +304,19 @@ export function isAcceptedWorkflowFailure(workflowName, error) {
   );
 }
 
-async function executeWorkflow(n8n, workflowName, workflowId) {
+async function executeWorkflow(
+  n8n,
+  workflowName,
+  workflowId,
+  allowMissingOrderManagement,
+) {
   try {
     await n8n(["execute", "--id", workflowId], { capture: true });
   } catch (error) {
-    if (isAcceptedWorkflowFailure(workflowName, error)) {
+    if (
+      allowMissingOrderManagement &&
+      isAcceptedWorkflowFailure(workflowName, error)
+    ) {
       console.log(
         `Accepted expected sandbox response for workflow: ${workflowName}`,
       );
@@ -319,13 +327,15 @@ async function executeWorkflow(n8n, workflowName, workflowId) {
   }
 }
 
-async function runCredentialScenario({
+export async function runCredentialScenario({
   config,
   fixtureWorkflowNames,
   npmEnv,
   scenario,
-  tarballPath,
+  tarballPaths,
   tempRoot,
+  fixtureDirectory = workflowsDir,
+  allowMissingOrderManagement = true,
 }) {
   const scenarioDir = path.join(tempRoot, scenario.id);
   const tempHome = path.join(scenarioDir, "home");
@@ -353,13 +363,13 @@ async function runCredentialScenario({
       "--ignore-scripts",
       "--no-audit",
       "--no-fund",
-      tarballPath,
+      ...tarballPaths,
     ],
     { cwd: communityNodesDir, env: npmEnv },
   );
 
   await n8n(["import:credentials", "--input", credentialsFile]);
-  await n8n(["import:workflow", "--separate", "--input", workflowsDir]);
+  await n8n(["import:workflow", "--separate", "--input", fixtureDirectory]);
   await n8n(["export:workflow", "--all", "--output", exportedWorkflowsFile]);
 
   const exportedWorkflows = JSON.parse(
@@ -376,7 +386,12 @@ async function runCredentialScenario({
     }
 
     console.log(`Executing workflow: ${workflowName}`);
-    await executeWorkflow(n8n, workflowName, workflow.id);
+    await executeWorkflow(
+      n8n,
+      workflowName,
+      workflow.id,
+      allowMissingOrderManagement,
+    );
   }
 }
 
@@ -409,7 +424,7 @@ async function main() {
         fixtureWorkflowNames,
         npmEnv,
         scenario,
-        tarballPath,
+        tarballPaths: [tarballPath],
         tempRoot,
       });
     }

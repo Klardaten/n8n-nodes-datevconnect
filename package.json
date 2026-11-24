@@ -1,6 +1,9 @@
 {
   "name": "@klardaten/n8n-nodes-datevconnect",
-  "version": "1.0.17",
+  "version": "1.0.18",
+  "workspaces": [
+    "packages/*"
+  ],
   "author": {
     "name": "Klardaten",
     "email": "info@klardaten.com",
@@ -34,7 +37,10 @@
   "description": "n8n community node for DATEVconnect API via Klardaten Gateway",
   "files": [
     "README.md",
-    "dist"
+    "dist/index.*",
+    "dist/credentials",
+    "dist/nodes",
+    "dist/src"
   ],
   "homepage": "https://github.com/Klardaten/n8n-nodes-datevconnect#readme",
   "keywords": [
@@ -77,6 +83,9 @@
     "test": "bun test",
     "test:e2e": "node tests/e2e/n8n/run-n8n-e2e.mjs",
     "build": "npx n8n-node build && npm run build:types",
+    "build:packages": "npm run build && node scripts/build-standalone-packages.mjs",
+    "test:packages": "node tests/packaging/check-packages.mjs",
+    "test:e2e:packages": "npm run build:packages && node tests/e2e/n8n/run-package-e2e.mjs",
     "build:watch": "tsc --watch",
     "build:types": "tsc -p tsconfig.declarations.json",
     "dev": "npx n8n-node dev",
