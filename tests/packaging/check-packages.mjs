@@ -6,6 +6,8 @@ import { packPackages, readPackedJson } from "./tarballs.mjs";
 
 const bundleName = "@klardaten/n8n-nodes-datevconnect";
 const credentialFile = "dist/credentials/DatevConnectApi.credentials.js";
+const credentialSourcePath = "credentials/DatevConnectApi.credentials.ts";
+const credentialSource = readFileSync(credentialSourcePath, "utf8");
 const nodeTypes = {
   accounting: "accounting",
   "document-management": "documentManagement",
@@ -65,6 +67,12 @@ try {
       assert.ok(files.includes("dist/index.js"));
       assert.ok(files.includes("dist/index.d.ts"));
     } else {
+      const workspaceCredentialPath = path.join(lockPath, credentialSourcePath);
+      assert.equal(
+        readFileSync(workspaceCredentialPath, "utf8"),
+        credentialSource,
+        `${workspaceCredentialPath} must match the shared credential source. Run npm run sync:standalone-credentials.`,
+      );
       assert.equal(nodes.length, 1);
       assert.deepEqual(manifest.dependencies ?? {}, {});
       const codex = readPackedJson(tarball, nodes[0].replace(/\.js$/, ".json"));
